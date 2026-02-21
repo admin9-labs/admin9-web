@@ -4,6 +4,7 @@ export default {
   'admin.role.columns.name': '角色名称',
   'admin.role.columns.permissions': '权限',
   'admin.role.columns.createdAt': '创建时间',
+  'admin.role.columns.operations': '操作',
   'admin.role.delete.title': '删除确认',
   'admin.role.delete.content': '确定要删除该角色吗？',
   'admin.role.delete.success': '角色已删除',

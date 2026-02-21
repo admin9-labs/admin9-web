@@ -4,6 +4,7 @@ export default {
   'admin.role.columns.name': 'Role Name',
   'admin.role.columns.permissions': 'Permissions',
   'admin.role.columns.createdAt': 'Created At',
+  'admin.role.columns.operations': 'Operations',
   'admin.role.delete.title': 'Delete Confirmation',
   'admin.role.delete.content': 'Are you sure you want to delete this role?',
   'admin.role.delete.success': 'Role deleted',

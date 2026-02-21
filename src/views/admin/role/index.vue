@@ -55,6 +55,7 @@
     { title: t('admin.role.columns.name'), dataIndex: 'name' },
     { title: t('admin.role.columns.permissions'), slotName: 'permissions' },
     { title: t('admin.role.columns.createdAt'), dataIndex: 'created_at', width: 180 },
+    { title: t('admin.role.columns.operations'), slotName: 'action', width: 120 },
   ]);
 
   const fetchData = async () => {
