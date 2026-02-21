@@ -18,6 +18,7 @@ const USER: AppRouteRecordRaw = {
       component: () => import('@/views/user/info/index.vue'),
       meta: {
         locale: 'menu.user.info',
+        icon: 'icon-idcard',
         requiresAuth: true,
         roles: ['*'],
       },
@@ -28,6 +29,7 @@ const USER: AppRouteRecordRaw = {
       component: () => import('@/views/user/authentication/index.vue'),
       meta: {
         locale: 'menu.user.authentication',
+        icon: 'icon-lock',
         requiresAuth: true,
         roles: ['*'],
       },
