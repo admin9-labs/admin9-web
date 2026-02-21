@@ -57,9 +57,27 @@
       border-bottom: none;
     }
   }
+
+  .arco-table-container {
+    overflow: hidden;
+  }
 }
 
 @layer utilities {
+  .page-container {
+    @apply container;
+    @apply h-full;
+    @apply p-4;
+    @apply flex;
+    @apply flex-col;
+    @apply flex-1;
+    @apply gap-4;
+
+    .grid-card {
+      @apply flex-1;
+    }
+  }
+
   // 品牌字体
   .font-brand {
     font-family: '钉钉进步体 Regular', sans-serif;
@@ -67,5 +85,15 @@
 
   .split-line {
     border-color: rgb(var(--gray-2));
+  }
+
+  .text-link,
+  .text-link a {
+    color: rgb(var(--link-6));
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(var(--link-5));
+    }
   }
 }
