@@ -17,14 +17,15 @@ const DEFAULT_IMAGE_DISPLAY = ImageDisplay.INLINE;
 const Images = TiptapImage.extend({
   addAttributes() {
     return {
-      ...this.parent?.(),
+      // @ts-ignore
+      ...(this.parent ? this.parent() : {}),
       width: {
         default: DEFAULT_IMAGE_WIDTH,
-        parseHTML: (element) => {
+        parseHTML: (element: HTMLElement) => {
           const width = element.style.width || element.getAttribute('width') || null;
           return width == null ? null : parseInt(width, 10);
         },
-        renderHTML: (attributes) => {
+        renderHTML: (attributes: any) => {
           return {
             width: attributes.width,
           };
@@ -32,11 +33,11 @@ const Images = TiptapImage.extend({
       },
       height: {
         default: null,
-        parseHTML: (element) => {
+        parseHTML: (element: HTMLElement) => {
           const height = element.style.height || element.getAttribute('height') || null;
           return height == null ? null : parseInt(height, 10);
         },
-        renderHTML: (attributes) => {
+        renderHTML: (attributes: any) => {
           return {
             height: attributes.height,
           };
@@ -44,7 +45,7 @@ const Images = TiptapImage.extend({
       },
       display: {
         default: DEFAULT_IMAGE_DISPLAY,
-        parseHTML: (element) => {
+        parseHTML: (element: HTMLElement) => {
           const { cssFloat, display } = element.style;
           let dp = element.getAttribute('data-display') || element.getAttribute('display');
           if (dp) {
@@ -61,7 +62,7 @@ const Images = TiptapImage.extend({
 
           return dp;
         },
-        renderHTML: (attributes) => {
+        renderHTML: (attributes: any) => {
           return {
             'data-display': attributes.display,
           };

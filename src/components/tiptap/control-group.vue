@@ -97,13 +97,13 @@
       label: '撤销',
       icon: 'icon-undo',
       activeCheck: () => false,
-      disabled: () => !props.editor.can().chain().focus().undo().run(),
+      disabled: () => !(props.editor.can().chain().focus() as any).undo?.().run?.(),
     },
     redo: {
       label: '重做',
       icon: 'icon-redo',
       activeCheck: () => false,
-      disabled: () => !props.editor.can().chain().focus().redo().run(),
+      disabled: () => !(props.editor.can().chain().focus() as any).redo?.().run?.(),
     },
     heading1: {
       label: '一级标题',
@@ -196,20 +196,20 @@
   };
 
   const commandMap: Record<string, () => void> = {
-    undo: () => props.editor.chain().focus().undo().run(),
-    redo: () => props.editor.chain().focus().redo().run(),
-    heading1: () => props.editor.chain().focus().toggleHeading({ level: 1 }).run(),
-    heading2: () => props.editor.chain().focus().toggleHeading({ level: 2 }).run(),
-    heading3: () => props.editor.chain().focus().toggleHeading({ level: 3 }).run(),
-    paragraph: () => props.editor.chain().focus().setParagraph().run(),
-    bold: () => props.editor.chain().focus().toggleBold().run(),
-    italic: () => props.editor.chain().focus().toggleItalic().run(),
-    strike: () => props.editor.chain().focus().toggleStrike().run(),
+    undo: () => (props.editor.chain().focus() as any).undo?.().run?.(),
+    redo: () => (props.editor.chain().focus() as any).redo?.().run?.(),
+    heading1: () => (props.editor.chain().focus() as any).toggleHeading?.({ level: 1 }).run?.(),
+    heading2: () => (props.editor.chain().focus() as any).toggleHeading?.({ level: 2 }).run?.(),
+    heading3: () => (props.editor.chain().focus() as any).toggleHeading?.({ level: 3 }).run?.(),
+    paragraph: () => (props.editor.chain().focus() as any).setParagraph?.().run?.(),
+    bold: () => (props.editor.chain().focus() as any).toggleBold?.().run?.(),
+    italic: () => (props.editor.chain().focus() as any).toggleItalic?.().run?.(),
+    strike: () => (props.editor.chain().focus() as any).toggleStrike?.().run?.(),
     underline: () => props.editor.chain().focus().toggleUnderline().run(),
     highlight: () => props.editor.chain().focus().toggleHighlight().run(),
-    bulletList: () => props.editor.chain().focus().toggleBulletList().run(),
-    orderedList: () => props.editor.chain().focus().toggleOrderedList().run(),
-    blockquote: () => props.editor.chain().focus().toggleBlockquote().run(),
+    bulletList: () => (props.editor.chain().focus() as any).toggleBulletList?.().run?.(),
+    orderedList: () => (props.editor.chain().focus() as any).toggleOrderedList?.().run?.(),
+    blockquote: () => (props.editor.chain().focus() as any).toggleBlockquote?.().run?.(),
     alignLeft: () => props.editor.chain().focus().setTextAlign('left').run(),
     alignCenter: () => props.editor.chain().focus().setTextAlign('center').run(),
     alignRight: () => props.editor.chain().focus().setTextAlign('right').run(),
@@ -283,13 +283,13 @@
   .control-group {
     display: flex;
     padding: 8px 12px 4px;
-    border-bottom: 1px solid var(--color-border-2);
     background-color: var(--color-fill-2);
+    border-bottom: 1px solid var(--color-border-2);
 
     :deep(.arco-color-picker) {
       width: 28px;
       height: 28px;
-      padding: 7px 7px;
+      padding: 7px;
 
       .arco-color-picker-preview {
         width: 14px;
