@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia';
-import { login as userLogin, logout as userLogout, getUserInfo, LoginData } from '@/api/user';
+import {
+  login as userLogin,
+  logout as userLogout,
+  register as userRegister,
+  getUserInfo,
+  LoginData,
+  RegisterData,
+} from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
@@ -7,22 +14,17 @@ import useAppStore from '../app';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
+    id: '',
     name: undefined,
+    nickname: undefined,
     avatar: undefined,
-    job: undefined,
-    organization: undefined,
-    location: undefined,
     email: undefined,
+    email_verified: false,
+    mobile: '',
+    mobile_verified: false,
     introduction: undefined,
-    personalWebsite: undefined,
-    jobName: undefined,
-    organizationName: undefined,
-    locationName: undefined,
-    phone: undefined,
-    registrationDate: undefined,
-    accountId: undefined,
-    certification: undefined,
     role: '',
+    identity_verified: false,
   }),
 
   getters: {
@@ -38,28 +40,29 @@ const useUserStore = defineStore('user', {
         resolve(this.role);
       });
     },
-    // Set user's information
     setInfo(partial: Partial<UserState>) {
       this.$patch(partial);
     },
-
-    // Reset user's information
     resetInfo() {
       this.$reset();
     },
-
-    // Get user's information
     async info() {
       const res = await getUserInfo();
-
       this.setInfo(res.data);
     },
-
-    // Login
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
-        setToken(res.data.token);
+        setToken(res.data.access_token);
+      } catch (err) {
+        clearToken();
+        throw err;
+      }
+    },
+    async register(registerForm: RegisterData) {
+      try {
+        const res = await userRegister(registerForm);
+        setToken(res.data.access_token);
       } catch (err) {
         clearToken();
         throw err;
@@ -72,7 +75,6 @@ const useUserStore = defineStore('user', {
       removeRouteListener();
       appStore.clearServerMenu();
     },
-    // Logout
     async logout() {
       try {
         await userLogout();

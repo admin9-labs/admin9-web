@@ -8,20 +8,40 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  token: string;
+  access_token: string;
 }
+
+export interface LogoutRes {
+  logout_url: string;
+}
+
 export function login(data: LoginData) {
   return axios.post<LoginRes>('/api/user/login', data);
 }
 
+export function exchangeToken(code: string) {
+  return axios.post<LoginRes>('/api/auth/exchange', { code });
+}
+
 export function logout() {
-  return axios.post<LoginRes>('/api/user/logout');
+  return axios.post<LogoutRes>('/api/auth/logout');
 }
 
 export function getUserInfo() {
-  return axios.post<UserState>('/api/user/info');
+  return axios.get<UserState>('/api/me');
 }
 
 export function getMenuList() {
-  return axios.post<RouteRecordNormalized[]>('/api/user/menu');
+  return axios.post<RouteRecordNormalized[]>('/api/auth/menu');
+}
+
+export interface RegisterData {
+  phone: string;
+  code: string;
+  password: string;
+  invite_code?: string;
+}
+
+export function register(data: RegisterData) {
+  return axios.post('/api/user/register', data);
 }
