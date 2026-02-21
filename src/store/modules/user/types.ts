@@ -1,4 +1,4 @@
-export type RoleType = '' | '*' | 'admin' | 'user';
+export type RoleType = '' | '*' | 'super-admin' | 'admin' | 'user';
 export interface UserState {
   id: string;
   name?: string;
@@ -9,6 +9,6 @@ export interface UserState {
   introduction?: string;
   mobile?: string;
   mobile_verified: boolean;
-  role: RoleType;
+  roles: RoleType[];
   identity_verified: boolean;
 }

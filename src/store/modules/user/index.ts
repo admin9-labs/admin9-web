@@ -3,11 +3,13 @@ import {
   login as userLogin,
   logout as userLogout,
   register as userRegister,
+  exchangeToken as apiExchangeToken,
   getUserInfo,
   LoginData,
   RegisterData,
 } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
+import { isOidc } from '@/utils/auth-strategy';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
@@ -23,7 +25,7 @@ const useUserStore = defineStore('user', {
     mobile: '',
     mobile_verified: false,
     introduction: undefined,
-    role: '',
+    roles: [],
     identity_verified: false,
   }),
 
@@ -36,8 +38,8 @@ const useUserStore = defineStore('user', {
   actions: {
     switchRoles() {
       return new Promise((resolve) => {
-        this.role = this.role === 'user' ? 'admin' : 'user';
-        resolve(this.role);
+        this.roles = this.roles.includes('user') ? ['admin'] : ['user'];
+        resolve(this.roles);
       });
     },
     setInfo(partial: Partial<UserState>) {
@@ -68,6 +70,15 @@ const useUserStore = defineStore('user', {
         throw err;
       }
     },
+    async exchangeToken(code: string) {
+      try {
+        const res = await apiExchangeToken(code);
+        setToken(res.data.access_token);
+      } catch (err) {
+        clearToken();
+        throw err;
+      }
+    },
     logoutCallBack() {
       const appStore = useAppStore();
       this.resetInfo();
@@ -77,8 +88,12 @@ const useUserStore = defineStore('user', {
     },
     async logout() {
       try {
-        await userLogout();
-      } finally {
+        const res = await userLogout();
+        this.logoutCallBack();
+        if (isOidc() && res.data?.logout_url) {
+          window.location.href = res.data.logout_url;
+        }
+      } catch {
         this.logoutCallBack();
       }
     },
