@@ -5,6 +5,10 @@ import localeWorkplace from '@/views/dashboard/workplace/locale/en-US';
 import localeUserInfo from '@/views/user/info/locale/en-US';
 import localeUserAuthentication from '@/views/user/authentication/locale/en-US';
 
+import localeAdminUser from '@/views/admin/user/locale/en-US';
+import localeAdminRole from '@/views/admin/role/locale/en-US';
+import localeAdminPermission from '@/views/admin/permission/locale/en-US';
+
 import localeSettings from './en-US/settings';
 
 export default {
@@ -19,6 +23,7 @@ export default {
   'menu.profile': 'Profile',
   'menu.visualization': 'Data Visualization',
   'menu.user': 'Account Management',
+  'menu.admin': 'System',
   'menu.arcoWebsite': 'Arco Design',
   'menu.faq': 'FAQ',
   'navbar.docs': 'Docs',
@@ -30,4 +35,7 @@ export default {
   ...localeWorkplace,
   ...localeUserInfo,
   ...localeUserAuthentication,
+  ...localeAdminUser,
+  ...localeAdminRole,
+  ...localeAdminPermission,
 };
