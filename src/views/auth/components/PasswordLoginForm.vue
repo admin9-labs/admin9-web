@@ -1,8 +1,8 @@
 <template>
   <div class="login-container">
     <a-form ref="loginForm" :model="userInfo" :rules="rules" layout="vertical" size="large" @submit-success="handleSubmit">
-      <a-form-item field="username" :validate-trigger="['change', 'blur']" required hide-label>
-        <a-input v-model="userInfo.username" placeholder="请输入账号名称" allow-clear />
+      <a-form-item field="email" :validate-trigger="['change', 'blur']" required hide-label>
+        <a-input v-model="userInfo.email" placeholder="请输入邮箱地址" allow-clear />
       </a-form-item>
       <a-form-item field="password" :validate-trigger="['change', 'blur']" required hide-label>
         <a-input-password v-model="userInfo.password" placeholder="请输入登录密码" />
@@ -33,14 +33,14 @@
   const router = useRouter();
 
   const userInfo = reactive({
-    username: '',
+    email: '',
     password: '',
   });
 
   const rules = {
-    username: [
-      { required: true, message: '请输入账号名称' },
-      { min: 3, max: 20, message: '账号名称长度在 3 到 20 个字符之间' },
+    email: [
+      { required: true, message: '请输入邮箱地址' },
+      { type: 'email', message: '请输入有效的邮箱地址' },
     ],
     password: [
       { required: true, message: '请输入登录密码' },

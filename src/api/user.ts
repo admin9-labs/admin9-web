@@ -3,12 +3,14 @@ import type { RouteRecordNormalized } from 'vue-router';
 import { UserState } from '@/store/modules/user/types';
 
 export interface LoginData {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface LoginRes {
   access_token: string;
+  token_type: string;
+  expires_in: number;
 }
 
 export interface LogoutRes {
@@ -16,7 +18,11 @@ export interface LogoutRes {
 }
 
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/user/login', data);
+  return axios.post<LoginRes>('/api/auth/login', data);
+}
+
+export function refreshToken() {
+  return axios.post<LoginRes>('/api/auth/refresh');
 }
 
 export function exchangeToken(code: string) {

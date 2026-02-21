@@ -42,7 +42,6 @@
     "lodash": "^4.17.21",
     "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
-    "oidc-client-ts": "^3.4.1",
     "pinia": "^2.3.1",
     "pinia-plugin-persistedstate": "^4.4.1",
     "query-string": "^8.2.0",

@@ -3,12 +3,24 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message, Modal } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
+import { isOidc } from '@/utils/auth-strategy';
+
+export interface PaginationMeta {
+  pagination: string;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+  total: number;
+}
 
 export interface HttpResponse<T = unknown> {
+  success: boolean;
   status: number;
   message: string;
   code: number;
   data: T;
+  meta?: PaginationMeta;
+  request_id?: string;
 }
 
 if (import.meta.env.VITE_API_BASE_URL) {
@@ -64,7 +76,10 @@ axios.interceptors.response.use(
             const userStore = useUserStore();
 
             await userStore.logout();
-            window.location.reload();
+            // OIDC mode: store.logout handles redirect to OIDC provider
+            if (!isOidc()) {
+              window.location.reload();
+            }
           },
         });
       }
