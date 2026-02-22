@@ -7,12 +7,13 @@
         :data="tableData"
         :columns="columns"
         :pagination="pagination"
+        :disable-delete="isSuperAdmin"
         @edit="handleEdit"
         @delete="handleDelete"
         @page-change="onPageChange"
         @page-size-change="onPageSizeChange"
       />
-      <EditRoleModal ref="editModalRef" @success="fetchData" />
+      <EditRoleDrawer ref="editDrawerRef" @success="fetchData" />
     </Grid>
   </div>
 </template>
@@ -25,7 +26,7 @@
   import { HttpResponse } from '@/api/interceptor';
   import { queryRoleList, deleteRole, type RoleRecord } from '@/api/system/role';
   import { queryMenuTree, type MenuRecord } from '@/api/system/menu';
-  import EditRoleModal from './components/EditRoleModal.vue';
+  import EditRoleDrawer from './components/EditRoleDrawer.vue';
 
   defineOptions({ name: 'SystemRole' });
 
@@ -33,7 +34,7 @@
   const { loading, setLoading } = useLoading(false);
   const tableData = ref<RoleRecord[]>([]);
   const menus = ref<MenuRecord[]>([]);
-  const editModalRef = ref<InstanceType<typeof EditRoleModal>>();
+  const editDrawerRef = ref<InstanceType<typeof EditRoleDrawer>>();
 
   const pagination = reactive({
     current: 1,
@@ -84,12 +85,14 @@
     fetchData();
   };
 
+  const isSuperAdmin = (record: RoleRecord) => record.name === 'super-admin';
+
   const handleCreate = () => {
-    editModalRef.value?.onCreate(menus.value);
+    editDrawerRef.value?.onCreate(menus.value);
   };
 
   const handleEdit = (record: RoleRecord) => {
-    editModalRef.value?.onEdit(record, menus.value);
+    editDrawerRef.value?.onEdit(record, menus.value);
   };
 
   const handleDelete = (record: RoleRecord) => {

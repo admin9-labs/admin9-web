@@ -14,5 +14,8 @@ export default {
   'system.role.editModal.name.placeholder': 'Please enter role name',
   'system.role.editModal.permissions': 'Permissions',
   'system.role.editModal.createSuccess': 'Role created successfully',
+  'system.role.editModal.selectAll': 'Select All',
+  'system.role.editModal.expandAll': 'Expand',
+  'system.role.editModal.collapseAll': 'Collapse',
   'system.role.editModal.updateSuccess': 'Role updated successfully',
 };

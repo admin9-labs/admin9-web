@@ -14,5 +14,8 @@ export default {
   'system.role.editModal.name.placeholder': '请输入角色名称',
   'system.role.editModal.permissions': '权限',
   'system.role.editModal.createSuccess': '角色创建成功',
+  'system.role.editModal.selectAll': '全选',
+  'system.role.editModal.expandAll': '展开',
+  'system.role.editModal.collapseAll': '折叠',
   'system.role.editModal.updateSuccess': '角色更新成功',
 };
