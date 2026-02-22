@@ -5,6 +5,7 @@ import localeWorkplace from '@/views/dashboard/workplace/locale/en-US';
 import localeUserInfo from '@/views/user/info/locale/en-US';
 import localeUserAuthentication from '@/views/user/authentication/locale/en-US';
 
+import localeSystem from '@/views/system/locale/en-US';
 import localeSystemUser from '@/views/system/user/locale/en-US';
 import localeSystemRole from '@/views/system/role/locale/en-US';
 import localeSystemMenu from '@/views/system/menu/locale/en-US';
@@ -35,6 +36,7 @@ export default {
   ...localeWorkplace,
   ...localeUserInfo,
   ...localeUserAuthentication,
+  ...localeSystem,
   ...localeSystemUser,
   ...localeSystemRole,
   ...localeSystemMenu,

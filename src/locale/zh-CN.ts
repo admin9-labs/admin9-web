@@ -5,6 +5,7 @@ import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
 import localeUserInfo from '@/views/user/info/locale/zh-CN';
 import localeUserAuthentication from '@/views/user/authentication/locale/zh-CN';
 
+import localeSystem from '@/views/system/locale/zh-CN';
 import localeSystemUser from '@/views/system/user/locale/zh-CN';
 import localeSystemRole from '@/views/system/role/locale/zh-CN';
 import localeSystemMenu from '@/views/system/menu/locale/zh-CN';
@@ -35,6 +36,7 @@ export default {
   ...localeWorkplace,
   ...localeUserInfo,
   ...localeUserAuthentication,
+  ...localeSystem,
   ...localeSystemUser,
   ...localeSystemRole,
   ...localeSystemMenu,
