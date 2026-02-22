@@ -3,11 +3,12 @@
     v-model:visible="visible"
     :title="isEdit ? $t('system.role.editModal.titleEdit') : $t('system.role.editModal.titleCreate')"
     :width="600"
+    :ok-button-props="{ style: { display: readonly ? 'none' : undefined } }"
     unmount-on-close
     @before-ok="onSave"
     @close="onReset"
   >
-    <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
+    <a-form ref="formRef" :model="formData" :rules="formRules" :disabled="readonly" layout="vertical">
       <a-form-item :label="$t('system.role.editModal.name')" field="name">
         <a-input v-model="formData.name" :placeholder="$t('system.role.editModal.name.placeholder')" />
       </a-form-item>
@@ -132,6 +133,7 @@
   const { visible, setVisible } = useVisible();
   const formRef = ref<FormInstance>();
   const editingId = ref<number | null>(null);
+  const readonly = ref(false);
   const isEdit = computed(() => editingId.value !== null);
   const allMenus = ref<any[]>([]);
   const expandedGroups = ref<Set<number>>(new Set());
@@ -171,6 +173,7 @@
 
   const onReset = () => {
     editingId.value = null;
+    readonly.value = false;
     formData.name = '';
     formData.menu_ids = [];
     expandedGroups.value.clear();
@@ -224,6 +227,7 @@
     allMenus.value = formatTreeData(menus);
     expandAllGroups();
     editingId.value = record.id;
+    readonly.value = record.name === 'super-admin';
     formData.name = record.name;
     formData.menu_ids = record.menus?.map((m) => m.id) || [];
     setVisible(true);
