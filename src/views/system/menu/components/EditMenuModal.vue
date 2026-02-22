@@ -1,14 +1,14 @@
 <template>
   <a-modal
     v-model:visible="visible"
-    :title="isEdit ? $t('admin.menu.editModal.titleEdit') : $t('admin.menu.editModal.titleCreate')"
+    :title="isEdit ? $t('system.menu.editModal.titleEdit') : $t('system.menu.editModal.titleCreate')"
     :width="600"
     @before-ok="onSave"
     @close="onReset"
   >
     <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
-      <a-form-item :label="$t('admin.menu.editModal.parentId')" field="parent_id">
-        <a-select v-model="formData.parent_id" :placeholder="$t('admin.menu.editModal.parentId.placeholder')" allow-clear>
+      <a-form-item :label="$t('system.menu.editModal.parentId')" field="parent_id">
+        <a-select v-model="formData.parent_id" :placeholder="$t('system.menu.editModal.parentId.placeholder')" allow-clear>
           <a-option v-for="item in parentOptions" :key="item.id" :value="item.id">
             {{ item.locale }} ({{ item.name }})
           </a-option>
@@ -23,32 +23,32 @@
       </a-form-item>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item :label="$t('admin.menu.editModal.name')" field="name">
-            <a-input v-model="formData.name" :placeholder="$t('admin.menu.editModal.name.placeholder')" />
+          <a-form-item :label="$t('system.menu.editModal.name')" field="name">
+            <a-input v-model="formData.name" :placeholder="$t('system.menu.editModal.name.placeholder')" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item v-if="formData.type !== 3" :label="$t('admin.menu.editModal.path')" field="path">
-            <a-input v-model="formData.path" :placeholder="$t('admin.menu.editModal.path.placeholder')" />
+          <a-form-item v-if="formData.type !== 3" :label="$t('system.menu.editModal.path')" field="path">
+            <a-input v-model="formData.path" :placeholder="$t('system.menu.editModal.path.placeholder')" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item :label="$t('admin.menu.editModal.locale')" field="locale">
-            <a-input v-model="formData.locale" :placeholder="$t('admin.menu.editModal.locale.placeholder')" />
+          <a-form-item :label="$t('system.menu.editModal.locale')" field="locale">
+            <a-input v-model="formData.locale" :placeholder="$t('system.menu.editModal.locale.placeholder')" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item v-if="formData.type !== 3" :label="$t('admin.menu.editModal.icon')" field="icon">
-            <a-input v-model="formData.icon" :placeholder="$t('admin.menu.editModal.icon.placeholder')" />
+          <a-form-item v-if="formData.type !== 3" :label="$t('system.menu.editModal.icon')" field="icon">
+            <a-input v-model="formData.icon" :placeholder="$t('system.menu.editModal.icon.placeholder')" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item v-if="formData.type === 2" label="前端组件" field="component">
-            <a-input v-model="formData.component" placeholder="如 '@/views/admin/user/index.vue'" />
+            <a-input v-model="formData.component" placeholder="如 '@/views/system/user/index.vue'" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
@@ -59,7 +59,7 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item :label="$t('admin.menu.editModal.sort')" field="sort">
+          <a-form-item :label="$t('system.menu.editModal.sort')" field="sort">
             <a-input-number v-model="formData.sort" :min="0" :style="{ width: '100%' }" />
           </a-form-item>
         </a-col>
@@ -68,14 +68,14 @@
         <a-col :span="12">
           <a-form-item field="hide_in_menu">
             <a-checkbox v-model="formData.hide_in_menu">
-              {{ $t('admin.menu.editModal.hideInMenu') }}
+              {{ $t('system.menu.editModal.hideInMenu') }}
             </a-checkbox>
           </a-form-item>
         </a-col>
         <a-col :span="12">
           <a-form-item field="is_active">
             <a-checkbox v-model="formData.is_active">
-              {{ $t('admin.menu.editModal.isActive') }}
+              {{ $t('system.menu.editModal.isActive') }}
             </a-checkbox>
           </a-form-item>
         </a-col>
@@ -90,7 +90,7 @@
   import { Message } from '@arco-design/web-vue';
   import type { FormInstance } from '@arco-design/web-vue';
   import { useVisible } from '@/hooks';
-  import { createMenu, updateMenu, type MenuRecord } from '@/api/admin/menu';
+  import { createMenu, updateMenu, type MenuRecord } from '@/api/system/menu';
 
   const emit = defineEmits<{ (e: 'success'): void }>();
 
@@ -116,8 +116,8 @@
   });
 
   const formRules = {
-    name: [{ required: true, message: t('admin.menu.editModal.name.placeholder') }],
-    locale: [{ required: true, message: t('admin.menu.editModal.locale.placeholder') }],
+    name: [{ required: true, message: t('system.menu.editModal.name.placeholder') }],
+    locale: [{ required: true, message: t('system.menu.editModal.locale.placeholder') }],
   };
 
   const onReset = () => {
@@ -158,10 +158,10 @@
       };
       if (isEdit.value) {
         await updateMenu(editingId.value as number, payload);
-        Message.success(t('admin.menu.editModal.updateSuccess'));
+        Message.success(t('system.menu.editModal.updateSuccess'));
       } else {
         await createMenu(payload);
-        Message.success(t('admin.menu.editModal.createSuccess'));
+        Message.success(t('system.menu.editModal.createSuccess'));
       }
       emit('success');
       done(true);

@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Grid :title="$t('menu.admin.role')">
+    <Grid :title="$t('menu.system.role')">
       <GridToolbar @create="handleCreate" @refresh="fetchData" />
       <GridTable
         :loading="loading"
@@ -31,11 +31,11 @@
   import { Modal, Message } from '@arco-design/web-vue';
   import { useLoading } from '@/hooks';
   import { HttpResponse } from '@/api/interceptor';
-  import { queryRoleList, deleteRole, type RoleRecord } from '@/api/admin/role';
-  import { queryMenuTree, type MenuRecord } from '@/api/admin/menu';
+  import { queryRoleList, deleteRole, type RoleRecord } from '@/api/system/role';
+  import { queryMenuTree, type MenuRecord } from '@/api/system/menu';
   import EditRoleModal from './components/EditRoleModal.vue';
 
-  defineOptions({ name: 'AdminRole' });
+  defineOptions({ name: 'SystemRole' });
 
   const { t } = useI18n();
   const { loading, setLoading } = useLoading(false);
@@ -52,11 +52,11 @@
   });
 
   const columns = computed(() => [
-    { title: t('admin.role.columns.id'), dataIndex: 'id', width: 80 },
-    { title: t('admin.role.columns.name'), dataIndex: 'name' },
-    { title: t('admin.role.columns.permissions'), slotName: 'menus' },
-    { title: t('admin.role.columns.createdAt'), dataIndex: 'created_at', width: 180 },
-    { title: t('admin.role.columns.operations'), slotName: 'action', width: 120 },
+    { title: t('system.role.columns.id'), dataIndex: 'id', width: 80 },
+    { title: t('system.role.columns.name'), dataIndex: 'name' },
+    { title: t('system.role.columns.permissions'), slotName: 'menus' },
+    { title: t('system.role.columns.createdAt'), dataIndex: 'created_at', width: 180 },
+    { title: t('system.role.columns.operations'), slotName: 'action', width: 120 },
   ]);
 
   const fetchData = async () => {
@@ -103,11 +103,11 @@
 
   const handleDelete = (record: RoleRecord) => {
     Modal.warning({
-      title: t('admin.role.delete.title'),
-      content: t('admin.role.delete.content'),
+      title: t('system.role.delete.title'),
+      content: t('system.role.delete.content'),
       onOk: async () => {
         await deleteRole(record.id);
-        Message.success(t('admin.role.delete.success'));
+        Message.success(t('system.role.delete.success'));
         fetchData();
       },
     });

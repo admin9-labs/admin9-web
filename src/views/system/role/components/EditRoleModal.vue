@@ -1,15 +1,15 @@
 <template>
   <a-modal
     v-model:visible="visible"
-    :title="isEdit ? $t('admin.role.editModal.titleEdit') : $t('admin.role.editModal.titleCreate')"
+    :title="isEdit ? $t('system.role.editModal.titleEdit') : $t('system.role.editModal.titleCreate')"
     @before-ok="onSave"
     @close="onReset"
   >
     <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
-      <a-form-item :label="$t('admin.role.editModal.name')" field="name">
-        <a-input v-model="formData.name" :placeholder="$t('admin.role.editModal.name.placeholder')" />
+      <a-form-item :label="$t('system.role.editModal.name')" field="name">
+        <a-input v-model="formData.name" :placeholder="$t('system.role.editModal.name.placeholder')" />
       </a-form-item>
-      <a-form-item :label="$t('admin.role.editModal.permissions')" field="menu_ids">
+      <a-form-item :label="$t('system.role.editModal.permissions')" field="menu_ids">
         <a-tree
           v-model:checked-keys="formData.menu_ids"
           :data="allMenus"
@@ -29,8 +29,8 @@
   import { Message } from '@arco-design/web-vue';
   import type { FormInstance } from '@arco-design/web-vue';
   import { useVisible } from '@/hooks';
-  import { createRole, updateRole, type RoleRecord } from '@/api/admin/role';
-  import type { MenuRecord } from '@/api/admin/menu';
+  import { createRole, updateRole, type RoleRecord } from '@/api/system/role';
+  import type { MenuRecord } from '@/api/system/menu';
 
   const emit = defineEmits<{ (e: 'success'): void }>();
 
@@ -47,7 +47,7 @@
   });
 
   const formRules = {
-    name: [{ required: true, message: t('admin.role.editModal.name.placeholder') }],
+    name: [{ required: true, message: t('system.role.editModal.name.placeholder') }],
   };
 
   const onReset = () => {
@@ -70,10 +70,10 @@
       };
       if (isEdit.value) {
         await updateRole(editingId.value as number, payload);
-        Message.success(t('admin.role.editModal.updateSuccess'));
+        Message.success(t('system.role.editModal.updateSuccess'));
       } else {
         await createRole(payload);
-        Message.success(t('admin.role.editModal.createSuccess'));
+        Message.success(t('system.role.editModal.createSuccess'));
       }
       emit('success');
       done(true);

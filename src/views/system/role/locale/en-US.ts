@@ -1,0 +1,18 @@
+export default {
+  'menu.system.role': 'Roles',
+  'system.role.columns.id': 'ID',
+  'system.role.columns.name': 'Role Name',
+  'system.role.columns.permissions': 'Permissions',
+  'system.role.columns.createdAt': 'Created At',
+  'system.role.columns.operations': 'Operations',
+  'system.role.delete.title': 'Delete Confirmation',
+  'system.role.delete.content': 'Are you sure you want to delete this role?',
+  'system.role.delete.success': 'Role deleted',
+  'system.role.editModal.titleCreate': 'Create Role',
+  'system.role.editModal.titleEdit': 'Edit Role',
+  'system.role.editModal.name': 'Role Name',
+  'system.role.editModal.name.placeholder': 'Please enter role name',
+  'system.role.editModal.permissions': 'Permissions',
+  'system.role.editModal.createSuccess': 'Role created successfully',
+  'system.role.editModal.updateSuccess': 'Role updated successfully',
+};

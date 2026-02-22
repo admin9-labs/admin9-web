@@ -1,11 +1,11 @@
 <template>
   <div class="page-container">
-    <Grid :title="$t('menu.admin.user')">
+    <Grid :title="$t('menu.system.user')">
       <GridToolbar @refresh="fetchData">
         <template #prepend>
           <a-input-search
             v-model="searchKeyword"
-            :placeholder="$t('admin.user.search.placeholder')"
+            :placeholder="$t('system.user.search.placeholder')"
             style="width: 280px"
             @search="handleSearch"
             @press-enter="handleSearch"
@@ -38,11 +38,11 @@
         <template #operations="{ record }">
           <a-space>
             <a-button size="small" type="text" @click="handleEdit(record)">
-              {{ $t('admin.user.action.edit') }}
+              {{ $t('system.user.action.edit') }}
             </a-button>
-            <a-popconfirm :content="$t('admin.user.action.resetPassword.confirm')" @ok="handleResetPassword(record)">
+            <a-popconfirm :content="$t('system.user.action.resetPassword.confirm')" @ok="handleResetPassword(record)">
               <a-button size="small" type="text">
-                {{ $t('admin.user.action.resetPassword') }}
+                {{ $t('system.user.action.resetPassword') }}
               </a-button>
             </a-popconfirm>
           </a-space>
@@ -59,11 +59,11 @@
   import { Message } from '@arco-design/web-vue';
   import { useLoading } from '@/hooks';
   import { HttpResponse } from '@/api/interceptor';
-  import { queryUserList, toggleUserStatus, resetUserPassword, UserRecord } from '@/api/admin/user';
-  import { queryRoleList, RoleRecord } from '@/api/admin/role';
+  import { queryUserList, toggleUserStatus, resetUserPassword, UserRecord } from '@/api/system/user';
+  import { queryRoleList, RoleRecord } from '@/api/system/role';
   import EditUserModal from './components/EditUserModal.vue';
 
-  defineOptions({ name: 'AdminUser' });
+  defineOptions({ name: 'SystemUser' });
 
   const { t } = useI18n();
   const { loading, setLoading } = useLoading(false);
@@ -82,13 +82,13 @@
   });
 
   const columns = computed(() => [
-    { title: t('admin.user.columns.id'), dataIndex: 'id', width: 80 },
-    { title: t('admin.user.columns.name'), dataIndex: 'name' },
-    { title: t('admin.user.columns.email'), dataIndex: 'email' },
-    { title: t('admin.user.columns.roles'), slotName: 'roles' },
-    { title: t('admin.user.columns.status'), slotName: 'status', width: 100 },
-    { title: t('admin.user.columns.createdAt'), dataIndex: 'created_at' },
-    { title: t('admin.user.columns.operations'), slotName: 'operations', width: 180 },
+    { title: t('system.user.columns.id'), dataIndex: 'id', width: 80 },
+    { title: t('system.user.columns.name'), dataIndex: 'name' },
+    { title: t('system.user.columns.email'), dataIndex: 'email' },
+    { title: t('system.user.columns.roles'), slotName: 'roles' },
+    { title: t('system.user.columns.status'), slotName: 'status', width: 100 },
+    { title: t('system.user.columns.createdAt'), dataIndex: 'created_at' },
+    { title: t('system.user.columns.operations'), slotName: 'operations', width: 180 },
   ]);
 
   const fetchData = async () => {
@@ -142,7 +142,7 @@
   const handleResetPassword = async (record: UserRecord) => {
     try {
       await resetUserPassword(record.id);
-      Message.success(t('admin.user.action.resetPassword.success'));
+      Message.success(t('system.user.action.resetPassword.success'));
     } catch {
       // error handled by interceptor
     }

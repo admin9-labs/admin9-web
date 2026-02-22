@@ -1,11 +1,11 @@
 <template>
   <div class="page-container">
-    <a-card :title="$t('menu.admin.menu')">
+    <a-card :title="$t('menu.system.menu')">
       <template #extra>
         <a-space>
           <a-button type="primary" @click="handleCreate">
             <template #icon><icon-plus /></template>
-            {{ $t('admin.menu.editModal.titleCreate') }}
+            {{ $t('system.menu.editModal.titleCreate') }}
           </a-button>
           <a-button @click="fetchData">
             <template #icon><icon-refresh /></template>
@@ -34,8 +34,8 @@
           {{ record.permission || record.component || '-' }}
         </template>
         <template #status="{ record }">
-          <a-badge v-if="record.is_active" status="success" :text="$t('admin.menu.status.active')" />
-          <a-badge v-else status="danger" :text="$t('admin.menu.status.inactive')" />
+          <a-badge v-if="record.is_active" status="success" :text="$t('system.menu.status.active')" />
+          <a-badge v-else status="danger" :text="$t('system.menu.status.inactive')" />
         </template>
         <template #action="{ record }">
           <a-space>
@@ -58,10 +58,10 @@
   import { useI18n } from 'vue-i18n';
   import { Modal, Message } from '@arco-design/web-vue';
   import { useLoading } from '@/hooks';
-  import { queryMenuTree, deleteMenu, type MenuRecord } from '@/api/admin/menu';
+  import { queryMenuTree, deleteMenu, type MenuRecord } from '@/api/system/menu';
   import EditMenuModal from './components/EditMenuModal.vue';
 
-  defineOptions({ name: 'AdminMenu' });
+  defineOptions({ name: 'SystemMenu' });
 
   const { t } = useI18n();
   const { loading, setLoading } = useLoading(false);
@@ -69,16 +69,16 @@
   const editModalRef = ref<InstanceType<typeof EditMenuModal>>();
 
   const columns = computed(() => [
-    { title: t('admin.menu.columns.id'), dataIndex: 'id', width: 60 },
+    { title: t('system.menu.columns.id'), dataIndex: 'id', width: 60 },
     { title: '类型', slotName: 'type', width: 80 },
-    { title: t('admin.menu.columns.name'), dataIndex: 'name', width: 140 },
-    { title: t('admin.menu.columns.path'), dataIndex: 'path', width: 140 },
+    { title: t('system.menu.columns.name'), dataIndex: 'name', width: 140 },
+    { title: t('system.menu.columns.path'), dataIndex: 'path', width: 140 },
     { title: '组件/权限', slotName: 'permission' },
-    { title: t('admin.menu.columns.locale'), dataIndex: 'locale', width: 140 },
-    { title: t('admin.menu.columns.icon'), slotName: 'icon', width: 60 },
-    { title: t('admin.menu.columns.sort'), dataIndex: 'sort', width: 60 },
-    { title: t('admin.menu.columns.status'), slotName: 'status', width: 80 },
-    { title: t('admin.menu.columns.operations'), slotName: 'action', width: 100 },
+    { title: t('system.menu.columns.locale'), dataIndex: 'locale', width: 140 },
+    { title: t('system.menu.columns.icon'), slotName: 'icon', width: 60 },
+    { title: t('system.menu.columns.sort'), dataIndex: 'sort', width: 60 },
+    { title: t('system.menu.columns.status'), slotName: 'status', width: 80 },
+    { title: t('system.menu.columns.operations'), slotName: 'action', width: 100 },
   ]);
 
   const fetchData = async () => {
@@ -101,11 +101,11 @@
 
   const handleDelete = (record: MenuRecord) => {
     Modal.warning({
-      title: t('admin.menu.delete.title'),
-      content: t('admin.menu.delete.content'),
+      title: t('system.menu.delete.title'),
+      content: t('system.menu.delete.content'),
       onOk: async () => {
         await deleteMenu(record.id);
-        Message.success(t('admin.menu.delete.success'));
+        Message.success(t('system.menu.delete.success'));
         fetchData();
       },
     });

@@ -1,14 +1,14 @@
 <template>
-  <a-modal v-model:visible="visible" :title="$t('admin.user.editModal.title')" @before-ok="onSave" @close="onReset">
+  <a-modal v-model:visible="visible" :title="$t('system.user.editModal.title')" @before-ok="onSave" @close="onReset">
     <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
-      <a-form-item :label="$t('admin.user.editModal.name')" field="name">
-        <a-input v-model="formData.name" :placeholder="$t('admin.user.editModal.name.placeholder')" />
+      <a-form-item :label="$t('system.user.editModal.name')" field="name">
+        <a-input v-model="formData.name" :placeholder="$t('system.user.editModal.name.placeholder')" />
       </a-form-item>
-      <a-form-item :label="$t('admin.user.editModal.email')" field="email">
-        <a-input v-model="formData.email" :placeholder="$t('admin.user.editModal.email.placeholder')" />
+      <a-form-item :label="$t('system.user.editModal.email')" field="email">
+        <a-input v-model="formData.email" :placeholder="$t('system.user.editModal.email.placeholder')" />
       </a-form-item>
-      <a-form-item :label="$t('admin.user.editModal.roles')" field="role_ids">
-        <a-select v-model="formData.role_ids" :placeholder="$t('admin.user.editModal.roles.placeholder')" multiple>
+      <a-form-item :label="$t('system.user.editModal.roles')" field="role_ids">
+        <a-select v-model="formData.role_ids" :placeholder="$t('system.user.editModal.roles.placeholder')" multiple>
           <a-option v-for="role in allRoles" :key="role.id" :value="role.id">
             {{ role.name }}
           </a-option>
@@ -23,8 +23,8 @@
   import { useI18n } from 'vue-i18n';
   import { Message, FormInstance } from '@arco-design/web-vue';
   import { useVisible } from '@/hooks';
-  import { updateUser, UserRecord } from '@/api/admin/user';
-  import { RoleRecord } from '@/api/admin/role';
+  import { updateUser, UserRecord } from '@/api/system/user';
+  import { RoleRecord } from '@/api/system/role';
 
   const emit = defineEmits<{ (e: 'success'): void }>();
 
@@ -42,10 +42,10 @@
   });
 
   const formRules = {
-    name: [{ required: true, message: t('admin.user.editModal.name.placeholder') }],
+    name: [{ required: true, message: t('system.user.editModal.name.placeholder') }],
     email: [
-      { required: true, message: t('admin.user.editModal.email.placeholder') },
-      { type: 'email' as const, message: t('admin.user.editModal.email.placeholder') },
+      { required: true, message: t('system.user.editModal.email.placeholder') },
+      { type: 'email' as const, message: t('system.user.editModal.email.placeholder') },
     ],
   };
 
@@ -66,7 +66,7 @@
         return;
       }
       await updateUser(editingId.value, { ...formData });
-      Message.success(t('admin.user.editModal.success'));
+      Message.success(t('system.user.editModal.success'));
       emit('success');
       done(true);
     } catch {
