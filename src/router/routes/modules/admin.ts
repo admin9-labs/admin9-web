@@ -34,17 +34,6 @@ const ADMIN: AppRouteRecordRaw = {
         roles: ['super-admin', 'admin'],
       },
     },
-    {
-      path: 'permission',
-      name: 'AdminPermission',
-      component: () => import('@/views/admin/permission/index.vue'),
-      meta: {
-        locale: 'menu.admin.permission',
-        icon: 'icon-safe',
-        requiresAuth: true,
-        roles: ['super-admin', 'admin'],
-      },
-    },
   ],
 };
 
