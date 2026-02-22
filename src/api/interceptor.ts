@@ -87,9 +87,21 @@ axios.interceptors.response.use(
     }
     return res;
   },
-  (error) => {
+  (error: any) => {
+    let errorMessage = error.message || 'Request Error';
+    if (error.response && error.response.data) {
+      const { data } = error.response as any;
+      if (data.errors && Object.keys(data.errors).length > 0) {
+        // Show the first validation error
+        const [firstError] = Object.values(data.errors)[0] as string[];
+        errorMessage = firstError;
+      } else if (data.message) {
+        errorMessage = data.message;
+      }
+    }
+
     Message.error({
-      content: error.message || 'Request Error',
+      content: errorMessage,
       duration: 5 * 1000,
     });
     return Promise.reject(error);
