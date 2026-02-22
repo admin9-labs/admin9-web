@@ -11,15 +11,7 @@
         @delete="handleDelete"
         @page-change="onPageChange"
         @page-size-change="onPageSizeChange"
-      >
-        <template #menus="{ record }">
-          <a-space wrap>
-            <a-tag v-for="menu in record.menus" :key="menu.id" color="green">
-              {{ $t(menu.locale) || menu.name }}
-            </a-tag>
-          </a-space>
-        </template>
-      </GridTable>
+      />
       <EditRoleModal ref="editModalRef" @success="fetchData" />
     </Grid>
   </div>
@@ -54,7 +46,6 @@
   const columns = computed(() => [
     { title: t('system.role.columns.id'), dataIndex: 'id', width: 80 },
     { title: t('system.role.columns.name'), dataIndex: 'name' },
-    { title: t('system.role.columns.permissions'), slotName: 'menus' },
     { title: t('system.role.columns.createdAt'), dataIndex: 'created_at', width: 180 },
     { title: t('system.role.columns.operations'), slotName: 'action', width: 120 },
   ]);
