@@ -2,15 +2,15 @@ import axios from 'axios';
 
 // ---- Types ----
 
-export interface PermissionPivot {
+export interface MenuPivot {
   role_id: number;
-  permission_id: number;
+  menu_id: number;
 }
 
-export interface RolePermission {
+export interface RoleMenu {
   id: number;
   name: string;
-  pivot: PermissionPivot;
+  pivot: MenuPivot;
 }
 
 export interface RoleRecord {
@@ -19,7 +19,7 @@ export interface RoleRecord {
   guard_name: string;
   created_at: string;
   updated_at: string;
-  permissions: RolePermission[];
+  menus?: RoleMenu[];
 }
 
 export interface RoleListParams {
@@ -29,17 +29,12 @@ export interface RoleListParams {
 
 export interface RoleCreateData {
   name: string;
-  permission_ids: number[];
+  menu_ids: number[];
 }
 
 export interface RoleUpdateData {
   name: string;
-  permission_ids: number[];
-}
-
-export interface PermissionRecord {
-  id: number;
-  name: string;
+  menu_ids: number[];
 }
 
 // ---- API ----
@@ -62,8 +57,4 @@ export function updateRole(roleId: number, data: RoleUpdateData) {
 
 export function deleteRole(roleId: number) {
   return axios.delete(`/api/admin/roles/${roleId}`);
-}
-
-export function queryPermissionList() {
-  return axios.get<PermissionRecord[]>('/api/admin/permissions');
 }

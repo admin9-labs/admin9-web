@@ -12,10 +12,10 @@
         @page-change="onPageChange"
         @page-size-change="onPageSizeChange"
       >
-        <template #permissions="{ record }">
+        <template #menus="{ record }">
           <a-space wrap>
-            <a-tag v-for="perm in record.permissions" :key="perm.id" color="green">
-              {{ perm.name }}
+            <a-tag v-for="menu in record.menus" :key="menu.id" color="green">
+              {{ $t(menu.locale) || menu.name }}
             </a-tag>
           </a-space>
         </template>
@@ -31,7 +31,8 @@
   import { Modal, Message } from '@arco-design/web-vue';
   import { useLoading } from '@/hooks';
   import { HttpResponse } from '@/api/interceptor';
-  import { queryRoleList, queryPermissionList, deleteRole, type RoleRecord, type PermissionRecord } from '@/api/admin/role';
+  import { queryRoleList, deleteRole, type RoleRecord } from '@/api/admin/role';
+  import { queryMenuTree, type MenuRecord } from '@/api/admin/menu';
   import EditRoleModal from './components/EditRoleModal.vue';
 
   defineOptions({ name: 'AdminRole' });
@@ -39,7 +40,7 @@
   const { t } = useI18n();
   const { loading, setLoading } = useLoading(false);
   const tableData = ref<RoleRecord[]>([]);
-  const permissions = ref<PermissionRecord[]>([]);
+  const menus = ref<MenuRecord[]>([]);
   const editModalRef = ref<InstanceType<typeof EditRoleModal>>();
 
   const pagination = reactive({
@@ -53,7 +54,7 @@
   const columns = computed(() => [
     { title: t('admin.role.columns.id'), dataIndex: 'id', width: 80 },
     { title: t('admin.role.columns.name'), dataIndex: 'name' },
-    { title: t('admin.role.columns.permissions'), slotName: 'permissions' },
+    { title: t('admin.role.columns.permissions'), slotName: 'menus' },
     { title: t('admin.role.columns.createdAt'), dataIndex: 'created_at', width: 180 },
     { title: t('admin.role.columns.operations'), slotName: 'action', width: 120 },
   ]);
@@ -72,10 +73,10 @@
     }
   };
 
-  const fetchPermissions = async () => {
+  const fetchMenus = async () => {
     try {
-      const res = await queryPermissionList();
-      permissions.value = res.data;
+      const res = await queryMenuTree();
+      menus.value = res.data;
     } catch {
       // silent
     }
@@ -93,11 +94,11 @@
   };
 
   const handleCreate = () => {
-    editModalRef.value?.onCreate(permissions.value);
+    editModalRef.value?.onCreate(menus.value);
   };
 
   const handleEdit = (record: RoleRecord) => {
-    editModalRef.value?.onEdit(record, permissions.value);
+    editModalRef.value?.onEdit(record, menus.value);
   };
 
   const handleDelete = (record: RoleRecord) => {
@@ -114,6 +115,6 @@
 
   onMounted(() => {
     fetchData();
-    fetchPermissions();
+    fetchMenus();
   });
 </script>
