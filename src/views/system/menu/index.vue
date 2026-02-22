@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <a-card :title="$t('menu.system.menu')">
+    <grid :title="$t('menu.system.menu')">
       <template #extra>
         <a-space>
           <a-button type="primary" @click="handleCreate">
@@ -25,9 +25,9 @@
           <span v-else>-</span>
         </template>
         <template #type="{ record }">
-          <a-tag v-if="record.type === 1" color="arcoblue">目录</a-tag>
-          <a-tag v-else-if="record.type === 2" color="green">菜单</a-tag>
-          <a-tag v-else-if="record.type === 3" color="orange">按钮</a-tag>
+          <a-tag v-if="record.type === 1" color="arcoblue">{{ $t('system.menu.types.directory') }}</a-tag>
+          <a-tag v-else-if="record.type === 2" color="green">{{ $t('system.menu.types.menu') }}</a-tag>
+          <a-tag v-else-if="record.type === 3" color="orange">{{ $t('system.menu.types.button') }}</a-tag>
           <span v-else>-</span>
         </template>
         <template #permission="{ record }">
@@ -49,7 +49,7 @@
         </template>
       </a-table>
       <EditMenuModal ref="editModalRef" @success="fetchData" />
-    </a-card>
+    </grid>
   </div>
 </template>
 
@@ -70,10 +70,10 @@
 
   const columns = computed(() => [
     { title: t('system.menu.columns.id'), dataIndex: 'id', width: 60 },
-    { title: '类型', slotName: 'type', width: 80 },
+    { title: t('system.menu.columns.type'), slotName: 'type', width: 80 },
     { title: t('system.menu.columns.name'), dataIndex: 'name', width: 140 },
     { title: t('system.menu.columns.path'), dataIndex: 'path', width: 140 },
-    { title: '组件/权限', slotName: 'permission' },
+    { title: t('system.menu.columns.permission'), slotName: 'permission' },
     { title: t('system.menu.columns.locale'), dataIndex: 'locale', width: 140 },
     { title: t('system.menu.columns.icon'), slotName: 'icon', width: 60 },
     { title: t('system.menu.columns.sort'), dataIndex: 'sort', width: 60 },

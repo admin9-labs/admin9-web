@@ -14,11 +14,11 @@
           </a-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="类型" field="type">
+      <a-form-item :label="$t('system.menu.editModal.type')" field="type">
         <a-radio-group v-model="formData.type">
-          <a-radio :value="1">目录</a-radio>
-          <a-radio :value="2">菜单</a-radio>
-          <a-radio :value="3">按钮</a-radio>
+          <a-radio :value="1">{{ $t('system.menu.types.directory') }}</a-radio>
+          <a-radio :value="2">{{ $t('system.menu.types.menu') }}</a-radio>
+          <a-radio :value="3">{{ $t('system.menu.types.button') }}</a-radio>
         </a-radio-group>
       </a-form-item>
       <a-row :gutter="16">
@@ -47,13 +47,13 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item v-if="formData.type === 2" label="前端组件" field="component">
-            <a-input v-model="formData.component" placeholder="如 '@/views/system/user/index.vue'" />
+          <a-form-item v-if="formData.type === 2" :label="$t('system.menu.editModal.component')" field="component">
+            <a-input v-model="formData.component" :placeholder="$t('system.menu.editModal.component.placeholder')" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item v-if="formData.type === 3" label="权限标识" field="permission">
-            <a-input v-model="formData.permission" placeholder="如 'users.create'" />
+          <a-form-item v-if="formData.type === 3" :label="$t('system.menu.editModal.permission')" field="permission">
+            <a-input v-model="formData.permission" :placeholder="$t('system.menu.editModal.permission.placeholder')" />
           </a-form-item>
         </a-col>
       </a-row>
