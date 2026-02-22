@@ -5,10 +5,9 @@ import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
 import localeUserInfo from '@/views/user/info/locale/zh-CN';
 import localeUserAuthentication from '@/views/user/authentication/locale/zh-CN';
 
-import localeAdminUser from '@/views/admin/user/locale/zh-CN';
-import localeAdminRole from '@/views/admin/role/locale/zh-CN';
-import localeAdminPermission from '@/views/admin/permission/locale/zh-CN';
-import localeAdminMenu from '@/views/admin/menu/locale/zh-CN';
+import localeSystemUser from '@/views/system/user/locale/zh-CN';
+import localeSystemRole from '@/views/system/role/locale/zh-CN';
+import localeSystemMenu from '@/views/system/menu/locale/zh-CN';
 
 import localeSettings from './zh-CN/settings';
 
@@ -24,7 +23,7 @@ export default {
   'menu.profile': '详情页',
   'menu.visualization': '数据可视化',
   'menu.user': '账号管理',
-  'menu.admin': '系统管理',
+  'menu.system': '系统管理',
   'menu.arcoWebsite': 'Arco Design',
   'menu.faq': '常见问题',
   'navbar.docs': '文档中心',
@@ -36,8 +35,7 @@ export default {
   ...localeWorkplace,
   ...localeUserInfo,
   ...localeUserAuthentication,
-  ...localeAdminUser,
-  ...localeAdminRole,
-  ...localeAdminPermission,
-  ...localeAdminMenu,
+  ...localeSystemUser,
+  ...localeSystemRole,
+  ...localeSystemMenu,
 };
