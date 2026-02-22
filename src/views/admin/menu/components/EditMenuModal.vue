@@ -1,0 +1,213 @@
+<template>
+  <a-modal
+    v-model:visible="visible"
+    :title="isEdit ? $t('admin.menu.editModal.titleEdit') : $t('admin.menu.editModal.titleCreate')"
+    :width="600"
+    @before-ok="onSave"
+    @close="onReset"
+  >
+    <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
+      <a-form-item :label="$t('admin.menu.editModal.parentId')" field="parent_id">
+        <a-select v-model="formData.parent_id" :placeholder="$t('admin.menu.editModal.parentId.placeholder')" allow-clear>
+          <a-option v-for="item in parentOptions" :key="item.id" :value="item.id">
+            {{ item.locale }} ({{ item.name }})
+          </a-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item label="类型" field="type">
+        <a-radio-group v-model="formData.type">
+          <a-radio :value="1">目录</a-radio>
+          <a-radio :value="2">菜单</a-radio>
+          <a-radio :value="3">按钮</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item :label="$t('admin.menu.editModal.name')" field="name">
+            <a-input v-model="formData.name" :placeholder="$t('admin.menu.editModal.name.placeholder')" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item v-if="formData.type !== 3" :label="$t('admin.menu.editModal.path')" field="path">
+            <a-input v-model="formData.path" :placeholder="$t('admin.menu.editModal.path.placeholder')" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item :label="$t('admin.menu.editModal.locale')" field="locale">
+            <a-input v-model="formData.locale" :placeholder="$t('admin.menu.editModal.locale.placeholder')" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item v-if="formData.type !== 3" :label="$t('admin.menu.editModal.icon')" field="icon">
+            <a-input v-model="formData.icon" :placeholder="$t('admin.menu.editModal.icon.placeholder')" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item v-if="formData.type === 2" label="前端组件" field="component">
+            <a-input v-model="formData.component" placeholder="如 '@/views/admin/user/index.vue'" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item v-if="formData.type === 3" label="权限标识" field="permission">
+            <a-input v-model="formData.permission" placeholder="如 'users.create'" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item :label="$t('admin.menu.editModal.sort')" field="sort">
+            <a-input-number v-model="formData.sort" :min="0" :style="{ width: '100%' }" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item field="hide_in_menu">
+            <a-checkbox v-model="formData.hide_in_menu">
+              {{ $t('admin.menu.editModal.hideInMenu') }}
+            </a-checkbox>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item field="is_active">
+            <a-checkbox v-model="formData.is_active">
+              {{ $t('admin.menu.editModal.isActive') }}
+            </a-checkbox>
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </a-form>
+  </a-modal>
+</template>
+
+<script lang="ts" setup>
+  import { ref, reactive, computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { Message } from '@arco-design/web-vue';
+  import type { FormInstance } from '@arco-design/web-vue';
+  import { useVisible } from '@/hooks';
+  import { createMenu, updateMenu, type MenuRecord } from '@/api/admin/menu';
+
+  const emit = defineEmits<{ (e: 'success'): void }>();
+
+  const { t } = useI18n();
+  const { visible, setVisible } = useVisible();
+  const formRef = ref<FormInstance>();
+  const editingId = ref<number | null>(null);
+  const isEdit = computed(() => editingId.value !== null);
+  const parentOptions = ref<MenuRecord[]>([]);
+
+  const formData = reactive({
+    parent_id: 0 as number,
+    type: 1 as number,
+    name: '',
+    path: '',
+    component: '',
+    permission: '',
+    locale: '',
+    icon: '',
+    sort: 0,
+    hide_in_menu: false,
+    is_active: true,
+  });
+
+  const formRules = {
+    name: [{ required: true, message: t('admin.menu.editModal.name.placeholder') }],
+    locale: [{ required: true, message: t('admin.menu.editModal.locale.placeholder') }],
+  };
+
+  const onReset = () => {
+    editingId.value = null;
+    formData.parent_id = 0;
+    formData.type = 1;
+    formData.name = '';
+    formData.path = '';
+    formData.component = '';
+    formData.permission = '';
+    formData.locale = '';
+    formData.icon = '';
+    formData.sort = 0;
+    formData.hide_in_menu = false;
+    formData.is_active = true;
+    formRef.value?.resetFields();
+  };
+
+  const onSave = async (done: (closed: boolean) => void) => {
+    try {
+      const valid = await formRef.value?.validate();
+      if (valid) {
+        done(false);
+        return;
+      }
+      const payload = {
+        parent_id: formData.parent_id,
+        type: formData.type,
+        name: formData.name,
+        path: formData.path || undefined,
+        component: formData.component || undefined,
+        permission: formData.permission || undefined,
+        locale: formData.locale,
+        icon: formData.icon || undefined,
+        sort: formData.sort,
+        hide_in_menu: formData.hide_in_menu,
+        is_active: formData.is_active,
+      };
+      if (isEdit.value) {
+        await updateMenu(editingId.value as number, payload);
+        Message.success(t('admin.menu.editModal.updateSuccess'));
+      } else {
+        await createMenu(payload);
+        Message.success(t('admin.menu.editModal.createSuccess'));
+      }
+      emit('success');
+      done(true);
+    } catch {
+      done(false);
+    }
+  };
+
+  // Flatten tree for parent select options (exclude self and descendants when editing)
+  const flattenMenus = (menus: MenuRecord[], excludeId?: number): MenuRecord[] => {
+    const result: MenuRecord[] = [];
+    const walk = (items: MenuRecord[]) => {
+      items.forEach((item) => {
+        if (item.id !== excludeId) {
+          result.push(item);
+          if (item.children?.length) walk(item.children);
+        }
+      });
+    };
+    walk(menus);
+    return result;
+  };
+
+  const onCreate = (allMenus: MenuRecord[]) => {
+    onReset();
+    parentOptions.value = flattenMenus(allMenus);
+    setVisible(true);
+  };
+
+  const onEdit = (record: MenuRecord, allMenus: MenuRecord[]) => {
+    onReset();
+    parentOptions.value = flattenMenus(allMenus, record.id);
+    editingId.value = record.id;
+    formData.parent_id = record.parent_id || 0;
+    formData.type = record.type || 1;
+    formData.name = record.name;
+    formData.path = record.path || '';
+    formData.component = record.component || '';
+    formData.permission = record.permission || '';
+    formData.locale = record.locale;
+    formData.icon = record.icon || '';
+    formData.sort = record.sort;
+    formData.hide_in_menu = record.hide_in_menu;
+    formData.is_active = record.is_active;
+    setVisible(true);
+  };
+
+  defineExpose({ onCreate, onEdit });
+</script>

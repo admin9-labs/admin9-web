@@ -8,6 +8,7 @@ import localeUserAuthentication from '@/views/user/authentication/locale/en-US';
 import localeAdminUser from '@/views/admin/user/locale/en-US';
 import localeAdminRole from '@/views/admin/role/locale/en-US';
 import localeAdminPermission from '@/views/admin/permission/locale/en-US';
+import localeAdminMenu from '@/views/admin/menu/locale/en-US';
 
 import localeSettings from './en-US/settings';
 
@@ -38,4 +39,5 @@ export default {
   ...localeAdminUser,
   ...localeAdminRole,
   ...localeAdminPermission,
+  ...localeAdminMenu,
 };

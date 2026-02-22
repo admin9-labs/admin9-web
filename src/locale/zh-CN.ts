@@ -8,6 +8,7 @@ import localeUserAuthentication from '@/views/user/authentication/locale/zh-CN';
 import localeAdminUser from '@/views/admin/user/locale/zh-CN';
 import localeAdminRole from '@/views/admin/role/locale/zh-CN';
 import localeAdminPermission from '@/views/admin/permission/locale/zh-CN';
+import localeAdminMenu from '@/views/admin/menu/locale/zh-CN';
 
 import localeSettings from './zh-CN/settings';
 
@@ -38,4 +39,5 @@ export default {
   ...localeAdminUser,
   ...localeAdminRole,
   ...localeAdminPermission,
+  ...localeAdminMenu,
 };
