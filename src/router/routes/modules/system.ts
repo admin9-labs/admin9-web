@@ -1,12 +1,12 @@
 import { DEFAULT_LAYOUT } from '../base';
 import { AppRouteRecordRaw } from '../types';
 
-const ADMIN: AppRouteRecordRaw = {
-  path: '/admin',
-  name: 'admin',
+const SYSTEM: AppRouteRecordRaw = {
+  path: '/system',
+  name: 'system',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: 'menu.admin',
+    locale: 'menu.system',
     icon: 'icon-settings',
     requiresAuth: true,
     order: 8,
@@ -14,10 +14,10 @@ const ADMIN: AppRouteRecordRaw = {
   children: [
     {
       path: 'user',
-      name: 'AdminUser',
-      component: () => import('@/views/admin/user/index.vue'),
+      name: 'SystemUser',
+      component: () => import('@/views/system/user/index.vue'),
       meta: {
-        locale: 'menu.admin.user',
+        locale: 'menu.system.user',
         icon: 'icon-user',
         requiresAuth: true,
         roles: ['super-admin', 'admin'],
@@ -25,10 +25,10 @@ const ADMIN: AppRouteRecordRaw = {
     },
     {
       path: 'role',
-      name: 'AdminRole',
-      component: () => import('@/views/admin/role/index.vue'),
+      name: 'SystemRole',
+      component: () => import('@/views/system/role/index.vue'),
       meta: {
-        locale: 'menu.admin.role',
+        locale: 'menu.system.role',
         icon: 'icon-user-group',
         requiresAuth: true,
         roles: ['super-admin', 'admin'],
@@ -37,4 +37,4 @@ const ADMIN: AppRouteRecordRaw = {
   ],
 };
 
-export default ADMIN;
+export default SYSTEM;

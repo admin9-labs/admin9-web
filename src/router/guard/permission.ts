@@ -13,10 +13,9 @@ const componentMap: Record<string, () => Promise<any>> = {
   Workplace: () => import('@/views/dashboard/workplace/index.vue'),
   UserInfo: () => import('@/views/user/info/index.vue'),
   Authentication: () => import('@/views/user/authentication/index.vue'),
-  AdminUser: () => import('@/views/admin/user/index.vue'),
-  AdminRole: () => import('@/views/admin/role/index.vue'),
-  AdminPermission: () => import('@/views/admin/permission/index.vue'),
-  AdminMenu: () => import('@/views/admin/menu/index.vue'),
+  SystemUser: () => import('@/views/system/user/index.vue'),
+  SystemRole: () => import('@/views/system/role/index.vue'),
+  SystemMenu: () => import('@/views/system/menu/index.vue'),
 };
 
 // Convert server menu children to route records
