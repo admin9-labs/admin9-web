@@ -40,21 +40,21 @@ export interface RoleUpdateData {
 // ---- API ----
 
 export function queryRoleList(params?: RoleListParams) {
-  return axios.get<RoleRecord[]>('/api/admin/roles', { params });
+  return axios.get<RoleRecord[]>('/api/system/roles', { params });
 }
 
 export function queryRoleDetail(roleId: number) {
-  return axios.get<RoleRecord>(`/api/admin/roles/${roleId}`);
+  return axios.get<RoleRecord>(`/api/system/roles/${roleId}`);
 }
 
 export function createRole(data: RoleCreateData) {
-  return axios.post<RoleRecord>('/api/admin/roles', data);
+  return axios.post<RoleRecord>('/api/system/roles', data);
 }
 
 export function updateRole(roleId: number, data: RoleUpdateData) {
-  return axios.put<RoleRecord>(`/api/admin/roles/${roleId}`, data);
+  return axios.put<RoleRecord>(`/api/system/roles/${roleId}`, data);
 }
 
 export function deleteRole(roleId: number) {
-  return axios.delete(`/api/admin/roles/${roleId}`);
+  return axios.delete(`/api/system/roles/${roleId}`);
 }

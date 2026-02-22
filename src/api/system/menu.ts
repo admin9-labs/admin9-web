@@ -39,21 +39,21 @@ export type MenuUpdateData = MenuCreateData;
 // ---- API ----
 
 export function queryMenuTree() {
-  return axios.get<MenuRecord[]>('/api/admin/menus');
+  return axios.get<MenuRecord[]>('/api/system/menus');
 }
 
 export function queryMenuDetail(menuId: number) {
-  return axios.get<MenuRecord>(`/api/admin/menus/${menuId}`);
+  return axios.get<MenuRecord>(`/api/system/menus/${menuId}`);
 }
 
 export function createMenu(data: MenuCreateData) {
-  return axios.post<MenuRecord>('/api/admin/menus', data);
+  return axios.post<MenuRecord>('/api/system/menus', data);
 }
 
 export function updateMenu(menuId: number, data: MenuUpdateData) {
-  return axios.put<MenuRecord>(`/api/admin/menus/${menuId}`, data);
+  return axios.put<MenuRecord>(`/api/system/menus/${menuId}`, data);
 }
 
 export function deleteMenu(menuId: number) {
-  return axios.delete(`/api/admin/menus/${menuId}`);
+  return axios.delete(`/api/system/menus/${menuId}`);
 }

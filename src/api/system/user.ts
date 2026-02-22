@@ -45,23 +45,23 @@ export interface UserUpdateData {
 // ---- API ----
 
 export function queryUserList(params?: UserListParams) {
-  return axios.get<UserRecord[]>('/api/admin/users', { params });
+  return axios.get<UserRecord[]>('/api/system/users', { params });
 }
 
 export function queryUserDetail(userId: number) {
-  return axios.get<UserDetail>(`/api/admin/users/${userId}`);
+  return axios.get<UserDetail>(`/api/system/users/${userId}`);
 }
 
 export function updateUser(userId: number, data: UserUpdateData) {
-  return axios.put<UserRecord>(`/api/admin/users/${userId}`, data);
+  return axios.put<UserRecord>(`/api/system/users/${userId}`, data);
 }
 
 export function toggleUserStatus(userId: number, isActive: boolean) {
-  return axios.patch<UserRecord>(`/api/admin/users/${userId}/status`, {
+  return axios.patch<UserRecord>(`/api/system/users/${userId}/status`, {
     is_active: isActive,
   });
 }
 
 export function resetUserPassword(userId: number) {
-  return axios.post(`/api/admin/users/${userId}/reset-password`);
+  return axios.post(`/api/system/users/${userId}/reset-password`);
 }
