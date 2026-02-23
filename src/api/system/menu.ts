@@ -13,7 +13,7 @@ export interface MenuRecord {
   locale: string;
   icon: string | null;
   sort: number;
-  hide_in_menu: boolean;
+  is_hidden: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -30,7 +30,7 @@ export interface MenuCreateData {
   locale: string;
   icon?: string;
   sort?: number;
-  hide_in_menu?: boolean;
+  is_hidden?: boolean;
   is_active?: boolean;
 }
 

@@ -10,7 +10,7 @@ export interface LoginData {
 export interface LoginRes {
   access_token: string;
   token_type: string;
-  expires_in: number;
+  expires_in: string;
 }
 
 export interface LogoutRes {
@@ -38,7 +38,7 @@ export function getUserInfo() {
 }
 
 export function getMenuList() {
-  return axios.get<RouteRecordNormalized[]>('/api/auth/menu');
+  return axios.get<RouteRecordNormalized[]>('/api/me/menu');
 }
 
 export interface RegisterData {

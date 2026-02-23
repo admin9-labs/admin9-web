@@ -16,22 +16,20 @@ export interface UserRecord {
   id: number;
   name: string;
   email: string;
-  email_verified_at: string;
+  email_verified_at: string | null;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
   roles: UserRole[];
 }
 
-export interface UserDetail extends UserRecord {
-  permissions: string[];
-}
-
 export interface UserListParams {
+  id?: string;
+  is_active?: string;
   name?: string;
   email?: string;
   keyword?: string;
-  sorts?: string;
+  sort?: string;
   current?: number;
   pageSize?: number;
 }
@@ -49,7 +47,7 @@ export function queryUserList(params?: UserListParams) {
 }
 
 export function queryUserDetail(userId: number) {
-  return axios.get<UserDetail>(`/api/system/users/${userId}`);
+  return axios.get<UserRecord>(`/api/system/users/${userId}`);
 }
 
 export function updateUser(userId: number, data: UserUpdateData) {

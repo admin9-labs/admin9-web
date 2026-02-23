@@ -16,24 +16,30 @@ export interface RoleMenu {
 export interface RoleRecord {
   id: number;
   name: string;
+  locale: string | null;
   guard_name: string;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
   menus?: RoleMenu[];
 }
 
 export interface RoleListParams {
+  id?: string;
+  name?: string;
+  sort?: string;
   current?: number;
   pageSize?: number;
 }
 
 export interface RoleCreateData {
   name: string;
+  locale?: string;
   menu_ids: number[];
 }
 
 export interface RoleUpdateData {
   name: string;
+  locale?: string;
   menu_ids: number[];
 }
 
