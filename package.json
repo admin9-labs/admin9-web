@@ -15,7 +15,8 @@
     "lint:fix": "eslint --fix \"./src/**/*.{js,ts,vue}\"",
     "prepare": "husky install",
     "new": "plop",
-    "format": "prettier --write ./src && npm run lint:fix"
+    "format": "prettier --write ./src && npm run lint:fix",
+    "i18n:check": "npx tsx scripts/check-i18n.ts"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
@@ -47,6 +48,7 @@
     "query-string": "^8.2.0",
     "quill": "^2.0.3",
     "sortablejs": "^1.15.6",
+    "ua-parser-js": "^2.0.9",
     "vue": "^3.5.18",
     "vue-i18n": "^9.14.5",
     "vue-jsonp": "^2.1.0",
@@ -70,6 +72,7 @@
     "@types/mockjs": "^1.0.10",
     "@types/nprogress": "^0.2.3",
     "@types/sortablejs": "^1.15.8",
+    "@types/ua-parser-js": "^0.7.39",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-vue": "^3.2.0",
