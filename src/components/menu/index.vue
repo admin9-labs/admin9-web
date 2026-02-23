@@ -86,27 +86,28 @@
       };
 
       const renderSubMenu = () => {
-        function travel(_route: RouteRecordRaw[], nodes = []) {
+        function travel(_route: RouteRecordRaw[], nodes = [], depth = 0) {
           if (_route) {
             _route.forEach((element) => {
               // This is demo, modify nodes as needed
               const icon = element?.meta?.icon ? () => h(compile(`<${element?.meta?.icon}/>`)) : null;
               if (element?.children && element?.children.length) {
-                const node = groupMenu.value ? (
-                  <a-menu-item-group key={element?.name} title={t(element?.meta?.locale || '')}>
-                    {travel(element?.children)}
-                  </a-menu-item-group>
-                ) : (
-                  <a-sub-menu
-                    key={element?.name}
-                    v-slots={{
-                      icon,
-                      title: () => h(compile(t(element?.meta?.locale || ''))),
-                    }}
-                  >
-                    {travel(element?.children)}
-                  </a-sub-menu>
-                );
+                const node =
+                  groupMenu.value && depth === 0 ? (
+                    <a-menu-item-group key={element?.name} title={t(element?.meta?.locale || '')}>
+                      {travel(element?.children, [], depth + 1)}
+                    </a-menu-item-group>
+                  ) : (
+                    <a-sub-menu
+                      key={element?.name}
+                      v-slots={{
+                        icon,
+                        title: () => h(compile(t(element?.meta?.locale || ''))),
+                      }}
+                    >
+                      {travel(element?.children, [], depth + 1)}
+                    </a-sub-menu>
+                  );
                 nodes.push(node as never);
               } else {
                 const node = (
@@ -154,6 +155,10 @@
       &:not(.arco-icon-down) {
         font-size: 18px;
       }
+    }
+
+    .arco-menu-group:not(:first-child) {
+      padding-top: 8px;
     }
   }
 </style>
