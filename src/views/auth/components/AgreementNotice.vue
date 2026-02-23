@@ -3,16 +3,16 @@
     <template v-if="type === 'register'">
       <a-space size="mini" wrap fill>
         <a-checkbox :model-value="modelValue" class="text-sm" @change="$emit('update:modelValue', $event)">
-          点击开始体验代表已阅读并同意
+          {{ $t('auth.agreement.registerPrefix') }}
         </a-checkbox>
-        <a href="/terms-service" class="text-link" target="_blank">《服务协议》</a>
-        <a href="/privacy-policy" class="text-link" target="_blank">《隐私政策》</a>
+        <a href="/terms-service" class="text-link" target="_blank">{{ $t('auth.agreement.termsOfService') }}</a>
+        <a href="/privacy-policy" class="text-link" target="_blank">{{ $t('auth.agreement.privacyPolicy') }}</a>
       </a-space>
     </template>
     <template v-else>
-      <span>登录视为您已阅读并同意</span>
-      <a href="/terms-service" class="text-link" target="_blank">《服务协议》</a>
-      <a href="/privacy-policy" class="text-link" target="_blank">《隐私政策》</a>
+      <span>{{ $t('auth.agreement.loginPrefix') }}</span>
+      <a href="/terms-service" class="text-link" target="_blank">{{ $t('auth.agreement.termsOfService') }}</a>
+      <a href="/privacy-policy" class="text-link" target="_blank">{{ $t('auth.agreement.privacyPolicy') }}</a>
     </template>
   </div>
 </template>

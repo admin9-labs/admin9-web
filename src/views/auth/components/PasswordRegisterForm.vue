@@ -2,18 +2,25 @@
   <div class="login-container">
     <a-form ref="registerForm" :model="userInfo" :rules="rules" layout="vertical" size="large" @submit-success="handleSubmit">
       <a-form-item field="email" :validate-trigger="['change', 'blur']" hide-label>
-        <a-input v-model="userInfo.email" placeholder="请输入邮箱地址" allow-clear />
+        <a-input v-model="userInfo.email" :placeholder="t('auth.register.email.placeholder')" allow-clear />
       </a-form-item>
       <a-form-item field="username" :validate-trigger="['change', 'blur']" hide-label>
-        <a-input v-model="userInfo.username" placeholder="请设置用户名，5-20个字符" allow-clear />
+        <a-input v-model="userInfo.username" :placeholder="t('auth.register.username.placeholder')" allow-clear />
       </a-form-item>
       <a-form-item field="password" :validate-trigger="['change', 'blur']" hide-label>
-        <a-input v-model="userInfo.password" type="password" placeholder="请设置登录密码" allow-clear />
+        <a-input
+          v-model="userInfo.password"
+          type="password"
+          :placeholder="t('auth.register.password.placeholder')"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item hide-label>
         <AgreementNotice v-model="agreed" type="register" />
       </a-form-item>
-      <a-button type="primary" size="large" html-type="submit" long :loading="loading" :disabled="!agreed"> 开始体验 </a-button>
+      <a-button type="primary" size="large" html-type="submit" long :loading="loading" :disabled="!agreed">
+        {{ t('auth.startExperience') }}
+      </a-button>
     </a-form>
   </div>
 </template>
@@ -42,16 +49,16 @@
 
   const rules = {
     email: [
-      { required: true, message: '请输入邮箱地址' },
-      { type: 'email', message: '请输入正确的邮箱地址' },
+      { required: true, message: t('auth.register.email.required') },
+      { type: 'email', message: t('auth.register.email.invalid') },
     ],
     username: [
-      { required: true, message: '请输入账号名称' },
-      { min: 3, max: 20, message: '账号名称长度在 3 到 20 个字符之间' },
+      { required: true, message: t('auth.register.username.required') },
+      { min: 3, max: 20, message: t('auth.register.username.length') },
     ],
     password: [
-      { required: true, message: '请输入登录密码' },
-      { min: 6, max: 20, message: '密码长度在 6 到 20 个字符之间' },
+      { required: true, message: t('auth.register.password.required') },
+      { min: 6, max: 20, message: t('auth.register.password.length') },
     ],
   };
 

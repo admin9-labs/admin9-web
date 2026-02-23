@@ -9,24 +9,26 @@
         <template v-if="oidcMode && oidcError">
           <div class="flex flex-col items-center justify-center gap-4 py-8">
             <div class="text-red-500 text-center">{{ oidcError }}</div>
-            <a-button type="primary" @click="redirectToOidcLogin">重新登录</a-button>
+            <a-button type="primary" @click="redirectToOidcLogin">{{ $t('auth.reLogin') }}</a-button>
           </div>
         </template>
 
         <template v-else>
-          <div class="auth-title text-2xl font-brand mb-4">欢迎使用 {{ appStore?.app_name }}</div>
+          <div class="auth-title text-2xl font-brand mb-4">{{ $t('auth.welcome', { appName: appStore?.app_name }) }}</div>
           <!-- 登录 -->
           <template v-if="$route.name === 'login'">
             <PasswordLoginForm />
             <div class="text-center text-sm mt-4">
-              没有账号？ <a-link class="text-sm" @click="onRegister">现在就注册</a-link>
+              {{ $t('auth.noAccount') }} <a-link class="text-sm" @click="onRegister">{{ $t('auth.registerNow') }}</a-link>
             </div>
           </template>
 
           <!-- 注册 -->
           <template v-else-if="$route.name === 'register'">
             <PasswordRegisterForm />
-            <div class="text-center text-sm mt-4"> 已有账号？ <a-link class="text-sm" @click="onLogin">立即登录</a-link> </div>
+            <div class="text-center text-sm mt-4">
+              {{ $t('auth.hasAccount') }} <a-link class="text-sm" @click="onLogin">{{ $t('auth.loginNow') }}</a-link>
+            </div>
           </template>
         </template>
       </div>
