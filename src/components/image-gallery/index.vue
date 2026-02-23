@@ -1,8 +1,11 @@
 <script setup lang="ts">
   import { computed, onMounted, ref, useAttrs, useSlots, watch } from 'vue';
   import { Message, FileItem } from '@arco-design/web-vue';
+  import { useI18n } from 'vue-i18n';
   import { getToken } from '@/utils/auth';
   import { FileRecord, deleteFiles, queryFiles } from '@/api/file';
+
+  const { t } = useI18n();
 
   const props = defineProps({
     modelValue: {
@@ -11,7 +14,7 @@
     },
     buttonText: {
       type: String,
-      default: '选择图片',
+      default: '',
     },
     name: {
       type: String,
@@ -168,7 +171,7 @@
   // 上传失败
   const uploadError = (error: FileItem) => {
     uploadFiles.value = uploadFiles.value.filter((item) => item !== error.name);
-    Message.error(error?.response?.message || '上传失败');
+    Message.error(error?.response?.message || t('common.message.uploadFailed'));
   };
 
   // 监控待上传文件列表，当全部上传完成时，刷新列表
@@ -222,14 +225,14 @@
       <template v-if="!slots['upload-button'] && attrs['list-type'] !== 'picture-card'" #upload-button>
         <a-button :loading="uploadLoading" type="primary">
           <template #icon><icon-upload /></template>
-          {{ buttonText }}
+          {{ buttonText || t('common.imageGallery.selectImage') }}
         </a-button>
       </template>
     </a-upload>
 
     <!--图片上传、选择弹窗-->
     <a-modal v-model:visible="show" :mask-closable="false" width="810px" title-align="start" @close="closeModal">
-      <template #title> 图片例表 </template>
+      <template #title> {{ t('common.imageGallery.title') }} </template>
       <a-space direction="vertical" size="medium" fill>
         <div class="toolbar-container">
           <a-space>
@@ -248,12 +251,12 @@
               <template #upload-button>
                 <a-button :loading="uploadLoading" type="primary">
                   <template #icon><icon-upload /></template>
-                  上传图片
+                  {{ t('common.imageGallery.uploadImage') }}
                 </a-button>
               </template>
             </a-upload>
             <a-button v-if="selectCount" :loading="deleteLoading" type="primary" status="danger" @click="onDeleteItems">
-              删除（{{ selectCount }}）
+              {{ t('common.imageGallery.deleteCount', { count: selectCount }) }}
             </a-button>
           </a-space>
           <a-button @click="onRefresh">
@@ -277,8 +280,8 @@
         <div class="footer-container">
           <a-pagination :total="total" :current="current" :page-size="pageSize" show-total @change="onChangePage" />
           <div class="footer-button">
-            <a-button @click="handleCancelModal">取消</a-button>
-            <a-button type="primary" @click="handleConfirmModal">确定</a-button>
+            <a-button @click="handleCancelModal">{{ t('common.action.cancel') }}</a-button>
+            <a-button type="primary" @click="handleConfirmModal">{{ t('common.action.confirm') }}</a-button>
           </div>
         </div>
       </template>

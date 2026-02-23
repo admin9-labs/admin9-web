@@ -3,16 +3,19 @@
     <template v-for="key in tableSlots" :key="key" #[key]="scoped">
       <slot :key="key" :name="key" v-bind="scoped" />
     </template>
-    <template #action="{ record }">
-      <a-space fill>
-        <a-button size="small" type="text" :disabled="isEditDisabled(record)" @click="onEdit(record)">修改</a-button>
+    <template #action="scoped">
+      <slot v-if="hasCustomAction" name="action" v-bind="scoped" />
+      <a-space v-else fill>
+        <a-button size="small" type="text" :disabled="isEditDisabled(scoped.record)" @click="onEdit(scoped.record)">{{
+          $t('common.action.edit')
+        }}</a-button>
         <a-button
-          :loading="record?.loading"
+          :loading="scoped.record?.loading"
           size="small"
           type="text"
-          :disabled="isDeleteDisabled(record)"
-          @click="onDelete(record)"
-          >删除</a-button
+          :disabled="isDeleteDisabled(scoped.record)"
+          @click="onDelete(scoped.record)"
+          >{{ $t('common.action.delete') }}</a-button
         >
       </a-space>
     </template>
@@ -32,6 +35,8 @@
   const slots = useSlots();
 
   const tableRef = ref<TableInstance | null>(null);
+
+  const hasCustomAction = computed(() => !!slots.action);
 
   const tableSlots = computed(() => {
     return Object.keys(slots).filter((key) => key !== 'action');

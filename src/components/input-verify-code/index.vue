@@ -1,8 +1,8 @@
 <template>
   <a-input-group class="w-full">
-    <a-input v-bind="{ ...attrs }" placeholder="请输入验证码" maxlength="6" />
+    <a-input v-bind="{ ...attrs }" :placeholder="$t('common.verifyCode.placeholder')" maxlength="6" />
     <a-button :disabled="!canSendVerifyCode" class="w-36" @click="handleSendVerifyCode">
-      {{ sending ? countdown + 's' : '获取验证码' }}
+      {{ sending ? countdown + 's' : $t('common.verifyCode.send') }}
     </a-button>
   </a-input-group>
 </template>
@@ -10,7 +10,9 @@
 <script lang="ts" setup>
   import { Message } from '@arco-design/web-vue';
   import { ref, useAttrs, computed, watch } from 'vue';
+  import { useI18n } from 'vue-i18n';
 
+  const { t } = useI18n();
   const attrs = useAttrs();
 
   const props = defineProps<{
@@ -42,15 +44,15 @@
 
   const handleSendVerifyCode = () => {
     if (!props.account) {
-      Message.error(props.type === 'phone' ? '请先输入手机号' : '请先输入邮箱');
+      Message.error(props.type === 'phone' ? t('common.verifyCode.inputPhone') : t('common.verifyCode.inputEmail'));
       return;
     }
     if (props.type === 'phone' && !isValidPhone(props.account)) {
-      Message.error('请输入正确的手机号');
+      Message.error(t('common.verifyCode.invalidPhone'));
       return;
     }
     if (props.type === 'email' && !isValidEmail(props.account)) {
-      Message.error('请输入正确的邮箱');
+      Message.error(t('common.verifyCode.invalidEmail'));
       return;
     }
     if (sending.value) {

@@ -3,8 +3,10 @@
   import { CascaderOption } from '@arco-design/web-vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import { jsonp } from 'vue-jsonp';
+  import { useI18n } from 'vue-i18n';
   import { useLoading, useVisible } from '@/hooks';
 
+  const { t } = useI18n();
   const emits = defineEmits(['update:modelValue', 'change']);
 
   const props = defineProps({
@@ -66,9 +68,9 @@
   };
 
   const columns = computed<TableColumnData[]>(() => [
-    { title: '序号', slotName: 'index', width: 60, align: 'center', fixed: 'left' },
-    { title: '地址', slotName: 'title', ellipsis: true, tooltip: true },
-    { title: '选择', slotName: 'operate', width: 100, fixed: 'right' },
+    { title: t('common.mapSelect.columns.index'), slotName: 'index', width: 60, align: 'center', fixed: 'left' },
+    { title: t('common.mapSelect.columns.address'), slotName: 'title', ellipsis: true, tooltip: true },
+    { title: t('common.mapSelect.columns.select'), slotName: 'operate', width: 100, fixed: 'right' },
   ]);
 
   const cascaderLoading = ref(false);
@@ -168,13 +170,13 @@
   <div class="qq-map-container">
     <a-input-search
       v-model="location"
-      placeholder="请从地图选择坐标"
-      button-text="选择"
+      :placeholder="t('common.mapSelect.placeholder')"
+      :button-text="t('common.action.select')"
       search-button
       readonly
       @search="openModal"
     />
-    <a-modal v-model:visible="visible" :footer="false" width="680px" title-align="start" title="选择坐标">
+    <a-modal v-model:visible="visible" :footer="false" width="680px" title-align="start" :title="t('common.mapSelect.title')">
       <a-space direction="vertical" size="medium" fill>
         <a-row :gutter="10">
           <a-col :span="10">
@@ -185,7 +187,7 @@
               style="width: 100%"
               expand-child
               allow-clear
-              placeholder="请选择区域"
+              :placeholder="t('common.mapSelect.regionPlaceholder')"
             />
           </a-col>
           <a-col :span="14">
@@ -193,10 +195,10 @@
               v-model="formData.keyword"
               :loading="loading"
               allow-clear
-              placeholder="请输入地址搜索详细地址及坐标"
+              :placeholder="t('common.mapSelect.searchPlaceholder')"
               style="width: 100%"
               search-button
-              button-text="搜索"
+              :button-text="t('common.action.search')"
               @search="fetchData"
             />
           </a-col>
@@ -220,7 +222,7 @@
             <div style="color: var(--color-text-3)">{{ record.location.lat }}, {{ record.location.lng }}</div>
           </template>
           <template #operate="{ record }">
-            <a-button type="text" size="small" @click="onSelect(record)">选择</a-button>
+            <a-button type="text" size="small" @click="onSelect(record)">{{ t('common.action.select') }}</a-button>
           </template>
         </a-table>
       </a-space>

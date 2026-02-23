@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { computed, PropType } from 'vue';
+  import { useI18n } from 'vue-i18n';
   import type { Editor } from '@tiptap/vue-3';
 
   export interface FileRecord {
@@ -8,6 +9,8 @@
     path: string;
     url: string;
   }
+
+  const { t } = useI18n();
 
   const props = defineProps({
     editor: {
@@ -94,105 +97,105 @@
 
   const toolbarMap: Record<string, any> = {
     undo: {
-      label: '撤销',
+      label: t('common.tiptap.undo'),
       icon: 'icon-undo',
       activeCheck: () => false,
       disabled: () => !(props.editor.can().chain().focus() as any).undo?.().run?.(),
     },
     redo: {
-      label: '重做',
+      label: t('common.tiptap.redo'),
       icon: 'icon-redo',
       activeCheck: () => false,
       disabled: () => !(props.editor.can().chain().focus() as any).redo?.().run?.(),
     },
     heading1: {
-      label: '一级标题',
+      label: t('common.tiptap.heading1'),
       icon: 'icon-h1',
       activeCheck: () => props.editor.isActive('heading', { level: 1 }),
     },
     heading2: {
-      label: '二级标题',
+      label: t('common.tiptap.heading2'),
       icon: 'icon-h2',
       activeCheck: () => props.editor.isActive('heading', { level: 2 }),
     },
     heading3: {
-      label: '三级标题',
+      label: t('common.tiptap.heading3'),
       icon: 'icon-h3',
       activeCheck: () => props.editor.isActive('heading', { level: 3 }),
     },
     paragraph: {
-      label: '正文',
+      label: t('common.tiptap.paragraph'),
       icon: 'icon-sort',
       activeCheck: () => props.editor.isActive('paragraph'),
     },
     fontSize: {
-      label: '字号',
+      label: t('common.tiptap.fontSize'),
       icon: 'icon-font-size',
       activeCheck: () => false,
     },
     bold: {
-      label: '加粗',
+      label: t('common.tiptap.bold'),
       icon: 'icon-bold',
       activeCheck: () => props.editor.isActive('bold'),
     },
     italic: {
-      label: '斜体',
+      label: t('common.tiptap.italic'),
       icon: 'icon-italic',
       activeCheck: () => props.editor.isActive('italic'),
     },
     strike: {
-      label: '删除线',
+      label: t('common.tiptap.strike'),
       icon: 'icon-strikethrough',
       activeCheck: () => props.editor.isActive('strike'),
     },
     underline: {
-      label: '下划线',
+      label: t('common.tiptap.underline'),
       icon: 'icon-underline',
       activeCheck: () => props.editor.isActive('underline'),
     },
     highlight: {
-      label: '高亮',
+      label: t('common.tiptap.highlight'),
       icon: 'icon-highlight',
       activeCheck: () => props.editor.isActive('highlight'),
     },
     bulletList: {
-      label: '无序列表',
+      label: t('common.tiptap.bulletList'),
       icon: 'icon-unordered-list',
       activeCheck: () => props.editor.isActive('bulletList'),
     },
     orderedList: {
-      label: '有序列表',
+      label: t('common.tiptap.orderedList'),
       icon: 'icon-ordered-list',
       activeCheck: () => props.editor.isActive('orderedList'),
     },
     blockquote: {
-      label: '引用',
+      label: t('common.tiptap.blockquote'),
       icon: 'icon-quote',
       activeCheck: () => props.editor.isActive('blockquote'),
     },
     alignLeft: {
-      label: '左对齐',
+      label: t('common.tiptap.alignLeft'),
       icon: 'icon-align-left',
       activeCheck: () => props.editor.isActive({ textAlign: 'left' }),
     },
     alignCenter: {
-      label: '居中',
+      label: t('common.tiptap.alignCenter'),
       icon: 'icon-align-center',
       activeCheck: () => props.editor.isActive({ textAlign: 'center' }),
     },
     alignRight: {
-      label: '右对齐',
+      label: t('common.tiptap.alignRight'),
       icon: 'icon-align-right',
       activeCheck: () => props.editor.isActive({ textAlign: 'right' }),
     },
     alignJustify: {
-      label: '两端对齐',
+      label: t('common.tiptap.alignJustify'),
       icon: 'icon-menu',
       activeCheck: () => props.editor.isActive({ textAlign: 'justify' }),
     },
-    color: { label: '颜色', icon: 'icon-font-colors', activeCheck: () => false },
-    insertImage: { label: '插入图片', icon: 'icon-image', activeCheck: () => false },
-    clearFormat: { label: '清除格式', icon: 'icon-eraser', activeCheck: () => false },
+    color: { label: t('common.tiptap.color'), icon: 'icon-font-colors', activeCheck: () => false },
+    insertImage: { label: t('common.tiptap.insertImage'), icon: 'icon-image', activeCheck: () => false },
+    clearFormat: { label: t('common.tiptap.clearFormat'), icon: 'icon-eraser', activeCheck: () => false },
   };
 
   const commandMap: Record<string, () => void> = {

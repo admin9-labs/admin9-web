@@ -9,10 +9,10 @@
       }"
     >
       <template #extra>
-        <a-tag v-if="item.messageType === 0" color="gray">未开始</a-tag>
-        <a-tag v-else-if="item.messageType === 1" color="green">已开通</a-tag>
-        <a-tag v-else-if="item.messageType === 2" color="blue">进行中</a-tag>
-        <a-tag v-else-if="item.messageType === 3" color="red">即将到期</a-tag>
+        <a-tag v-if="item.messageType === 0" color="gray">{{ $t('common.messageStatus.notStarted') }}</a-tag>
+        <a-tag v-else-if="item.messageType === 1" color="green">{{ $t('common.messageStatus.active') }}</a-tag>
+        <a-tag v-else-if="item.messageType === 2" color="blue">{{ $t('common.messageStatus.inProgress') }}</a-tag>
+        <a-tag v-else-if="item.messageType === 3" color="red">{{ $t('common.messageStatus.expiring') }}</a-tag>
       </template>
       <div class="item-wrap" @click="onItemClick(item)">
         <a-list-item-meta>
@@ -93,45 +93,57 @@
       min-height: 86px;
       border-bottom: 1px solid rgb(var(--gray-3));
     }
+
     .arco-list-item-extra {
       position: absolute;
       right: 20px;
     }
+
     .arco-list-item-meta-content {
       flex: 1;
     }
+
     .item-wrap {
       cursor: pointer;
     }
+
     .time-text {
-      font-size: 12px;
       color: rgb(var(--gray-6));
+      font-size: 12px;
     }
+
     .arco-empty {
       display: none;
     }
+
     .arco-list-footer {
-      padding: 0;
       height: 50px;
+      padding: 0;
       line-height: 50px;
       border-top: none;
+
       .arco-space-item {
         width: 100%;
         border-right: 1px solid rgb(var(--gray-3));
+
         &:last-child {
           border-right: none;
         }
       }
+
       .add-border-top {
         border-top: 1px solid rgb(var(--gray-3));
       }
     }
+
     .footer-wrap {
       text-align: center;
     }
+
     .arco-typography {
       margin-bottom: 0;
     }
+
     .add-border {
       border-top: 1px solid rgb(var(--gray-3));
     }
