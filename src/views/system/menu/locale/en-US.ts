@@ -44,4 +44,8 @@ export default {
   'system.menu.editModal.isActive': 'Active',
   'system.menu.editModal.createSuccess': 'Menu created successfully',
   'system.menu.editModal.updateSuccess': 'Menu updated successfully',
+  'system.menu.addChild': 'Add Child',
+  'system.menu.expandAll': 'Expand All',
+  'system.menu.collapseAll': 'Collapse All',
+  'system.menu.hidden': 'Hidden',
 };

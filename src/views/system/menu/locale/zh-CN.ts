@@ -44,4 +44,8 @@ export default {
   'system.menu.editModal.isActive': '启用',
   'system.menu.editModal.createSuccess': '菜单创建成功',
   'system.menu.editModal.updateSuccess': '菜单更新成功',
+  'system.menu.addChild': '添加子菜单',
+  'system.menu.expandAll': '展开全部',
+  'system.menu.collapseAll': '收起全部',
+  'system.menu.hidden': '隐藏',
 };

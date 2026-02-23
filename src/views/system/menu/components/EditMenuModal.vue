@@ -1,18 +1,21 @@
 <template>
-  <a-modal
+  <a-drawer
     v-model:visible="visible"
     :title="isEdit ? $t('system.menu.editModal.titleEdit') : $t('system.menu.editModal.titleCreate')"
     :width="600"
+    unmount-on-close
     @before-ok="onSave"
     @close="onReset"
   >
     <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
       <a-form-item :label="$t('system.menu.editModal.parentId')" field="parent_id">
-        <a-select v-model="formData.parent_id" :placeholder="$t('system.menu.editModal.parentId.placeholder')" allow-clear>
-          <a-option v-for="item in parentOptions" :key="item.id" :value="item.id">
-            {{ item.locale }} ({{ item.name }})
-          </a-option>
-        </a-select>
+        <a-cascader
+          v-model="parentIdModel"
+          :options="cascaderOptions"
+          :placeholder="$t('system.menu.editModal.parentId.placeholder')"
+          check-strictly
+          allow-clear
+        />
       </a-form-item>
       <a-form-item :label="$t('system.menu.editModal.type')" field="type">
         <a-radio-group v-model="formData.type">
@@ -21,74 +24,46 @@
           <a-radio :value="3">{{ $t('system.menu.types.button') }}</a-radio>
         </a-radio-group>
       </a-form-item>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item :label="$t('system.menu.editModal.name')" field="name">
-            <a-input v-model="formData.name" :placeholder="$t('system.menu.editModal.name.placeholder')" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item v-if="formData.type !== 3" :label="$t('system.menu.editModal.path')" field="path">
-            <a-input v-model="formData.path" :placeholder="$t('system.menu.editModal.path.placeholder')" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item :label="$t('system.menu.editModal.locale')" field="locale">
-            <a-input v-model="formData.locale" :placeholder="$t('system.menu.editModal.locale.placeholder')" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item v-if="formData.type !== 3" :label="$t('system.menu.editModal.icon')" field="icon">
-            <a-input v-model="formData.icon" :placeholder="$t('system.menu.editModal.icon.placeholder')" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item v-if="formData.type === 2" :label="$t('system.menu.editModal.component')" field="component">
-            <a-input v-model="formData.component" :placeholder="$t('system.menu.editModal.component.placeholder')" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item v-if="formData.type === 3" :label="$t('system.menu.editModal.permission')" field="permission">
-            <a-input v-model="formData.permission" :placeholder="$t('system.menu.editModal.permission.placeholder')" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item :label="$t('system.menu.editModal.sort')" field="sort">
-            <a-input-number v-model="formData.sort" :min="0" :style="{ width: '100%' }" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item field="hide_in_menu">
-            <a-checkbox v-model="formData.hide_in_menu">
-              {{ $t('system.menu.editModal.hideInMenu') }}
-            </a-checkbox>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item field="is_active">
-            <a-checkbox v-model="formData.is_active">
-              {{ $t('system.menu.editModal.isActive') }}
-            </a-checkbox>
-          </a-form-item>
-        </a-col>
-      </a-row>
+      <a-form-item :label="$t('system.menu.editModal.name')" field="name">
+        <a-input v-model="formData.name" :placeholder="$t('system.menu.editModal.name.placeholder')" />
+      </a-form-item>
+      <a-form-item :label="$t('system.menu.editModal.locale')" field="locale">
+        <a-input v-model="formData.locale" :placeholder="$t('system.menu.editModal.locale.placeholder')" />
+      </a-form-item>
+      <a-form-item v-if="formData.type !== 3" :label="$t('system.menu.editModal.path')" field="path">
+        <a-input v-model="formData.path" :placeholder="$t('system.menu.editModal.path.placeholder')" />
+      </a-form-item>
+      <a-form-item v-if="formData.type !== 3" :label="$t('system.menu.editModal.icon')" field="icon">
+        <a-input v-model="formData.icon" :placeholder="$t('system.menu.editModal.icon.placeholder')" />
+      </a-form-item>
+      <a-form-item v-if="formData.type === 2" :label="$t('system.menu.editModal.component')" field="component">
+        <a-input v-model="formData.component" :placeholder="$t('system.menu.editModal.component.placeholder')" />
+      </a-form-item>
+      <a-form-item v-if="formData.type === 3" :label="$t('system.menu.editModal.permission')" field="permission">
+        <a-input v-model="formData.permission" :placeholder="$t('system.menu.editModal.permission.placeholder')" />
+      </a-form-item>
+      <a-form-item :label="$t('system.menu.editModal.sort')" field="sort">
+        <a-input-number v-model="formData.sort" :min="0" :style="{ width: '100%' }" />
+      </a-form-item>
+      <a-form-item>
+        <a-space :size="24">
+          <a-checkbox v-model="formData.is_hidden">
+            {{ $t('system.menu.editModal.hideInMenu') }}
+          </a-checkbox>
+          <a-checkbox v-model="formData.is_active">
+            {{ $t('system.menu.editModal.isActive') }}
+          </a-checkbox>
+        </a-space>
+      </a-form-item>
     </a-form>
-  </a-modal>
+  </a-drawer>
 </template>
 
 <script lang="ts" setup>
   import { ref, reactive, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { Message } from '@arco-design/web-vue';
-  import type { FormInstance } from '@arco-design/web-vue';
+  import type { FormInstance, CascaderOption } from '@arco-design/web-vue';
   import { useVisible } from '@/hooks';
   import { createMenu, updateMenu, type MenuRecord } from '@/api/system/menu';
 
@@ -99,8 +74,7 @@
   const formRef = ref<FormInstance>();
   const editingId = ref<number | null>(null);
   const isEdit = computed(() => editingId.value !== null);
-  const parentOptions = ref<MenuRecord[]>([]);
-
+  const cascaderOptions = ref<CascaderOption[]>([]);
   const formData = reactive({
     parent_id: 0 as number,
     type: 1 as number,
@@ -111,8 +85,14 @@
     locale: '',
     icon: '',
     sort: 0,
-    hide_in_menu: false,
+    is_hidden: false,
     is_active: true,
+  });
+  const parentIdModel = computed({
+    get: () => formData.parent_id || undefined,
+    set: (val) => {
+      formData.parent_id = (val as number) ?? 0;
+    },
   });
 
   const formRules = {
@@ -131,7 +111,7 @@
     formData.locale = '';
     formData.icon = '';
     formData.sort = 0;
-    formData.hide_in_menu = false;
+    formData.is_hidden = false;
     formData.is_active = true;
     formRef.value?.resetFields();
   };
@@ -153,7 +133,7 @@
         locale: formData.locale,
         icon: formData.icon || undefined,
         sort: formData.sort,
-        hide_in_menu: formData.hide_in_menu,
+        is_hidden: formData.is_hidden,
         is_active: formData.is_active,
       };
       if (isEdit.value) {
@@ -170,30 +150,37 @@
     }
   };
 
-  // Flatten tree for parent select options (exclude self and descendants when editing)
-  const flattenMenus = (menus: MenuRecord[], excludeId?: number): MenuRecord[] => {
-    const result: MenuRecord[] = [];
-    const walk = (items: MenuRecord[]) => {
-      items.forEach((item) => {
-        if (item.id !== excludeId) {
-          result.push(item);
-          if (item.children?.length) walk(item.children);
-        }
+  // Build tree options for cascader (exclude self and descendants when editing)
+  const buildCascaderOptions = (menus: MenuRecord[], excludeId?: number): CascaderOption[] => {
+    return menus
+      .filter((item) => item.id !== excludeId && item.type === 1)
+      .map((item) => {
+        const children = item.children?.length ? buildCascaderOptions(item.children, excludeId) : [];
+        return {
+          value: item.id,
+          label: `${item.locale} (${item.name})`,
+          ...(children.length ? { children } : {}),
+        };
       });
-    };
-    walk(menus);
-    return result;
   };
 
   const onCreate = (allMenus: MenuRecord[]) => {
     onReset();
-    parentOptions.value = flattenMenus(allMenus);
+    cascaderOptions.value = buildCascaderOptions(allMenus);
+    setVisible(true);
+  };
+
+  const onCreateChild = (parent: MenuRecord, allMenus: MenuRecord[]) => {
+    onReset();
+    cascaderOptions.value = buildCascaderOptions(allMenus);
+    formData.parent_id = parent.id;
+    formData.type = parent.type === 1 ? 2 : 3;
     setVisible(true);
   };
 
   const onEdit = (record: MenuRecord, allMenus: MenuRecord[]) => {
     onReset();
-    parentOptions.value = flattenMenus(allMenus, record.id);
+    cascaderOptions.value = buildCascaderOptions(allMenus, record.id);
     editingId.value = record.id;
     formData.parent_id = record.parent_id || 0;
     formData.type = record.type || 1;
@@ -204,10 +191,10 @@
     formData.locale = record.locale;
     formData.icon = record.icon || '';
     formData.sort = record.sort;
-    formData.hide_in_menu = record.hide_in_menu;
+    formData.is_hidden = record.is_hidden;
     formData.is_active = record.is_active;
     setVisible(true);
   };
 
-  defineExpose({ onCreate, onEdit });
+  defineExpose({ onCreate, onCreateChild, onEdit });
 </script>
