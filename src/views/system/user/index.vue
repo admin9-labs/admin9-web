@@ -12,13 +12,12 @@
           />
         </template>
       </GridToolbar>
-      <a-table
-        row-key="id"
+      <GridTable
         :loading="loading"
         :data="tableData"
         :columns="columns"
-        :bordered="false"
         :pagination="pagination"
+        @edit="handleEdit"
         @page-change="onPageChange"
         @page-size-change="onPageSizeChange"
       >
@@ -35,8 +34,8 @@
             @change="(val: string | number | boolean) => handleToggleStatus(record, val as boolean)"
           />
         </template>
-        <template #operations="{ record }">
-          <a-space>
+        <template #action="{ record }">
+          <a-space fill>
             <a-button size="small" type="text" @click="handleEdit(record)">
               {{ $t('system.user.action.edit') }}
             </a-button>
@@ -47,7 +46,7 @@
             </a-popconfirm>
           </a-space>
         </template>
-      </a-table>
+      </GridTable>
       <EditUserModal ref="editModalRef" @success="fetchData" />
     </Grid>
   </div>
@@ -88,7 +87,7 @@
     { title: t('system.user.columns.roles'), slotName: 'roles' },
     { title: t('system.user.columns.status'), slotName: 'status', width: 100 },
     { title: t('system.user.columns.createdAt'), dataIndex: 'created_at' },
-    { title: t('system.user.columns.operations'), slotName: 'operations', width: 180 },
+    { title: t('system.user.columns.operations'), slotName: 'action', width: 180 },
   ]);
 
   const fetchData = async () => {
