@@ -1,51 +1,10 @@
-import type { Router, RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
+import type { Router, RouteRecordNormalized } from 'vue-router';
 import NProgress from 'nprogress'; // progress bar
 
 import usePermission from '@/hooks/permission';
 import { useUserStore, useAppStore } from '@/store';
 import { appRoutes } from '../routes';
 import { WHITE_LIST, NOT_FOUND } from '../constants';
-import { DEFAULT_LAYOUT } from '../routes/base';
-
-// Component mapping: route name → Vue component
-// When adding a new page, register the mapping here.
-const componentMap: Record<string, () => Promise<any>> = {
-  Workplace: () => import('@/views/dashboard/workplace/index.vue'),
-  UserInfo: () => import('@/views/user/info/index.vue'),
-  Authentication: () => import('@/views/user/authentication/index.vue'),
-  SystemUser: () => import('@/views/system/user/index.vue'),
-  SystemRole: () => import('@/views/system/role/index.vue'),
-  SystemMenu: () => import('@/views/system/menu/index.vue'),
-};
-
-// Convert server menu children to route records
-function formatChildren(children: any[]): RouteRecordRaw[] {
-  if (!children || children.length === 0) return [];
-  return children.map((child: any) => ({
-    path: child.path,
-    name: child.name,
-    component: componentMap[child.name] || (() => import('@/views/not-found/index.vue')),
-    meta: child.meta || {},
-    children: child.children ? formatChildren(child.children) : undefined,
-  }));
-}
-
-// Convert server menu config into registerable route records
-function formatServerRoutes(menus: any[]): RouteRecordRaw[] {
-  return menus.map((menu: any) => ({
-    path: menu.path,
-    name: menu.name,
-    component:
-      menu.children && menu.children.length > 0
-        ? DEFAULT_LAYOUT
-        : componentMap[menu.name] || (() => import('@/views/not-found/index.vue')),
-    meta: menu.meta || {},
-    redirect: menu.children && menu.children.length > 0 ? undefined : undefined,
-    children: menu.children ? formatChildren(menu.children) : undefined,
-  }));
-}
-
-let hasRegisteredServerRoutes = false;
 
 export default function setupPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
@@ -54,26 +13,14 @@ export default function setupPermissionGuard(router: Router) {
     const Permission = usePermission();
     const permissionsAllow = Permission.accessRouter(to);
     if (appStore.menuFromServer) {
+      // 针对来自服务端的菜单配置进行处理
       // Handle routing configuration from the server
 
+      // 根据需要自行完善来源于服务端的菜单配置的permission逻辑
+      // Refine the permission logic from the server's menu configuration as needed
       if (!appStore.appAsyncMenus.length && !WHITE_LIST.find((el) => el.name === to.name)) {
         await appStore.fetchServerMenuConfig();
-
-        // Dynamically register routes from server menu
-        if (!hasRegisteredServerRoutes && appStore.appAsyncMenus.length) {
-          const serverRoutes = formatServerRoutes(appStore.appAsyncMenus as any[]);
-          serverRoutes.forEach((route) => {
-            router.addRoute(route);
-          });
-          hasRegisteredServerRoutes = true;
-
-          // Re-navigate to ensure the new routes take effect
-          next({ ...to, replace: true });
-          NProgress.done();
-          return;
-        }
       }
-
       const serverMenuConfig = [...appStore.appAsyncMenus, ...WHITE_LIST];
 
       let exist = false;
