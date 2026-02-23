@@ -34,6 +34,39 @@ const SYSTEM: AppRouteRecordRaw = {
         roles: ['super-admin', 'admin'],
       },
     },
+    {
+      path: 'menu',
+      name: 'SystemMenu',
+      component: () => import('@/views/system/menu/index.vue'),
+      meta: {
+        locale: 'menu.system.menu',
+        icon: 'icon-menu',
+        requiresAuth: true,
+        roles: ['super-admin', 'admin'],
+      },
+    },
+    {
+      path: 'dict',
+      name: 'SystemDict',
+      component: () => import('@/views/system/dict/index.vue'),
+      meta: {
+        locale: 'menu.system.dict',
+        icon: 'icon-book',
+        requiresAuth: true,
+        roles: ['super-admin', 'admin'],
+      },
+    },
+    {
+      path: 'log',
+      name: 'SystemLog',
+      component: () => import('@/views/system/log/index.vue'),
+      meta: {
+        locale: 'menu.system.log',
+        icon: 'icon-file',
+        requiresAuth: true,
+        roles: ['super-admin', 'admin'],
+      },
+    },
   ],
 };
 
