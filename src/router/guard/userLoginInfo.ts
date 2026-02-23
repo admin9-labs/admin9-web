@@ -4,6 +4,7 @@ import NProgress from 'nprogress'; // progress bar
 import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
 import { isOidc, redirectToOidcLogin } from '@/utils/auth-strategy';
+import { DEFAULT_ROUTE_NAME } from '../constants';
 
 export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
@@ -38,7 +39,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
           await userStore.exchangeToken(to.query.code as string);
           await userStore.info();
           const redirect = (to.query.redirect as string) || undefined;
-          next({ name: redirect || 'Workplace', replace: true });
+          next({ name: redirect || DEFAULT_ROUTE_NAME, replace: true });
         } catch (err: any) {
           // Exchange failed, let auth view show error
           next({

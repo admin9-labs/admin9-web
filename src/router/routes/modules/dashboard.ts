@@ -14,7 +14,7 @@ const DASHBOARD: AppRouteRecordRaw = {
   children: [
     {
       path: 'workplace',
-      name: 'Workplace',
+      name: 'DashboardWorkplace',
       component: () => import('@/views/dashboard/workplace/index.vue'),
       meta: {
         locale: 'menu.dashboard.workplace',
