@@ -1,13 +1,13 @@
 <template>
   <a-modal v-model:visible="visible" title-align="start" width="460px" @before-ok="onSave" @close="onReset">
-    <template #title>修改手机号码</template>
+    <template #title>{{ t('userInfo.editPhone.title') }}</template>
     <a-form ref="formRef" :rules="formRules" :model="formData" layout="vertical">
-      <a-form-item label="手机号码" field="phone" asterisk-position="end">
-        <a-input v-model="formData.phone" placeholder="请输入手机号码">
+      <a-form-item :label="t('userInfo.editPhone.phone')" field="phone" asterisk-position="end">
+        <a-input v-model="formData.phone" :placeholder="t('userInfo.editPhone.phone.placeholder')">
           <template #prefix>+86</template>
         </a-input>
       </a-form-item>
-      <a-form-item label="验证码" field="code" asterisk-position="end">
+      <a-form-item :label="t('userInfo.editPhone.code')" field="code" asterisk-position="end">
         <InputVerifyCode v-model="formData.code" :account="formData.phone" type="phone" />
       </a-form-item>
     </a-form>
@@ -17,28 +17,30 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { FormInstance } from '@arco-design/web-vue';
+  import { useI18n } from 'vue-i18n';
   import { useVisible } from '@/hooks';
   import InputVerifyCode from '@/components/input-verify-code/index.vue';
 
+  const { t } = useI18n();
   const { visible, setVisible } = useVisible(false);
 
   const formRef = ref<FormInstance>();
   const formData = ref({ phone: '', code: '' });
   const formRules = {
     phone: [
-      { required: true, message: '请输入手机号码' },
+      { required: true, message: t('userInfo.editPhone.phone.required') },
       {
         validator: (value: string, cb: (msg?: string) => void) => {
           const reg = /^1[3-9]\d{9}$/;
           if (!reg.test(value)) {
-            cb('请输入正确的手机号码');
+            cb(t('userInfo.editPhone.phone.invalid'));
           } else {
             cb();
           }
         },
       },
     ],
-    code: [{ required: true, message: '请输入验证码' }],
+    code: [{ required: true, message: t('userInfo.editPhone.code.required') }],
   };
 
   const onSave = async () => {

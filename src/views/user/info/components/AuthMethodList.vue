@@ -8,12 +8,32 @@
           <div class="flex items-center">
             <span class="mr-2 font-medium">{{ item.name }}</span>
             <template v-if="item.type === 'password'">
-              <a-badge v-if="item.status === 1" status="success" text="已设置" style="--color-text-1: rgb(var(--success-6))" />
-              <a-badge v-if="item.status === 0" status="warning" text="未设置" style="--color-text-1: rgb(var(--warning-6))" />
+              <a-badge
+                v-if="item.status === 1"
+                status="success"
+                :text="t('common.status.set')"
+                style="--color-text-1: rgb(var(--success-6))"
+              />
+              <a-badge
+                v-if="item.status === 0"
+                status="warning"
+                :text="t('common.status.notSet')"
+                style="--color-text-1: rgb(var(--warning-6))"
+              />
             </template>
             <template v-else>
-              <a-badge v-if="item.status === 1" status="success" text="已绑定" style="--color-text-1: rgb(var(--success-6))" />
-              <a-badge v-if="item.status === 0" status="warning" text="未绑定" style="--color-text-1: rgb(var(--warning-6))" />
+              <a-badge
+                v-if="item.status === 1"
+                status="success"
+                :text="t('common.status.bound')"
+                style="--color-text-1: rgb(var(--success-6))"
+              />
+              <a-badge
+                v-if="item.status === 0"
+                status="warning"
+                :text="t('common.status.notBound')"
+                style="--color-text-1: rgb(var(--warning-6))"
+              />
             </template>
           </div>
           <div class="text-sm mt-2">{{ item.description }}</div>
@@ -21,11 +41,17 @@
       </a-col>
       <a-col :xs="5" :sm="2" class="flex justify-end items-center">
         <template v-if="item.type === 'password'">
-          <a-button type="primary" status="normal" size="small" @click="onAction(item)">修改</a-button>
+          <a-button type="primary" status="normal" size="small" @click="onAction(item)">{{
+            t('common.action.modify')
+          }}</a-button>
         </template>
         <template v-else>
-          <a-button v-if="item.status === 0" type="primary" status="normal" size="small" @click="onAction(item)">绑定</a-button>
-          <a-button v-if="item.status === 1" status="normal" size="small" @click="onAction(item)">解绑</a-button>
+          <a-button v-if="item.status === 0" type="primary" status="normal" size="small" @click="onAction(item)">{{
+            t('common.action.bind')
+          }}</a-button>
+          <a-button v-if="item.status === 1" status="normal" size="small" @click="onAction(item)">{{
+            t('common.action.unbind')
+          }}</a-button>
         </template>
       </a-col>
     </a-row>
@@ -39,6 +65,7 @@
 <script setup lang="ts">
   import { ref, useAttrs } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { useI18n } from 'vue-i18n';
   import UserIcon from '../icons/user.svg?url';
   import UnbindUserIcon from '../icons/user-unbind.svg?url';
   import MailIcon from '../icons/mail.svg?url';
@@ -53,6 +80,7 @@
   import EditPhoneModal from './EditPhoneModal.vue';
   import EditEmailModal from './EditEmailModal.vue';
 
+  const { t } = useI18n();
   const attrs = useAttrs();
 
   const loginTypes = ref([
@@ -61,45 +89,40 @@
       icon: UserIcon,
       unbind_icon: UnbindUserIcon,
       status: 0,
-      name: '账号密码登录',
-      description: '您未设置密码，为了您的账号安全，请及时设置密码',
-      action_label: '修改',
+      name: t('userInfo.auth.password.name'),
+      description: t('userInfo.auth.password.desc'),
     },
     {
       type: 'phone',
       icon: PhoneIcon,
       unbind_icon: PhoneIconUnbind,
       status: 1,
-      name: '手机号登录',
-      description: '可通过手机验证码快捷登录',
-      action_label: '修改',
+      name: t('userInfo.auth.phone.name'),
+      description: t('userInfo.auth.phone.desc'),
     },
     {
       type: 'email',
       icon: MailIcon,
       unbind_icon: MailIconUnbind,
       status: 0,
-      name: '邮箱登录',
-      description: '可通过邮箱验证码进行登录',
-      action_label: '修改',
+      name: t('userInfo.auth.email.name'),
+      description: t('userInfo.auth.email.desc'),
     },
     {
       type: 'google',
       icon: GoogleIcon,
       unbind_icon: GoogleIconUnbind,
       status: 0,
-      name: 'Google 登录',
-      description: '绑定后，可通过 Google 账号登录',
-      action_label: '解绑',
+      name: t('userInfo.auth.google.name'),
+      description: t('userInfo.auth.google.desc'),
     },
     {
       type: 'wechat',
       icon: WechatIcon,
       unbind_icon: WechatIconUnbind,
       status: 1,
-      name: '微信登录',
-      description: '绑定后，可通过微信账号登录',
-      action_label: '绑定',
+      name: t('userInfo.auth.wechat.name'),
+      description: t('userInfo.auth.wechat.desc'),
     },
   ]);
 
@@ -115,7 +138,7 @@
     } else if (item.type === 'email') {
       EditEmailModalRef.value?.onEdit();
     } else {
-      Message.info('跳转至授权页面');
+      Message.info(t('userInfo.auth.redirectAuth'));
     }
   };
 </script>

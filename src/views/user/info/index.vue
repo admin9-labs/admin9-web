@@ -2,13 +2,13 @@
   <div class="page-container">
     <a-row :gutter="[16, 16]">
       <a-col :span="24">
-        <AccountInfoCard title="账号信息" class="general-card" />
+        <AccountInfoCard :title="$t('userInfo.title.accountInfo')" class="general-card" />
       </a-col>
       <a-col :span="24">
-        <IdentityVerifiedCard title="实名认证" class="general-card" />
+        <IdentityVerifiedCard :title="$t('userInfo.title.identity')" class="general-card" />
       </a-col>
       <a-col :span="24">
-        <AuthMethodList title="登录方式" class="general-card flex-1" />
+        <AuthMethodList :title="$t('userInfo.title.authMethod')" class="general-card flex-1" />
       </a-col>
     </a-row>
   </div>
