@@ -1,7 +1,7 @@
 <template>
   <a-card v-bind="{ ...attrs }">
     <template #extra>
-      <a-link @click="$router.push({ name: 'Authentication' })">更多</a-link>
+      <a-link @click="$router.push({ name: 'UserAuthentication' })">更多</a-link>
     </template>
     <a-descriptions :column="{ xs: 1, sm: 3 }">
       <a-descriptions-item label="账号类型">个人账号</a-descriptions-item>
