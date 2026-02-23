@@ -34,4 +34,30 @@ export default {
   'workplace.popularContent.video': '视频',
   'workplace.categoriesPercent': '内容类型占比',
   'workplace.pecs': '个',
+  // workplace page
+  'workplace.banner.title': '欢迎来到站长引擎',
+  'workplace.banner.description': '基于 Arco Design Vue 和 Laravel 11 的前后端一体化中台解决方案，助力快速打造高效业务平台。',
+  'workplace.guide.title': '使用指引',
+  'workplace.guide.step1.title': '创建站点',
+  'workplace.guide.step1.desc': '单击"创建站点"按钮，完成站点配置，支持 AI 快速批量创建。',
+  'workplace.guide.step1.action': '立即创建',
+  'workplace.guide.step2.title': '登录云服务器',
+  'workplace.guide.step2.desc': '一键全站生成静态页面，支持上传至 OSS，提升站点性能。',
+  'workplace.guide.step2.action': '了解详情',
+  'workplace.guide.step3.title': '搭建业务',
+  'workplace.guide.step3.desc': '快速部署前后端业务，助力您的项目高效上线。',
+  'workplace.guide.step3.action': '最佳实践',
+  'workplace.product.title': '产品优势',
+  'workplace.product.performance.title': '性能优越',
+  'workplace.product.performance.desc':
+    '依托高效的前后端一体化架构，极大提升页面加载速度和数据处理能力，无论是高并发场景还是复杂业务逻辑，都能确保卓越的性能表现，保障用户流畅体验。',
+  'workplace.product.flexible.title': '弹性灵活',
+  'workplace.product.flexible.desc': '支持灵活配置与功能扩展，能够轻松适应业务规模变化，实现从小型项目到大型应用的无缝升级。',
+  'workplace.product.stable.title': '稳定可用',
+  'workplace.product.stable.desc':
+    '全站一键生成静态页面，确保网站即使在高流量或突发情况下依然快速稳定运行，提升系统的容错性和响应速度。',
+  'workplace.product.secure.title': '安全可靠',
+  'workplace.product.secure.desc':
+    '通过高可用架构和冗余设计，保障系统在高峰期和突发情况下依旧保持稳定运行，避免业务中断。同时，自动化监控和故障修复机制确保全天候的服务可用性。',
+  'workplace.faq.title': '常见问题',
 };
