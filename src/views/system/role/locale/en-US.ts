@@ -12,6 +12,8 @@ export default {
   'system.role.editModal.titleEdit': 'Edit Role',
   'system.role.editModal.name': 'Role Name',
   'system.role.editModal.name.placeholder': 'Please enter role name',
+  'system.role.editModal.locale': 'Locale Key',
+  'system.role.editModal.locale.placeholder': 'Enter locale key, e.g. role.admin',
   'system.role.editModal.permissions': 'Permissions',
   'system.role.editModal.createSuccess': 'Role created successfully',
   'system.role.editModal.selectAll': 'Select All',

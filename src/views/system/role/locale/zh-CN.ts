@@ -12,6 +12,8 @@ export default {
   'system.role.editModal.titleEdit': '编辑角色',
   'system.role.editModal.name': '角色名称',
   'system.role.editModal.name.placeholder': '请输入角色名称',
+  'system.role.editModal.locale': '国际化键',
+  'system.role.editModal.locale.placeholder': '请输入国际化键，如 role.admin',
   'system.role.editModal.permissions': '权限',
   'system.role.editModal.createSuccess': '角色创建成功',
   'system.role.editModal.selectAll': '全选',

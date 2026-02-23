@@ -3,7 +3,7 @@
     v-model:visible="visible"
     :title="isEdit ? $t('system.role.editModal.titleEdit') : $t('system.role.editModal.titleCreate')"
     :width="600"
-    :ok-button-props="{ style: { display: readonly ? 'none' : undefined } }"
+    :ok-button-props="({ style: { display: readonly ? 'none' : undefined } } as any)"
     unmount-on-close
     @before-ok="onSave"
     @close="onReset"
@@ -11,6 +11,9 @@
     <a-form ref="formRef" :model="formData" :rules="formRules" :disabled="readonly" layout="vertical">
       <a-form-item :label="$t('system.role.editModal.name')" field="name">
         <a-input v-model="formData.name" :placeholder="$t('system.role.editModal.name.placeholder')" />
+      </a-form-item>
+      <a-form-item :label="$t('system.role.editModal.locale')" field="locale">
+        <a-input v-model="formData.locale" :placeholder="$t('system.role.editModal.locale.placeholder')" />
       </a-form-item>
       <a-form-item field="menu_ids">
         <div class="permission-groups">
@@ -140,6 +143,7 @@
 
   const formData = reactive({
     name: '',
+    locale: '',
     menu_ids: [] as (number | string)[],
   });
 
@@ -175,6 +179,7 @@
     editingId.value = null;
     readonly.value = false;
     formData.name = '';
+    formData.locale = '';
     formData.menu_ids = [];
     expandedGroups.value.clear();
     formRef.value?.resetFields();
@@ -189,6 +194,7 @@
       }
       const payload = {
         name: formData.name,
+        locale: formData.locale || undefined,
         menu_ids: formData.menu_ids.map(Number),
       };
       if (isEdit.value) {
@@ -229,6 +235,7 @@
     editingId.value = record.id;
     readonly.value = record.name === 'super-admin';
     formData.name = record.name;
+    formData.locale = record.locale || '';
     formData.menu_ids = record.menus?.map((m) => m.id) || [];
     setVisible(true);
   };
