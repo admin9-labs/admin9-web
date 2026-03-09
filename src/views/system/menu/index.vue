@@ -67,7 +67,7 @@
           </a-space>
         </template>
       </GridTable>
-      <EditMenuModal ref="editModalRef" @success="fetchData" />
+      <EditMenuModal ref="editModalRef" @success="onEditSuccess" />
     </Grid>
   </div>
 </template>
@@ -77,12 +77,14 @@
   import { useI18n } from 'vue-i18n';
   import { Modal, Message } from '@arco-design/web-vue';
   import { useLoading } from '@/hooks';
+  import { useAppStore } from '@/store';
   import { queryMenuTree, deleteMenu, type MenuRecord } from '@/api/system/menu';
   import EditMenuModal from './components/EditMenuModal.vue';
 
   defineOptions({ name: 'SystemMenu' });
 
   const { t } = useI18n();
+  const appStore = useAppStore();
   const { loading, setLoading } = useLoading(false);
   const tableData = ref<MenuRecord[]>([]);
   const expandedKeys = ref<number[]>([]);
@@ -158,8 +160,14 @@
         await deleteMenu(record.id);
         Message.success(t('system.menu.delete.success'));
         fetchData();
+        appStore.fetchServerMenuConfig();
       },
     });
+  };
+
+  const onEditSuccess = () => {
+    fetchData();
+    appStore.fetchServerMenuConfig();
   };
 
   onMounted(() => {

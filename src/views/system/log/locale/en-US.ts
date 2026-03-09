@@ -25,6 +25,9 @@ export default {
   // Detail
   'system.log.operation.detail': 'Detail',
   'system.log.operation.properties': 'Changed Data',
+  'system.log.op.subject': 'Target',
+  'system.log.op.subject.id': 'Target ID',
+  'system.log.op.subject.type': 'Target Type',
   // Status
   'system.log.status.success': 'Success',
   'system.log.status.fail': 'Failed',
@@ -34,6 +37,9 @@ export default {
   'system.log.event.created': 'Created',
   'system.log.event.updated': 'Updated',
   'system.log.event.deleted': 'Deleted',
+  'system.log.event.status_toggled': 'Status Toggled',
+  'system.log.event.password_reset': 'Password Reset',
+  'system.log.event.roles_assigned': 'Roles Assigned',
   // Modules
   'system.log.module.user': 'User',
   'system.log.module.role': 'Role',

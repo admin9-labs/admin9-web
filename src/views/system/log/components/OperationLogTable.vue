@@ -36,7 +36,7 @@
     <a-drawer
       :visible="drawerVisible"
       :title="$t('system.log.operation.detail')"
-      :width="520"
+      :width="560"
       unmount-on-close
       @cancel="drawerVisible = false"
     >
@@ -46,6 +46,15 @@
         </a-descriptions-item>
         <a-descriptions-item :label="$t('system.log.op.causer')">
           {{ currentRecord?.causer?.name ?? '-' }}
+          <span v-if="currentRecord?.causer?.email" style="margin-left: 4px; color: var(--color-text-3)">
+            ({{ currentRecord.causer.email }})
+          </span>
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('system.log.op.subject')">
+          {{ subjectLabel(currentRecord) }}
+        </a-descriptions-item>
+        <a-descriptions-item :label="$t('system.log.op.subject.type')">
+          {{ subjectTypeLabel(currentRecord?.subject_type ?? null) }}
         </a-descriptions-item>
         <a-descriptions-item :label="$t('system.log.op.description')">
           {{ currentRecord?.description ?? '-' }}
@@ -54,7 +63,10 @@
           {{ currentRecord?.log_name ? $t(`system.log.module.${currentRecord.log_name}`) : '-' }}
         </a-descriptions-item>
         <a-descriptions-item :label="$t('system.log.op.event')">
-          {{ currentRecord?.event ?? '-' }}
+          <a-tag v-if="currentRecord?.event" size="small" :color="eventColor(currentRecord.event)">
+            {{ $t(`system.log.event.${currentRecord.event}`) }}
+          </a-tag>
+          <span v-else>-</span>
         </a-descriptions-item>
       </a-descriptions>
       <a-divider>{{ $t('system.log.operation.properties') }}</a-divider>
@@ -90,8 +102,30 @@
   };
 
   const eventColor = (event: string) => {
-    const map: Record<string, string> = { created: 'green', updated: 'blue', deleted: 'red' };
+    const map: Record<string, string> = {
+      created: 'green',
+      updated: 'blue',
+      deleted: 'red',
+      status_toggled: 'orangered',
+      password_reset: 'purple',
+      roles_assigned: 'cyan',
+    };
     return map[event] ?? 'gray';
+  };
+
+  const subjectLabel = (record: LogRecord | null) => {
+    if (!record) return '-';
+    const name = record.subject?.name;
+    const id = record.subject_id;
+    if (name) return `${name} (ID: ${id})`;
+    if (id) return `ID: ${id}`;
+    return '-';
+  };
+
+  const subjectTypeLabel = (subjectType: string | null) => {
+    if (!subjectType) return '-';
+    const parts = subjectType.split('\\');
+    return parts[parts.length - 1] || subjectType;
   };
 
   const formatProperties = (properties: Record<string, unknown> | null | undefined) => {

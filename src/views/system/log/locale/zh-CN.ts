@@ -25,6 +25,9 @@ export default {
   // 详情
   'system.log.operation.detail': '详情',
   'system.log.operation.properties': '变更数据',
+  'system.log.op.subject': '操作对象',
+  'system.log.op.subject.id': '对象 ID',
+  'system.log.op.subject.type': '对象类型',
   // 状态
   'system.log.status.success': '成功',
   'system.log.status.fail': '失败',
@@ -34,6 +37,9 @@ export default {
   'system.log.event.created': '新增',
   'system.log.event.updated': '修改',
   'system.log.event.deleted': '删除',
+  'system.log.event.status_toggled': '状态变更',
+  'system.log.event.password_reset': '密码重置',
+  'system.log.event.roles_assigned': '角色分配',
   // 模块
   'system.log.module.user': '用户',
   'system.log.module.role': '角色',

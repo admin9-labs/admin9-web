@@ -23,7 +23,7 @@
   import { useI18n } from 'vue-i18n';
   import { Message, FormInstance } from '@arco-design/web-vue';
   import { useVisible } from '@/hooks';
-  import { updateUser, UserRecord } from '@/api/system/user';
+  import { updateUser, assignUserRoles, UserRecord } from '@/api/system/user';
   import { RoleRecord } from '@/api/system/role';
 
   const emit = defineEmits<{ (e: 'success'): void }>();
@@ -65,7 +65,9 @@
         done(false);
         return;
       }
-      await updateUser(editingId.value, { ...formData });
+      const { role_ids: roleIds, ...userData } = formData;
+      await updateUser(editingId.value, { ...userData, role_ids: roleIds });
+      await assignUserRoles(editingId.value, roleIds);
       Message.success(t('system.user.editModal.success'));
       emit('success');
       done(true);

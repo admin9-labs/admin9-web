@@ -63,3 +63,9 @@ export function toggleUserStatus(userId: number, isActive: boolean) {
 export function resetUserPassword(userId: number) {
   return axios.post(`/api/system/users/${userId}/reset-password`);
 }
+
+export function assignUserRoles(userId: number, roleIds: number[]) {
+  return axios.put(`/api/system/users/${userId}/assign-roles`, {
+    role_ids: roleIds,
+  });
+}

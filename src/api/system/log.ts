@@ -22,6 +22,7 @@ export interface LogRecord {
   created_at: string | null;
   updated_at: string | null;
   causer: LogCauser | null;
+  subject: LogCauser | null;
 }
 
 export interface LogListParams {
