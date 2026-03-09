@@ -28,7 +28,7 @@
       <li>
         <a-tooltip :content="$t('settings.navbar.alerts')">
           <div class="message-box-trigger">
-            <a-badge :count="9" dot>
+            <a-badge :count="unreadCount" dot>
               <a-button class="nav-btn" type="outline" :shape="'circle'" @click="setPopoverVisible">
                 <icon-notification />
               </a-button>
@@ -38,7 +38,7 @@
         <a-popover
           trigger="click"
           :arrow-style="{ display: 'none' }"
-          :content-style="{ padding: 0, minWidth: '400px' }"
+          :content-style="{ padding: 0 }"
           content-class="message-popover"
         >
           <div ref="refBtn" class="ref-btn"></div>
@@ -81,7 +81,7 @@
               </a-space>
             </a-doption>
             <a-doption>
-              <a-space @click="$router.push({ name: 'UserInfo' })">
+              <a-space @click="openUserSettings">
                 <icon-user />
                 <span>
                   {{ $t('messageBox.userCenter') }}
@@ -101,21 +101,36 @@
       </li>
     </ul>
   </div>
+  <UserSettingsModal ref="userSettingsRef" />
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, inject } from 'vue';
+  import { computed, ref, inject, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
   import useUser from '@/hooks/user';
+  import { getUnreadCount } from '@/api/message';
   import Menu from '@/components/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
+  import UserSettingsModal from '../user-settings-modal/index.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
   const { logout } = useUser();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
+  const unreadCount = ref(0);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const { data } = await getUnreadCount();
+      unreadCount.value = data?.count ?? 0;
+    } catch {
+      // ignore
+    }
+  };
+  onMounted(() => fetchUnreadCount());
   const avatar = computed(() => {
     return userStore.avatar;
   });
@@ -158,6 +173,16 @@
     Message.success(res as string);
   };
   const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
+
+  const userSettingsRef = ref<InstanceType<typeof UserSettingsModal>>();
+  const router = useRouter();
+  const openUserSettings = () => {
+    if (appStore.device === 'mobile') {
+      router.push({ name: 'UserInfo' });
+    } else {
+      userSettingsRef.value?.open();
+    }
+  };
 </script>
 
 <style scoped lang="less">

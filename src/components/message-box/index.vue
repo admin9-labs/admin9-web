@@ -1,97 +1,97 @@
 <template>
   <a-spin style="display: block" :loading="loading">
-    <a-tabs v-model:active-key="messageType" type="rounded" destroy-on-hide>
-      <a-tab-pane v-for="item in tabList" :key="item.key">
-        <template #title>
-          <span> {{ item.title }}{{ formatUnreadLength(item.key) }} </span>
-        </template>
-        <a-result v-if="!renderList.length" status="404">
-          <template #subtitle> {{ $t('messageBox.noContent') }} </template>
-        </a-result>
-        <List :render-list="renderList" :unread-count="unreadCount" @item-click="handleItemClick" />
-      </a-tab-pane>
-      <template #extra>
-        <a-button type="text" @click="emptyList">
+    <div class="message-box">
+      <div class="message-box-header">
+        <span class="header-title"> {{ $t('messageBox.tab.title.notice') }}{{ unreadCountText }} </span>
+        <a-button type="text" size="small" @click="handleClear">
           {{ $t('messageBox.tab.button') }}
         </a-button>
-      </template>
-    </a-tabs>
+      </div>
+      <div class="message-box-body">
+        <a-result v-if="!notificationList.length" status="404">
+          <template #subtitle>{{ $t('messageBox.noContent') }}</template>
+        </a-result>
+        <List v-else :render-list="notificationList" :unread-count="unreadCount" @item-click="handleItemClick" />
+      </div>
+      <div class="message-box-footer">
+        <div class="footer-item">
+          <a-link @click="handleAllRead">{{ $t('messageBox.allRead') }}</a-link>
+        </div>
+        <div class="footer-item">
+          <a-link @click="handleViewMore">{{ $t('messageBox.viewMore') }}</a-link>
+        </div>
+      </div>
+    </div>
   </a-spin>
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, toRefs, computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
-  import { queryMessageList, setMessageStatus, MessageRecord, MessageListType } from '@/api/message';
+  import { ref, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import {
+    queryNotificationList,
+    markNotificationRead,
+    markAllNotificationsRead,
+    clearAllNotifications,
+    NotificationRecord,
+    MessageRecord,
+  } from '@/api/message';
   import useLoading from '@/hooks/loading';
   import List from './list.vue';
 
-  interface TabItem {
-    key: string;
-    title: string;
-    avatar?: string;
-  }
   const { loading, setLoading } = useLoading(true);
-  const messageType = ref('message');
-  const { t } = useI18n();
-  const messageData = reactive<{
-    renderList: MessageRecord[];
-    messageList: MessageRecord[];
-  }>({
-    renderList: [],
-    messageList: [],
+  const router = useRouter();
+  const notificationList = ref<MessageRecord[]>([]);
+  function mapNotification(n: NotificationRecord): MessageRecord {
+    return {
+      id: Number(n.id) || 0,
+      type: n.type || 'notice',
+      title: n.title || '',
+      subTitle: '',
+      content: n.content || '',
+      time: n.created_at || '',
+      status: n.read_at ? 1 : 0,
+    };
+  }
+
+  const unreadCount = computed(() => {
+    return notificationList.value.filter((item) => !item.status).length;
   });
-  toRefs(messageData);
-  const tabList: TabItem[] = [
-    {
-      key: 'message',
-      title: t('messageBox.tab.title.message'),
-    },
-    {
-      key: 'notice',
-      title: t('messageBox.tab.title.notice'),
-    },
-    {
-      key: 'todo',
-      title: t('messageBox.tab.title.todo'),
-    },
-  ];
+
+  const unreadCountText = computed(() => {
+    return unreadCount.value ? `(${unreadCount.value})` : '';
+  });
+
   async function fetchSourceData() {
     setLoading(true);
     try {
-      const { data } = await queryMessageList();
-      messageData.messageList = data;
+      const { data } = await queryNotificationList();
+      const list = Array.isArray(data) ? data : data?.data || [];
+      notificationList.value = list.map(mapNotification);
     } catch (err) {
-      // you can report use errorHandler or other
+      // error handled by interceptor
     } finally {
       setLoading(false);
     }
   }
-  async function readMessage(data: MessageListType) {
-    const ids = data.map((item) => item.id);
-    await setMessageStatus({ ids });
-    fetchSourceData();
-  }
-  const renderList = computed(() => {
-    return messageData.messageList.filter((item) => messageType.value === item.type);
-  });
-  const unreadCount = computed(() => {
-    return renderList.value.filter((item) => !item.status).length;
-  });
-  const getUnreadList = (type: string) => {
-    const list = messageData.messageList.filter((item) => item.type === type && !item.status);
-    return list;
+
+  const handleItemClick = (items: MessageRecord[]) => {
+    const promises = items.map((item) => markNotificationRead(String(item.id)));
+    Promise.all(promises).then(() => fetchSourceData());
   };
-  const formatUnreadLength = (type: string) => {
-    const list = getUnreadList(type);
-    return list.length ? `(${list.length})` : ``;
+
+  const handleAllRead = () => {
+    markAllNotificationsRead().then(() => fetchSourceData());
   };
-  const handleItemClick = (items: MessageListType) => {
-    if (renderList.value.length) readMessage([...items]);
+
+  const handleClear = () => {
+    clearAllNotifications().then(() => fetchSourceData());
   };
-  const emptyList = () => {
-    messageData.messageList = [];
+
+  const handleViewMore = () => {
+    router.push({ name: 'Notification' });
   };
+
   fetchSourceData();
 </script>
 
@@ -103,14 +103,43 @@
   :deep(.arco-list-item-meta) {
     align-items: flex-start;
   }
-  :deep(.arco-tabs-nav) {
-    padding: 14px 0 12px 16px;
+
+  .message-box {
+    width: 400px;
+  }
+
+  .message-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 12px;
     border-bottom: 1px solid var(--color-neutral-3);
   }
-  :deep(.arco-tabs-content) {
-    padding-top: 0;
-    .arco-result-subtitle {
-      color: rgb(var(--gray-6));
+
+  .header-title {
+    color: var(--color-text-1);
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  :deep(.arco-result-subtitle) {
+    color: rgb(var(--gray-6));
+  }
+
+  .message-box-footer {
+    display: flex;
+    height: 50px;
+    line-height: 50px;
+    border-top: 1px solid var(--color-neutral-3);
+
+    .footer-item {
+      flex: 1;
+      text-align: center;
+      border-right: 1px solid var(--color-neutral-3);
+
+      &:last-child {
+        border-right: none;
+      }
     }
   }
 </style>
