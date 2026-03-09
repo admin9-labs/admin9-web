@@ -46,6 +46,21 @@ export function updateProfile(data: { name?: string; nickname?: string; introduc
   return axios.patch('/api/me', data);
 }
 
+// 更新当前用户头像
+export interface UpdateAvatarRes {
+  avatar_url: string;
+}
+
+export function updateAvatar(file: File) {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  return axios.post<UpdateAvatarRes>('/api/me/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
 // 修改密码
 export function changePassword(data: { password: string; new_password: string; password_confirmation: string }) {
   return axios.patch('/api/me/password', data);

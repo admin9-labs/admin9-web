@@ -3,21 +3,20 @@
     <div class="flex flex-col md:flex-row items-center gap-4">
       <div class="w-32 text-center">
         <a-upload
-          :file-list="[file]"
+          :file-list="fileList"
           :show-file-list="false"
-          :action="uploadAction"
-          :headers="{ Authorization: `Bearer ${token}` }"
+          :custom-request="customUpload"
           list-type="picture-card"
+          accept="image/png,image/jpeg,image/jpg,image/gif"
+          :limit="1"
           @change="onChange"
-          @success="onSuccess"
-          @progress="onProgress"
         >
           <template #upload-button>
             <a-avatar :size="84" class="info-avatar" object-fit="cover">
               <template #trigger-icon>
                 <icon-camera />
               </template>
-              <img v-if="file.length" :src="file.url" />
+              <img v-if="avatarUrl" :src="avatarUrl" />
             </a-avatar>
           </template>
         </a-upload>
@@ -44,38 +43,44 @@
 
 <script lang="ts" setup>
   import { computed, ref, useAttrs } from 'vue';
-  import { FileItem, Message } from '@arco-design/web-vue';
+  import { FileItem, Message, RequestOption } from '@arco-design/web-vue';
   import { useI18n } from 'vue-i18n';
   import { useUserStore } from '@/store';
-  import { getToken } from '@/utils/auth';
   import EditAccountInfoModal from './EditAccountInfoModal.vue';
 
   const { t } = useI18n();
   const attrs = useAttrs();
 
-  const token = getToken();
-  const uploadAction = `${import.meta.env.VITE_API_BASE_URL}/api/user/upload-avatar`;
   const userStore = useUserStore();
   const userInfo = computed(() => userStore.userInfo);
-  const file = ref<FileItem>({ uid: '-2', name: 'avatar.png', url: userInfo.value.avatar });
+  const avatarUrl = ref(userInfo.value.avatar);
+  const fileList = ref<FileItem[]>([]);
 
-  const onChange = (fileItemList: FileItem[], fileItem: FileItem) => {
-    file.value.url = fileItem.url;
-  };
+  const customUpload = async (option: RequestOption) => {
+    const { fileItem, onError, onSuccess } = option;
 
-  const onProgress = (currentFile: File) => {
-    file.value = currentFile;
-  };
+    try {
+      // Validate file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024;
+      if (fileItem.file && fileItem.file.size > maxSize) {
+        Message.error(t('userInfo.account.avatarSizeError'));
+        onError();
+        return;
+      }
 
-  const onSuccess = async (response?: any) => {
-    const { code, message, data } = JSON.parse(response.response);
-    if (code === 0) {
-      file.value.url = data.url;
-      userStore.info();
+      // Upload avatar
+      const res = await userStore.updateAvatar(fileItem.file as File);
+      avatarUrl.value = res.data.avatar_url;
       Message.success(t('userInfo.account.avatarSuccess'));
-    } else {
-      Message.error(message);
+      onSuccess();
+    } catch (error: any) {
+      Message.error(error.message || t('userInfo.account.avatarError'));
+      onError();
     }
+  };
+
+  const onChange = (fileItemList: FileItem[]) => {
+    fileList.value = fileItemList;
   };
 
   // 修改昵称

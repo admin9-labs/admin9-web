@@ -5,6 +5,7 @@ import {
   register as userRegister,
   exchangeToken as apiExchangeToken,
   getUserInfo,
+  updateAvatar as apiUpdateAvatar,
   LoginData,
   RegisterData,
 } from '@/api/user';
@@ -50,6 +51,12 @@ const useUserStore = defineStore('user', {
     async info() {
       const res = await getUserInfo();
       this.setInfo(res.data);
+    },
+    async updateAvatar(file: File) {
+      const res = await apiUpdateAvatar(file);
+      // Update avatar in store
+      this.setInfo({ avatar: res.data.avatar_url });
+      return res;
     },
     async login(loginForm: LoginData) {
       try {
