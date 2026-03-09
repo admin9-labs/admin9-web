@@ -47,4 +47,18 @@ export default {
   'auth.agreement.loginPrefix': '登录视为您已阅读并同意',
   'auth.agreement.termsOfService': '《服务协议》',
   'auth.agreement.privacyPolicy': '《隐私政策》',
+  // forgot password
+  'auth.forgot.title': '忘记密码',
+  'auth.forgot.desc': '输入你的邮箱地址，我们将发送密码重置链接。',
+  'auth.forgot.submit': '发送重置链接',
+  'auth.forgot.success': '重置链接已发送，请查收邮件。',
+  'auth.forgot.backToLogin': '返回登录',
+  // reset password
+  'auth.reset.title': '重置密码',
+  'auth.reset.password.placeholder': '请输入新密码',
+  'auth.reset.passwordConfirm.placeholder': '请再次输入新密码',
+  'auth.reset.passwordConfirm.required': '请再次输入密码',
+  'auth.reset.passwordConfirm.mismatch': '两次输入的密码不一致',
+  'auth.reset.submit': '重置密码',
+  'auth.reset.success': '密码重置成功，请重新登录。',
 };

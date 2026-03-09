@@ -26,6 +26,24 @@ const router = createRouter({
         locale: 'auth.login',
       },
     },
+    {
+      path: '/auth/forgot-password',
+      name: 'forgot-password',
+      component: () => import('@/views/auth/index.vue'),
+      meta: {
+        requiresAuth: false,
+        locale: 'auth.forgot.title',
+      },
+    },
+    {
+      path: '/auth/reset-password',
+      name: 'reset-password',
+      component: () => import('@/views/auth/index.vue'),
+      meta: {
+        requiresAuth: false,
+        locale: 'auth.reset.title',
+      },
+    },
     ...(!isOidc()
       ? [
           {

@@ -2,6 +2,8 @@ export const WHITE_LIST = [
   { name: 'notFound', children: [] },
   { name: 'login', children: [] },
   { name: 'register', children: [] },
+  { name: 'forgot-password', children: [] },
+  { name: 'reset-password', children: [] },
 ];
 
 export const NOT_FOUND = {

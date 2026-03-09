@@ -18,9 +18,6 @@
           <!-- 登录 -->
           <template v-if="$route.name === 'login'">
             <PasswordLoginForm />
-            <div class="text-center text-sm mt-4">
-              {{ $t('auth.noAccount') }} <a-link class="text-sm" @click="onRegister">{{ $t('auth.registerNow') }}</a-link>
-            </div>
           </template>
 
           <!-- 注册 -->
@@ -29,6 +26,16 @@
             <div class="text-center text-sm mt-4">
               {{ $t('auth.hasAccount') }} <a-link class="text-sm" @click="onLogin">{{ $t('auth.loginNow') }}</a-link>
             </div>
+          </template>
+
+          <!-- 忘记密码 -->
+          <template v-else-if="$route.name === 'forgot-password'">
+            <ForgotPasswordForm />
+          </template>
+
+          <!-- 重置密码 -->
+          <template v-else-if="$route.name === 'reset-password'">
+            <ResetPasswordForm />
           </template>
         </template>
       </div>
@@ -48,6 +55,8 @@
   import { isOidc, redirectToOidcLogin } from '@/utils/auth-strategy';
   import PasswordLoginForm from './components/PasswordLoginForm.vue';
   import PasswordRegisterForm from './components/PasswordRegisterForm.vue';
+  import ForgotPasswordForm from './components/ForgotPasswordForm.vue';
+  import ResetPasswordForm from './components/ResetPasswordForm.vue';
 
   const appStore = useAppStore();
   const route = useRoute();
@@ -69,10 +78,6 @@
 
   const onLogin = () => {
     router.push({ name: 'login' });
-  };
-
-  const onRegister = () => {
-    router.push({ name: 'register' });
   };
 </script>
 

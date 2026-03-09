@@ -41,6 +41,36 @@ export function getMenuList() {
   return axios.get<RouteRecordNormalized[]>('/api/me/menu');
 }
 
+// 更新当前用户资料
+export function updateProfile(data: { name?: string; nickname?: string; introduction?: string }) {
+  return axios.patch('/api/me', data);
+}
+
+// 修改密码
+export function changePassword(data: { password: string; new_password: string; password_confirmation: string }) {
+  return axios.patch('/api/me/password', data);
+}
+
+// 修改邮箱
+export function updateEmail(data: { email: string; code: string }) {
+  return axios.patch('/api/me/email', data);
+}
+
+// 修改手机号
+export function updatePhone(data: { phone: string; code: string }) {
+  return axios.patch('/api/me/phone', data);
+}
+
+// 发送密码重置邮件
+export function forgotPassword(data: { email: string }) {
+  return axios.post('/api/password/forgot', data);
+}
+
+// 密码重置（忘记密码流程）
+export function resetPassword(data: { token: string; email: string; password: string; password_confirmation: string }) {
+  return axios.post('/api/password/reset', data);
+}
+
 export interface RegisterData {
   phone: string;
   code: string;

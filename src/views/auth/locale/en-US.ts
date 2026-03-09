@@ -47,4 +47,18 @@ export default {
   'auth.agreement.loginPrefix': 'By logging in, you agree to our',
   'auth.agreement.termsOfService': 'Terms of Service',
   'auth.agreement.privacyPolicy': 'Privacy Policy',
+  // forgot password
+  'auth.forgot.title': 'Forgot Password',
+  'auth.forgot.desc': 'Enter your email address and we will send you a password reset link.',
+  'auth.forgot.submit': 'Send Reset Link',
+  'auth.forgot.success': 'Reset link sent, please check your email.',
+  'auth.forgot.backToLogin': 'Back to Login',
+  // reset password
+  'auth.reset.title': 'Reset Password',
+  'auth.reset.password.placeholder': 'Enter new password',
+  'auth.reset.passwordConfirm.placeholder': 'Confirm new password',
+  'auth.reset.passwordConfirm.required': 'Please confirm your password',
+  'auth.reset.passwordConfirm.mismatch': 'Passwords do not match',
+  'auth.reset.submit': 'Reset Password',
+  'auth.reset.success': 'Password reset successfully, please login again.',
 };
