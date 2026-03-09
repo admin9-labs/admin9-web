@@ -35,9 +35,6 @@
           </a-descriptions-item>
         </a-descriptions>
       </div>
-      <a-button type="primary" @click="$router.push({ name: 'UserAuthentication' })">{{
-        t('userInfo.account.identity')
-      }}</a-button>
       <a-button type="outline" @click="onEditAccountInfo">{{ t('userInfo.account.editProfile') }}</a-button>
     </div>
 

@@ -39,12 +39,15 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FormInstance } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { useI18n } from 'vue-i18n';
   import { useVisible } from '@/hooks';
+  import { updateProfile } from '@/api/user';
+  import { useUserStore } from '@/store';
 
   const { t } = useI18n();
   const { visible, setVisible } = useVisible(false);
+  const userStore = useUserStore();
 
   const formRef = ref<FormInstance>();
   const formData = ref({ username: '', nickname: '', introduce: '' });
@@ -61,6 +64,13 @@
       if (await formRef.value.validate()) {
         return false;
       }
+      await updateProfile({
+        name: formData.value.username,
+        nickname: formData.value.nickname,
+        introduction: formData.value.introduce,
+      });
+      await userStore.info();
+      Message.success(t('userInfo.editInfo.success'));
       return true;
     } catch {
       return false;

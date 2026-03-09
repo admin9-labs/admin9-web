@@ -5,19 +5,17 @@
         <AccountInfoCard :title="$t('userInfo.title.accountInfo')" class="general-card" />
       </a-col>
       <a-col :span="24">
-        <IdentityVerifiedCard :title="$t('userInfo.title.identity')" class="general-card" />
-      </a-col>
-      <a-col :span="24">
-        <AuthMethodList :title="$t('userInfo.title.authMethod')" class="general-card flex-1" />
+        <a-card :title="$t('userInfo.title.authMethod')" class="general-card flex-1">
+          <AuthMethodPanel />
+        </a-card>
       </a-col>
     </a-row>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import AuthMethodPanel from '@/components/user-settings-modal/AuthMethodPanel.vue';
   import AccountInfoCard from './components/AccountInfoCard.vue';
-  import AuthMethodList from './components/AuthMethodList.vue';
-  import IdentityVerifiedCard from './components/IdentityVerifiedCard.vue';
 
   defineOptions({ name: 'UserInfo' });
 </script>

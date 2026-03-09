@@ -10,5 +10,4 @@ export interface UserState {
   mobile?: string;
   mobile_verified: boolean;
   roles: RoleType[];
-  identity_verified: boolean;
 }

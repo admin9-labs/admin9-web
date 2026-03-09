@@ -26,7 +26,6 @@ const useUserStore = defineStore('user', {
     mobile_verified: false,
     introduction: undefined,
     roles: [],
-    identity_verified: false,
   }),
 
   getters: {
