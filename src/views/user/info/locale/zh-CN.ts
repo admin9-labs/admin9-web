@@ -11,4 +11,7 @@ export default {
   'userInfo.account.avatarSuccess': '头像更新成功',
   'userInfo.account.avatarError': '头像更新失败',
   'userInfo.account.avatarSizeError': '头像大小不能超过 5MB',
+  'userInfo.editEmail.success': '邮箱修改成功',
+  'userInfo.editPassword.success': '密码修改成功',
+  'userInfo.editPhone.success': '手机号修改成功',
 };

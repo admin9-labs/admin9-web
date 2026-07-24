@@ -26,6 +26,11 @@ export default {
   'common.confirm.delete.title': 'Delete Confirmation',
   'common.confirm.delete.content': 'Are you sure you want to delete?',
 
+  // Session expired
+  'common.session.expired.title': 'Session Expired',
+  'common.session.expired.content': 'You have been logged out. You can cancel to stay on this page, or log in again.',
+  'common.session.expired.relogin': 'Re-Login',
+
   // Common table columns
   'common.columns.id': 'ID',
   'common.columns.operations': 'Operations',

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message, Modal } from '@arco-design/web-vue';
+import i18n from '@/locale';
 import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 import { isOidc } from '@/utils/auth-strategy';
@@ -68,10 +69,11 @@ axios.interceptors.response.use(
       });
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       if (res.code === -1 && response.config.url !== '/api/user/info') {
+        const { t } = i18n.global;
         Modal.error({
-          title: 'Confirm logout',
-          content: 'You have been logged out, you can cancel to stay on this page, or log in again',
-          okText: 'Re-Login',
+          title: t('common.session.expired.title'),
+          content: t('common.session.expired.content'),
+          okText: t('common.session.expired.relogin'),
           async onOk() {
             const userStore = useUserStore();
 

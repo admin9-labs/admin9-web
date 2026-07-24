@@ -26,6 +26,11 @@ export default {
   'common.confirm.delete.title': '删除确认',
   'common.confirm.delete.content': '确定要删除吗？',
 
+  // 会话过期
+  'common.session.expired.title': '登录已过期',
+  'common.session.expired.content': '登录状态已失效，您可以取消留在当前页面，或重新登录。',
+  'common.session.expired.relogin': '重新登录',
+
   // 通用表格列
   'common.columns.id': 'ID',
   'common.columns.operations': '操作',

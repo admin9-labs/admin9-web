@@ -11,4 +11,7 @@ export default {
   'userInfo.account.avatarSuccess': 'Avatar updated successfully',
   'userInfo.account.avatarError': 'Failed to update avatar',
   'userInfo.account.avatarSizeError': 'Avatar size must be less than 5MB',
+  'userInfo.editEmail.success': 'Email updated successfully',
+  'userInfo.editPassword.success': 'Password updated successfully',
+  'userInfo.editPhone.success': 'Phone number updated successfully',
 };
