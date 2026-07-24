@@ -31,6 +31,11 @@ export default defineConfig({
   define: {
     'process.env': {},
   },
+  // 库以源码/产物方式在 node_modules 内被消费时，避免 Vite 预构建打散
+  // 其 .vue / 副作用 CSS（见 DESIGN.md §11.4，App vite3 兼容性）
+  optimizeDeps: {
+    exclude: ['@admin9-labs/admin9-ui'],
+  },
   css: {
     preprocessorOptions: {
       less: {

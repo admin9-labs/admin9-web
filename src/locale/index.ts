@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n';
+import { messages as uiMessages } from '@admin9-labs/admin9-ui';
 
 export const LOCALE_OPTIONS = [
   { label: '中文', value: 'zh-CN' },
@@ -30,8 +31,8 @@ const i18n = createI18n({
   legacy: false,
   allowComposition: true,
   messages: {
-    'en-US': loadLocaleMessages('en-US'),
-    'zh-CN': loadLocaleMessages('zh-CN'),
+    'en-US': { ...loadLocaleMessages('en-US'), ...uiMessages['en-US'] },
+    'zh-CN': { ...loadLocaleMessages('zh-CN'), ...uiMessages['zh-CN'] },
   },
 });
 

@@ -75,7 +75,8 @@
 <script lang="ts" setup>
   import { ref, reactive, computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { Modal, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
+  import { useModal } from '@admin9-labs/admin9-ui';
   import { useLoading } from '@/hooks';
   import { HttpResponse } from '@/api/interceptor';
   import {
@@ -92,6 +93,7 @@
   defineOptions({ name: 'SystemDict' });
 
   const { t } = useI18n();
+  const { confirmDelete } = useModal();
   const { loading: typeLoading, setLoading: setTypeLoading } = useLoading(false);
   const { loading: itemLoading, setLoading: setItemLoading } = useLoading(false);
 
@@ -208,11 +210,11 @@
     editTypeModalRef.value?.onEdit(record);
   };
   const handleDeleteType = (record: DictTypeRecord) => {
-    Modal.warning({
-      title: t('system.dict.delete.title'),
-      content: t('system.dict.delete.content'),
-      onOk: async () => {
+    confirmDelete({
+      onDelete: async () => {
         await deleteDictType(record.id);
+      },
+      onSuccess: () => {
         Message.success(t('system.dict.delete.success'));
         if (selectedTypeId.value === record.id) {
           selectedTypeId.value = undefined;
@@ -231,11 +233,11 @@
     editItemModalRef.value?.onEdit(record);
   };
   const handleDeleteItem = (record: DictItemRecord) => {
-    Modal.warning({
-      title: t('system.dict.deleteItem.title'),
-      content: t('system.dict.deleteItem.content'),
-      onOk: async () => {
+    confirmDelete({
+      onDelete: async () => {
         await deleteDictItem(record.id);
+      },
+      onSuccess: () => {
         Message.success(t('system.dict.deleteItem.success'));
         fetchItems();
       },

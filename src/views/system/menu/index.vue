@@ -75,7 +75,8 @@
 <script lang="ts" setup>
   import { ref, computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { Modal, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
+  import { useModal } from '@admin9-labs/admin9-ui';
   import { useLoading } from '@/hooks';
   import { useAppStore } from '@/store';
   import { queryMenuTree, deleteMenu, type MenuRecord } from '@/api/system/menu';
@@ -84,6 +85,7 @@
   defineOptions({ name: 'SystemMenu' });
 
   const { t } = useI18n();
+  const { confirmDelete } = useModal();
   const appStore = useAppStore();
   const { loading, setLoading } = useLoading(false);
   const tableData = ref<MenuRecord[]>([]);
@@ -153,11 +155,11 @@
   };
 
   const handleDelete = (record: MenuRecord) => {
-    Modal.warning({
-      title: t('system.menu.delete.title'),
-      content: t('system.menu.delete.content'),
-      onOk: async () => {
+    confirmDelete({
+      onDelete: async () => {
         await deleteMenu(record.id);
+      },
+      onSuccess: () => {
         Message.success(t('system.menu.delete.success'));
         fetchData();
         appStore.fetchServerMenuConfig();

@@ -1,7 +1,10 @@
 import { createApp } from 'vue';
 import ArcoVue from '@arco-design/web-vue';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
+import Admin9UI from '@admin9-labs/admin9-ui';
 import globalComponents from '@/components';
+import { mediaService } from '@/services/mediaService';
+import { userService } from '@/services/userService';
 import router from './router';
 import store from './store';
 import i18n from './locale';
@@ -11,6 +14,7 @@ import App from './App.vue';
 // 样式通过 arco-plugin 插件导入。详见目录文件 config/plugin/arcoStyleImport.ts
 // https://arco.design/docs/designlab/use-theme-package
 import '@/assets/style/global.less';
+import '@admin9-labs/admin9-ui/styles';
 import '@/api/interceptor';
 
 const app = createApp(App);
@@ -21,6 +25,7 @@ app.use(ArcoVueIcon);
 app.use(router);
 app.use(store);
 app.use(i18n);
+app.use(Admin9UI, { mediaService, userService });
 app.use(globalComponents);
 app.use(directive);
 

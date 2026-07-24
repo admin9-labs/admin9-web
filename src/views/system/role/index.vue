@@ -21,7 +21,8 @@
 <script lang="ts" setup>
   import { ref, reactive, computed, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { Modal, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
+  import { useModal } from '@admin9-labs/admin9-ui';
   import { useLoading } from '@/hooks';
   import { HttpResponse } from '@/api/interceptor';
   import { queryRoleList, deleteRole, type RoleRecord } from '@/api/system/role';
@@ -31,6 +32,7 @@
   defineOptions({ name: 'SystemRole' });
 
   const { t } = useI18n();
+  const { confirmDelete } = useModal();
   const { loading, setLoading } = useLoading(false);
   const tableData = ref<RoleRecord[]>([]);
   const menus = ref<MenuRecord[]>([]);
@@ -96,11 +98,11 @@
   };
 
   const handleDelete = (record: RoleRecord) => {
-    Modal.warning({
-      title: t('system.role.delete.title'),
-      content: t('system.role.delete.content'),
-      onOk: async () => {
+    confirmDelete({
+      onDelete: async () => {
         await deleteRole(record.id);
+      },
+      onSuccess: () => {
         Message.success(t('system.role.delete.success'));
         fetchData();
       },
