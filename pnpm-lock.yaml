@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  bin-wrapper: npm:bin-wrapper-china
+  gifsicle: 5.2.0
+  rollup@2: ^2.79.2
+
 importers:
 
   .:
@@ -199,7 +204,7 @@ importers:
         specifier: ^2.8.8
         version: 2.8.8
       rollup:
-        specifier: ^2.80.0
+        specifier: ^2.79.2
         version: 2.80.0
       rollup-plugin-visualizer:
         specifier: ^5.14.0
@@ -275,7 +280,7 @@ importers:
         version: 5.4.21(@types/node@25.3.0)(less@4.5.1)(sugarss@2.0.0)
       vite-plugin-dts:
         specifier: ^3.9.0
-        version: 3.9.1(@types/node@25.3.0)(rollup@4.62.2)(typescript@5.9.3)(vite@5.4.21(@types/node@25.3.0)(less@4.5.1)(sugarss@2.0.0))
+        version: 3.9.1(@types/node@25.3.0)(rollup@2.80.0)(typescript@5.9.3)(vite@5.4.21(@types/node@25.3.0)(less@4.5.1)(sugarss@2.0.0))
       vue:
         specifier: ^3.5.0
         version: 3.5.29(typescript@5.9.3)
@@ -990,7 +995,7 @@ packages:
     resolution: {integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+      rollup: ^2.79.2
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -2016,13 +2021,17 @@ packages:
     resolution: {integrity: sha512-Mkfm4iE1VFt4xd4vH+gx+0/71esbfus2LsnCGe8Pi4mndSPyT+NGES/Eg99jx8/lUGWfu3z2yuB/bt5UB+iVbQ==}
     engines: {node: '>=6'}
 
-  bin-wrapper@4.1.0:
-    resolution: {integrity: sha512-hfRmo7hWIXPkbpi0ZltboCMVrU+0ClXR/JgbCKKjlDjQf6igXa7OwdqNcFWQZPZTgiY7ZpzE3+LjjkLiTN2T7Q==}
-    engines: {node: '>=6'}
+  bin-wrapper-china@0.1.0:
+    resolution: {integrity: sha512-1UCm17WYEbgry50tup+AQN+JGVEVzoW4f8HMl899k1lvuFxWKGZXl/G2fgxQxAckRjnloO3ijLVVEsv8zescUg==}
+    engines: {node: '>=8.3'}
+    hasBin: true
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
+
+  binary-mirror-config@1.41.0:
+    resolution: {integrity: sha512-ZiIhR1s6Sv1Fv6qCQqfPjx0Cj86BgFlhqNxZgHkQOWcxJcMbO3mj1iqsuVjowYqJqeZL8e52+IEv7IRnSX6T6w==}
 
   bl@1.2.3:
     resolution: {integrity: sha512-pvcNpa0UU69UT341rO6AYy4FVAIkUHuZXRIWbq+zHnsVcRzDDjIAhGuuYoi0d//cwIwtt4pkpKycWEfjdV+vww==}
@@ -5546,7 +5555,7 @@ packages:
     hasBin: true
     peerDependencies:
       rolldown: 1.x
-      rollup: 2.x || 3.x || 4.x
+      rollup: ^2.79.2
     peerDependenciesMeta:
       rolldown:
         optional: true
@@ -7366,14 +7375,6 @@ snapshots:
     optionalDependencies:
       rollup: 2.80.0
 
-  '@rollup/pluginutils@5.3.0(rollup@4.62.2)':
-    dependencies:
-      '@types/estree': 1.0.8
-      estree-walker: 2.0.2
-      picomatch: 4.0.3
-    optionalDependencies:
-      rollup: 4.62.2
-
   '@rollup/rollup-android-arm-eabi@4.62.2':
     optional: true
 
@@ -8443,16 +8444,19 @@ snapshots:
       execa: 1.0.0
       find-versions: 3.2.0
 
-  bin-wrapper@4.1.0:
+  bin-wrapper-china@0.1.0:
     dependencies:
       bin-check: 4.1.0
       bin-version-check: 4.0.0
+      binary-mirror-config: 1.41.0
       download: 7.1.0
-      import-lazy: 3.1.0
+      import-lazy: 4.0.0
       os-filter-obj: 2.0.0
       pify: 4.0.1
 
   binary-extensions@2.3.0: {}
+
+  binary-mirror-config@1.41.0: {}
 
   bl@1.2.3:
     dependencies:
@@ -8902,7 +8906,7 @@ snapshots:
   cwebp-bin@6.1.2:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
 
   dargs@7.0.0: {}
 
@@ -10085,7 +10089,7 @@ snapshots:
   gifsicle@5.2.0:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
       execa: 5.1.1
       logalot: 2.1.0
 
@@ -10782,13 +10786,13 @@ snapshots:
   jpegtran-bin@5.0.2:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
       logalot: 2.1.0
 
   jpegtran-bin@6.0.1:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
 
   js-tokens@4.0.0: {}
 
@@ -11246,7 +11250,7 @@ snapshots:
   mozjpeg@7.1.1:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
 
   ms@2.0.0: {}
 
@@ -11469,7 +11473,7 @@ snapshots:
   optipng-bin@7.0.1:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
 
   ora@5.4.1:
     dependencies:
@@ -11703,7 +11707,7 @@ snapshots:
   pngquant-bin@6.0.1:
     dependencies:
       bin-build: 3.0.0
-      bin-wrapper: 4.1.0
+      bin-wrapper: bin-wrapper-china@0.1.0
       execa: 4.1.0
 
   posix-character-classes@0.1.1: {}
@@ -13301,10 +13305,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-dts@3.9.1(@types/node@25.3.0)(rollup@4.62.2)(typescript@5.9.3)(vite@5.4.21(@types/node@25.3.0)(less@4.5.1)(sugarss@2.0.0)):
+  vite-plugin-dts@3.9.1(@types/node@25.3.0)(rollup@2.80.0)(typescript@5.9.3)(vite@5.4.21(@types/node@25.3.0)(less@4.5.1)(sugarss@2.0.0)):
     dependencies:
       '@microsoft/api-extractor': 7.43.0(@types/node@25.3.0)
-      '@rollup/pluginutils': 5.3.0(rollup@4.62.2)
+      '@rollup/pluginutils': 5.3.0(rollup@2.80.0)
       '@vue/language-core': 1.8.27(typescript@5.9.3)
       debug: 4.4.3
       kolorist: 1.8.0

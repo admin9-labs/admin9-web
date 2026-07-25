@@ -120,9 +120,11 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "resolutions": {
-    "bin-wrapper": "npm:bin-wrapper-china",
-    "gifsicle": "5.2.0",
-    "rollup": "^2.79.2"
+  "pnpm": {
+    "overrides": {
+      "bin-wrapper": "npm:bin-wrapper-china",
+      "gifsicle": "5.2.0",
+      "rollup@2": "^2.79.2"
+    }
   }
 }
