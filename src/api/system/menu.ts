@@ -19,9 +19,9 @@ export interface MenuRecord {
   component: string | null;
   icon: string | null;
   type: MenuType;
-  permission_id: number | null;
-  permission_name: string | null;
-  permission: MenuPermission | null;
+  permission_ids: number[];
+  permission_names: string[];
+  permissions: MenuPermission[];
   sort: number;
   is_visible: boolean;
   is_active: boolean;
@@ -38,7 +38,7 @@ export interface MenuCreateData {
   component?: string | null;
   icon?: string | null;
   type?: MenuType;
-  permission_id?: number | null;
+  permission_ids?: number[];
   sort?: number;
   is_visible?: boolean;
   is_active?: boolean;

@@ -69,9 +69,9 @@
           :max-length="100"
         />
       </a-form-item>
-      <a-form-item :label="$t('system.menu.editModal.permission')" field="permission_id">
+      <a-form-item :label="$t('system.menu.editModal.permission')" field="permission_ids">
         <a-select
-          v-model="formData.permission_id"
+          v-model="formData.permission_ids"
           :placeholder="
             !isBuiltInMenu && !canEditPermissionBinding
               ? $t('system.menu.permissionCatalogRequired')
@@ -81,6 +81,7 @@
           :disabled="isBuiltInMenu || !canEditPermissionBinding"
           allow-clear
           allow-search
+          multiple
         >
           <a-option
             v-for="permission in permissions"
@@ -127,7 +128,7 @@
     path: string;
     component: string;
     icon: string;
-    permission_id: number | null;
+    permission_ids: number[];
     sort: number;
     is_visible: boolean;
     is_active: boolean;
@@ -154,7 +155,7 @@
     path: '',
     component: '',
     icon: '',
-    permission_id: null,
+    permission_ids: [],
     sort: 0,
     is_visible: true,
     is_active: true,
@@ -251,7 +252,7 @@
     formData.path = '';
     formData.component = '';
     formData.icon = '';
-    formData.permission_id = null;
+    formData.permission_ids = [];
     formData.sort = 0;
     formData.is_visible = true;
     formData.is_active = true;
@@ -266,7 +267,7 @@
     path: formData.type === 'button' ? null : formData.path.trim() || null,
     component: formData.type === 'button' ? null : formData.component.trim() || null,
     icon: formData.type === 'button' ? null : formData.icon.trim() || null,
-    permission_id: formData.permission_id,
+    permission_ids: [...formData.permission_ids],
     sort: formData.sort,
     is_visible: formData.is_visible,
     is_active: formData.is_active,
@@ -342,7 +343,7 @@
     formData.path = record.path ?? '';
     formData.component = record.component ?? '';
     formData.icon = record.icon ?? '';
-    formData.permission_id = record.permission_id;
+    formData.permission_ids = [...record.permission_ids];
     formData.sort = record.sort;
     formData.is_visible = record.is_visible;
     formData.is_active = record.is_active;

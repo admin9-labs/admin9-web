@@ -9,6 +9,7 @@ export const ADMIN_MENU_ROUTE_NAMES = {
   'system.menus': 'SystemMenu',
   'system.dictionaries': 'SystemDict',
   'system.configs': 'SystemConfig',
+  'system.logs': 'SystemLog',
 } as const;
 
 const knownRouteNames = new Set<string>(Object.values(ADMIN_MENU_ROUTE_NAMES));

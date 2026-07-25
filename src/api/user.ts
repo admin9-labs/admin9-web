@@ -43,9 +43,9 @@ export interface AdminMenu {
   component: string | null;
   icon: string | null;
   type: 'directory' | 'page' | 'button';
-  permission_id: number | null;
-  permission_name: string | null;
-  permission?: AdminPermission | null;
+  permission_ids: number[];
+  permission_names: string[];
+  permissions: AdminPermission[];
   sort: number;
   is_visible: boolean;
   is_active: boolean;

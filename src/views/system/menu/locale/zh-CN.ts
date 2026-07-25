@@ -32,7 +32,7 @@ export default {
   'system.menu.editModal.icon': '图标',
   'system.menu.editModal.icon.placeholder': '请输入图标名，如 menu',
   'system.menu.editModal.permission': '关联权限',
-  'system.menu.editModal.permission.placeholder': '请选择权限，可留空表示无需权限',
+  'system.menu.editModal.permission.placeholder': '请选择一个或多个权限，可留空表示无需权限',
   'system.menu.editModal.sort': '排序',
   'system.menu.editModal.isVisible': '在导航中显示',
   'system.menu.editModal.isActive': '启用',

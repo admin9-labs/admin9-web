@@ -53,9 +53,13 @@
           </a-tag>
         </template>
         <template #configuration="{ record }">
-          <div v-if="record.component || record.permission_name" class="menu-configuration">
+          <div v-if="record.component || record.permission_names.length" class="menu-configuration">
             <span v-if="record.component" class="menu-component">{{ record.component }}</span>
-            <code v-if="record.permission_name" class="menu-code">{{ record.permission_name }}</code>
+            <div v-if="record.permission_names.length" class="menu-permissions">
+              <code v-for="permissionName in record.permission_names" :key="permissionName" class="menu-code">
+                {{ permissionName }}
+              </code>
+            </div>
           </div>
           <span v-else class="menu-empty">-</span>
         </template>
@@ -281,6 +285,12 @@
     overflow-wrap: anywhere;
     background-color: var(--color-fill-2);
     border-radius: 2px;
+  }
+
+  .menu-permissions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 
   .menu-component {
