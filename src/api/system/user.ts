@@ -1,71 +1,106 @@
 import axios from 'axios';
 
-// ---- Types ----
+export interface ApiResponse<T> {
+  success: boolean;
+  code: number;
+  message: string;
+  data: T;
+  request_id: string;
+}
+
+export interface PaginationMeta {
+  pagination: 'page';
+  page: number;
+  page_size: number;
+  has_more: boolean;
+  total: number;
+}
 
 export interface UserRole {
   id: number;
   name: string;
-  pivot: {
-    model_type: string;
-    model_id: number;
-    role_id: number;
-  };
+  guard_name: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface UserRecord {
   id: number;
   name: string;
   email: string;
-  email_verified_at: string | null;
   is_active: boolean;
+  last_login_at: string | null;
+  last_login_ip: string | null;
+  roles: UserRole[];
   created_at: string | null;
   updated_at: string | null;
-  roles: UserRole[];
 }
 
 export interface UserListParams {
-  id?: string;
-  is_active?: string;
-  name?: string;
-  email?: string;
-  keyword?: string;
-  sort?: string;
   current?: number;
+  /** Kept for the existing userService adapter; the backend does not accept or receive it. */
   pageSize?: number;
+  /** Kept for the existing userService adapter; the backend does not accept or receive it. */
+  keyword?: string;
+}
+
+export interface UserCreateData {
+  name: string;
+  email: string;
+  password: string;
+  is_active?: boolean;
 }
 
 export interface UserUpdateData {
-  name: string;
-  email: string;
-  role_ids: number[];
+  name?: string;
+  email?: string;
+  is_active?: boolean;
 }
 
-// ---- API ----
-
-export function queryUserList(params?: UserListParams) {
-  return axios.get<UserRecord[]>('/api/system/users', { params });
+export interface UserPasswordData {
+  password: string;
+  password_confirmation: string;
 }
 
-export function queryUserDetail(userId: number) {
-  return axios.get<UserRecord>(`/api/system/users/${userId}`);
+export interface UserRoleSyncData {
+  roles: string[];
 }
 
-export function updateUser(userId: number, data: UserUpdateData) {
-  return axios.put<UserRecord>(`/api/system/users/${userId}`, data);
+export interface UserData {
+  user: UserRecord;
 }
 
-export function toggleUserStatus(userId: number, isActive: boolean) {
-  return axios.patch<UserRecord>(`/api/system/users/${userId}/status`, {
-    is_active: isActive,
-  });
+export type UserListResponse = ApiResponse<UserRecord[]> & { meta: PaginationMeta };
+export type UserResponse = ApiResponse<UserData>;
+export type EmptyResponse = ApiResponse<Record<string, never>>;
+
+const USER_ENDPOINT = '/api/admin/users';
+
+export function queryUserList(params?: UserListParams): Promise<UserListResponse> {
+  const pageParams = params?.current ? { current: params.current } : undefined;
+  return axios.get(USER_ENDPOINT, { params: pageParams }) as unknown as Promise<UserListResponse>;
 }
 
-export function resetUserPassword(userId: number) {
-  return axios.post(`/api/system/users/${userId}/reset-password`);
+export function createUser(data: UserCreateData): Promise<UserResponse> {
+  return axios.post(USER_ENDPOINT, data) as unknown as Promise<UserResponse>;
 }
 
-export function assignUserRoles(userId: number, roleIds: number[]) {
-  return axios.put(`/api/system/users/${userId}/assign-roles`, {
-    role_ids: roleIds,
-  });
+export function queryUserDetail(userId: number): Promise<UserResponse> {
+  return axios.get(`${USER_ENDPOINT}/${userId}`) as unknown as Promise<UserResponse>;
+}
+
+export function updateUser(userId: number, data: UserUpdateData): Promise<UserResponse> {
+  return axios.put(`${USER_ENDPOINT}/${userId}`, data) as unknown as Promise<UserResponse>;
+}
+
+export function deleteUser(userId: number): Promise<EmptyResponse> {
+  return axios.delete(`${USER_ENDPOINT}/${userId}`) as unknown as Promise<EmptyResponse>;
+}
+
+export function resetUserPassword(userId: number, data: UserPasswordData): Promise<EmptyResponse> {
+  return axios.put(`${USER_ENDPOINT}/${userId}/password`, data) as unknown as Promise<EmptyResponse>;
+}
+
+export function syncUserRoles(userId: number, data: UserRoleSyncData): Promise<UserResponse> {
+  return axios.put(`${USER_ENDPOINT}/${userId}/roles`, data) as unknown as Promise<UserResponse>;
 }
