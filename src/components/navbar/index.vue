@@ -25,28 +25,6 @@
           </a-button>
         </a-tooltip>
       </li>
-      <li>
-        <a-tooltip :content="$t('settings.navbar.alerts')">
-          <div class="message-box-trigger">
-            <a-badge :count="unreadCount" dot>
-              <a-button class="nav-btn" type="outline" :shape="'circle'" @click="setPopoverVisible">
-                <icon-notification />
-              </a-button>
-            </a-badge>
-          </div>
-        </a-tooltip>
-        <a-popover
-          trigger="click"
-          :arrow-style="{ display: 'none' }"
-          :content-style="{ padding: 0 }"
-          content-class="message-popover"
-        >
-          <div ref="refBtn" class="ref-btn"></div>
-          <template #content>
-            <message-box />
-          </template>
-        </a-popover>
-      </li>
       <li v-if="appStore.device != 'mobile'">
         <a-tooltip :content="isFullscreen ? $t('settings.navbar.screen.toExit') : $t('settings.navbar.screen.toFull')">
           <a-button class="nav-btn" type="outline" :shape="'circle'" @click="toggleFullScreen">
@@ -69,17 +47,9 @@
       <li>
         <a-dropdown trigger="click">
           <a-avatar :size="32" :style="{ marginRight: '8px', cursor: 'pointer' }">
-            <img alt="avatar" :src="avatar" />
+            <icon-user />
           </a-avatar>
           <template #content>
-            <a-doption>
-              <a-space @click="switchRoles">
-                <icon-tag />
-                <span>
-                  {{ $t('messageBox.switchRoles') }}
-                </span>
-              </a-space>
-            </a-doption>
             <a-doption>
               <a-space @click="openUserSettings">
                 <icon-user />
@@ -101,39 +71,19 @@
       </li>
     </ul>
   </div>
-  <UserSettingsModal ref="userSettingsRef" />
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, inject, onMounted } from 'vue';
+  import { computed, inject } from 'vue';
   import { useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
-  import { useAppStore, useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
   import useUser from '@/hooks/user';
-  import { getUnreadCount } from '@/api/message';
   import Menu from '@/components/menu/index.vue';
-  import MessageBox from '../message-box/index.vue';
-  import UserSettingsModal from '../user-settings-modal/index.vue';
 
   const appStore = useAppStore();
-  const userStore = useUserStore();
   const { logout } = useUser();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-  const unreadCount = ref(0);
-
-  const fetchUnreadCount = async () => {
-    try {
-      const { data } = await getUnreadCount();
-      unreadCount.value = data?.count ?? 0;
-    } catch {
-      // ignore
-    }
-  };
-  onMounted(() => fetchUnreadCount());
-  const avatar = computed(() => {
-    return userStore.avatar;
-  });
   const theme = computed(() => {
     return appStore.theme;
   });
@@ -156,32 +106,14 @@
   const setVisible = () => {
     appStore.updateSettings({ globalSettings: true });
   };
-  const refBtn = ref();
-  const setPopoverVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    refBtn.value.dispatchEvent(event);
-  };
   const handleLogout = () => {
     logout();
   };
-  const switchRoles = async () => {
-    const res = await userStore.switchRoles();
-    Message.success(res as string);
-  };
   const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
 
-  const userSettingsRef = ref<InstanceType<typeof UserSettingsModal>>();
   const router = useRouter();
   const openUserSettings = () => {
-    if (appStore.device === 'mobile') {
-      router.push({ name: 'UserInfo' });
-    } else {
-      userSettingsRef.value?.open();
-    }
+    router.push({ name: 'UserInfo' });
   };
 </script>
 
@@ -233,24 +165,6 @@
       color: rgb(var(--gray-8));
       font-size: 16px;
       border-color: rgb(var(--gray-2));
-    }
-
-    .trigger-btn,
-    .ref-btn {
-      position: absolute;
-      bottom: 14px;
-    }
-
-    .trigger-btn {
-      margin-left: 14px;
-    }
-  }
-</style>
-
-<style lang="less">
-  .message-popover {
-    .arco-popover-content {
-      margin-top: 0;
     }
   }
 </style>

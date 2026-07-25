@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css';
 
-import { isOidc } from '@/utils/auth-strategy';
 import { appRoutes } from './routes';
 import { REDIRECT_MAIN, NOT_FOUND_ROUTE } from './routes/base';
 import createRouteGuard from './guard';
@@ -26,37 +25,6 @@ const router = createRouter({
         locale: 'auth.login',
       },
     },
-    {
-      path: '/auth/forgot-password',
-      name: 'forgot-password',
-      component: () => import('@/views/auth/index.vue'),
-      meta: {
-        requiresAuth: false,
-        locale: 'auth.forgot.title',
-      },
-    },
-    {
-      path: '/auth/reset-password',
-      name: 'reset-password',
-      component: () => import('@/views/auth/index.vue'),
-      meta: {
-        requiresAuth: false,
-        locale: 'auth.reset.title',
-      },
-    },
-    ...(!isOidc()
-      ? [
-          {
-            path: '/auth/register',
-            name: 'register',
-            component: () => import('@/views/auth/index.vue'),
-            meta: {
-              requiresAuth: false,
-              locale: 'auth.register',
-            },
-          },
-        ]
-      : []),
     ...appRoutes,
     REDIRECT_MAIN,
     NOT_FOUND_ROUTE,

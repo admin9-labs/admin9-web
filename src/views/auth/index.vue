@@ -5,39 +5,8 @@
     </div>
     <div class="content">
       <div class="content-inner flex flex-col gap-4">
-        <!-- OIDC 登录失败 -->
-        <template v-if="oidcMode && oidcError">
-          <div class="flex flex-col items-center justify-center gap-4 py-8">
-            <div class="text-red-500 text-center">{{ oidcError }}</div>
-            <a-button type="primary" @click="redirectToOidcLogin">{{ $t('auth.reLogin') }}</a-button>
-          </div>
-        </template>
-
-        <template v-else>
-          <div class="auth-title text-2xl font-brand mb-4">{{ $t('auth.welcome', { appName: appStore?.app_name }) }}</div>
-          <!-- 登录 -->
-          <template v-if="$route.name === 'login'">
-            <PasswordLoginForm />
-          </template>
-
-          <!-- 注册 -->
-          <template v-else-if="$route.name === 'register'">
-            <PasswordRegisterForm />
-            <div class="text-center text-sm mt-4">
-              {{ $t('auth.hasAccount') }} <a-link class="text-sm" @click="onLogin">{{ $t('auth.loginNow') }}</a-link>
-            </div>
-          </template>
-
-          <!-- 忘记密码 -->
-          <template v-else-if="$route.name === 'forgot-password'">
-            <ForgotPasswordForm />
-          </template>
-
-          <!-- 重置密码 -->
-          <template v-else-if="$route.name === 'reset-password'">
-            <ResetPasswordForm />
-          </template>
-        </template>
+        <div class="auth-title text-2xl font-brand mb-4">{{ $t('auth.welcome', { appName: appStore?.app_name }) }}</div>
+        <PasswordLoginForm />
       </div>
     </div>
     <div class="footer">
@@ -47,23 +16,12 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import { useAppStore } from '@/store';
   import { useDark } from '@vueuse/core';
   import Footer from '@/components/footer/index.vue';
-  import { useRouter, useRoute } from 'vue-router';
-  import { isOidc, redirectToOidcLogin } from '@/utils/auth-strategy';
+  import { useAppStore } from '@/store';
   import PasswordLoginForm from './components/PasswordLoginForm.vue';
-  import PasswordRegisterForm from './components/PasswordRegisterForm.vue';
-  import ForgotPasswordForm from './components/ForgotPasswordForm.vue';
-  import ResetPasswordForm from './components/ResetPasswordForm.vue';
 
   const appStore = useAppStore();
-  const route = useRoute();
-  const router = useRouter();
-
-  const oidcMode = isOidc();
-  const oidcError = computed(() => (route.query.oidcError as string) || '');
 
   useDark({
     selector: 'body',
@@ -75,10 +33,6 @@
       appStore.toggleTheme(dark);
     },
   });
-
-  const onLogin = () => {
-    router.push({ name: 'login' });
-  };
 </script>
 
 <style lang="less" scoped>

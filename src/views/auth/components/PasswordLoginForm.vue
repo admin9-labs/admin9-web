@@ -8,15 +8,6 @@
         <a-input-password v-model="userInfo.password" :placeholder="t('auth.login.password.placeholder')" />
       </a-form-item>
       <a-form-item hide-label>
-        <div class="flex justify-between w-full text-sm">
-          <span
-            >{{ t('auth.noAccount') }}
-            <a-link class="text-sm" @click="$router.push({ name: 'register' })">{{ t('auth.registerNow') }}</a-link></span
-          >
-          <a-link class="text-sm" @click="$router.push({ name: 'forgot-password' })">{{ t('auth.forgot.title') }}</a-link>
-        </div>
-      </a-form-item>
-      <a-form-item hide-label>
         <a-button type="primary" html-type="submit" long :loading="loading"> {{ t('login.form.login') }} </a-button>
       </a-form-item>
       <a-form-item hide-label>
@@ -51,17 +42,14 @@
       { required: true, message: t('auth.login.email.required') },
       { type: 'email', message: t('auth.login.email.invalid') },
     ],
-    password: [
-      { required: true, message: t('auth.login.password.required') },
-      { min: 6, max: 20, message: t('auth.login.password.length') },
-    ],
+    password: [{ required: true, message: t('auth.login.password.required') }],
   };
 
   const loginForm = ref();
-  const handleSubmit = async (values: Record<string, any>) => {
+  const handleSubmit = async () => {
     try {
       setLoading(true);
-      await userStore.login(values as any);
+      await userStore.login({ ...userInfo });
       const { redirect, ...othersQuery } = router.currentRoute.value.query;
       router.push({
         name: (redirect as string) || DEFAULT_ROUTE_NAME,
@@ -80,5 +68,3 @@
     }
   };
 </script>
-
-<style lang="less" scoped></style>

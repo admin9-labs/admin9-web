@@ -16,4 +16,12 @@ const clearToken = () => {
   localStorage.removeItem(TOKEN_KEY);
 };
 
-export { isLogin, getToken, setToken, clearToken };
+const listenForTokenChanges = () => {
+  window.addEventListener('storage', (event) => {
+    if (event.storageArea === localStorage && event.key === TOKEN_KEY && event.oldValue !== event.newValue) {
+      window.location.reload();
+    }
+  });
+};
+
+export { isLogin, getToken, setToken, clearToken, listenForTokenChanges };

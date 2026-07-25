@@ -1,98 +1,85 @@
 import axios from 'axios';
-import type { RouteRecordNormalized } from 'vue-router';
-import { UserState } from '@/store/modules/user/types';
+import type { HttpResponse } from '@/api/interceptor';
+import type { AdminUser } from '@/store/modules/user/types';
 
 export interface LoginData {
   email: string;
   password: string;
 }
 
-export interface LoginRes {
+export interface TokenRes {
   access_token: string;
-  token_type: string;
-  expires_in: string;
+  token_type: 'bearer';
+  expires_in: number;
 }
 
-export interface LogoutRes {
-  logout_url: string;
+export interface AuthIdentityRes {
+  user: AdminUser;
+  permission_names: string[];
+}
+
+export interface LoginRes extends TokenRes, AuthIdentityRes {}
+
+export interface AdminPermission {
+  id: number;
+  name: string;
+  guard_name: string;
+  display_name: string | null;
+  group: string | null;
+  description: string | null;
+  sort: number;
+  is_system: boolean;
+  is_active: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface AdminMenu {
+  id: number;
+  parent_id: number | null;
+  name: string;
+  code: string;
+  path: string | null;
+  component: string | null;
+  icon: string | null;
+  type: 'directory' | 'page' | 'button';
+  permission_id: number | null;
+  permission_name: string | null;
+  permission?: AdminPermission | null;
+  sort: number;
+  is_visible: boolean;
+  is_active: boolean;
+  children?: AdminMenu[];
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/auth/login', data);
+  return axios.post<LoginRes, HttpResponse<LoginRes>>('/api/admin/auth/login', data);
 }
 
 export function refreshToken() {
-  return axios.post<LoginRes>('/api/auth/refresh');
-}
-
-export function exchangeToken(code: string) {
-  return axios.post<LoginRes>('/api/auth/exchange', { code });
+  return axios.post<LoginRes, HttpResponse<LoginRes>>('/api/admin/auth/refresh');
 }
 
 export function logout() {
-  return axios.post<LogoutRes>('/api/auth/logout');
+  return axios.post<Record<string, never>, HttpResponse<Record<string, never>>>('/api/admin/auth/logout');
 }
 
 export function getUserInfo() {
-  return axios.get<UserState>('/api/me');
+  return axios.get<AuthIdentityRes, HttpResponse<AuthIdentityRes>>('/api/admin/auth/me');
 }
 
 export function getMenuList() {
-  return axios.get<RouteRecordNormalized[]>('/api/me/menu');
+  return axios.get<AdminMenu[], HttpResponse<AdminMenu[]>>('/api/admin/menus/tree');
 }
 
-// 更新当前用户资料
-export function updateProfile(data: { name?: string; nickname?: string; introduction?: string }) {
-  return axios.patch('/api/me', data);
-}
-
-// 更新当前用户头像
-export interface UpdateAvatarRes {
-  avatar_url: string;
-}
-
-export function updateAvatar(file: File) {
-  const formData = new FormData();
-  formData.append('avatar', file);
-  return axios.post<UpdateAvatarRes>('/api/me/avatar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-}
-
-// 修改密码
-export function changePassword(data: { password: string; new_password: string; password_confirmation: string }) {
-  return axios.patch('/api/me/password', data);
-}
-
-// 修改邮箱
-export function updateEmail(data: { email: string; code: string }) {
-  return axios.patch('/api/me/email', data);
-}
-
-// 修改手机号
-export function updatePhone(data: { phone: string; code: string }) {
-  return axios.patch('/api/me/phone', data);
-}
-
-// 发送密码重置邮件
-export function forgotPassword(data: { email: string }) {
-  return axios.post('/api/password/forgot', data);
-}
-
-// 密码重置（忘记密码流程）
-export function resetPassword(data: { token: string; email: string; password: string; password_confirmation: string }) {
-  return axios.post('/api/password/reset', data);
-}
-
-export interface RegisterData {
-  phone: string;
-  code: string;
+export interface ChangePasswordData {
+  current_password: string;
   password: string;
-  invite_code?: string;
+  password_confirmation: string;
 }
 
-export function register(data: RegisterData) {
-  return axios.post('/api/user/register', data);
+export function changePassword(data: ChangePasswordData) {
+  return axios.put<Record<string, never>, HttpResponse<Record<string, never>>>('/api/admin/auth/password', data);
 }

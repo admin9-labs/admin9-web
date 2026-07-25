@@ -1,32 +1,23 @@
 import { defineStore } from 'pinia';
-import {
-  login as userLogin,
-  logout as userLogout,
-  register as userRegister,
-  exchangeToken as apiExchangeToken,
-  getUserInfo,
-  updateAvatar as apiUpdateAvatar,
-  LoginData,
-  RegisterData,
-} from '@/api/user';
-import { setToken, clearToken } from '@/utils/auth';
-import { isOidc } from '@/utils/auth-strategy';
+import axios from 'axios';
+import { login as userLogin, logout as userLogout, refreshToken, getUserInfo, AuthIdentityRes, LoginData } from '@/api/user';
+import { setToken, clearToken, getToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    id: '',
-    name: undefined,
-    nickname: undefined,
-    avatar: undefined,
-    email: undefined,
-    email_verified: false,
-    mobile: '',
-    mobile_verified: false,
-    introduction: undefined,
+    id: null,
+    name: '',
+    email: '',
     roles: [],
+    permissionNames: [],
+    is_active: false,
+    last_login_at: null,
+    last_login_ip: null,
+    created_at: null,
+    updated_at: null,
   }),
 
   getters: {
@@ -36,54 +27,54 @@ const useUserStore = defineStore('user', {
   },
 
   actions: {
-    switchRoles() {
-      return new Promise((resolve) => {
-        this.roles = this.roles.includes('user') ? ['admin'] : ['user'];
-        resolve(this.roles);
-      });
-    },
     setInfo(partial: Partial<UserState>) {
       this.$patch(partial);
+    },
+    setIdentity(identity: AuthIdentityRes) {
+      const { roles = [], ...user } = identity.user;
+      this.$patch({
+        ...user,
+        roles: roles.map((role) => role.name),
+        permissionNames: [...identity.permission_names],
+      });
     },
     resetInfo() {
       this.$reset();
     },
     async info() {
-      const res = await getUserInfo();
-      this.setInfo(res.data);
-    },
-    async updateAvatar(file: File) {
-      const res = await apiUpdateAvatar(file);
-      // Update avatar in store
-      this.setInfo({ avatar: res.data.avatar_url });
-      return res;
+      const requestAuthToken = getToken();
+      try {
+        const res = await getUserInfo();
+        if (requestAuthToken === getToken()) this.setIdentity(res.data);
+      } catch (error) {
+        if (requestAuthToken === getToken() && axios.isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0)) {
+          this.logoutCallBack();
+        }
+        throw error;
+      }
     },
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
+        const appStore = useAppStore();
+        appStore.clearServerMenu();
         setToken(res.data.access_token);
+        this.setIdentity(res.data);
       } catch (err) {
-        clearToken();
+        this.logoutCallBack();
         throw err;
       }
     },
-    async register(registerForm: RegisterData) {
-      try {
-        const res = await userRegister(registerForm);
-        setToken(res.data.access_token);
-      } catch (err) {
-        clearToken();
-        throw err;
-      }
-    },
-    async exchangeToken(code: string) {
-      try {
-        const res = await apiExchangeToken(code);
-        setToken(res.data.access_token);
-      } catch (err) {
-        clearToken();
-        throw err;
-      }
+    async refreshSession() {
+      const requestAuthToken = getToken();
+      if (!requestAuthToken) throw new Error('No active session to refresh');
+
+      const res = await refreshToken();
+      if (requestAuthToken !== getToken()) throw new Error('Session changed while refreshing');
+
+      setToken(res.data.access_token);
+      this.setIdentity(res.data);
+      return res.data.access_token;
     },
     logoutCallBack() {
       const appStore = useAppStore();
@@ -93,14 +84,16 @@ const useUserStore = defineStore('user', {
       appStore.clearServerMenu();
     },
     async logout() {
+      if (!getToken()) {
+        this.logoutCallBack();
+        return;
+      }
+
       try {
-        const res = await userLogout();
+        await userLogout();
         this.logoutCallBack();
-        if (isOidc() && res.data?.logout_url) {
-          window.location.href = res.data.logout_url;
-        }
       } catch {
-        this.logoutCallBack();
+        if (getToken()) this.logoutCallBack();
       }
     },
   },

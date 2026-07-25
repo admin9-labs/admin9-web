@@ -1,91 +1,62 @@
 <template>
   <a-card v-bind="{ ...attrs }">
-    <div class="flex flex-col md:flex-row items-center gap-4">
-      <div class="w-32 text-center">
-        <a-upload
-          :file-list="fileList"
-          :show-file-list="false"
-          :custom-request="customUpload"
-          list-type="picture-card"
-          accept="image/png,image/jpeg,image/jpg,image/gif"
-          :limit="1"
-          @change="onChange"
-        >
-          <template #upload-button>
-            <a-avatar :size="84" class="info-avatar" object-fit="cover">
-              <template #trigger-icon>
-                <icon-camera />
-              </template>
-              <img v-if="avatarUrl" :src="avatarUrl" />
-            </a-avatar>
-          </template>
-        </a-upload>
-      </div>
-      <div class="flex-1">
-        <a-descriptions :column="1" class="pt-[8px]">
-          <a-descriptions-item :label="t('userInfo.account.nickname')">
-            {{ userInfo.nickname || t('userInfo.account.nickname.empty') }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="t('userInfo.account.introduction')">
-            {{ userInfo.introduction || t('userInfo.account.introduction.empty') }}
-          </a-descriptions-item>
-          <a-descriptions-item :label="t('userInfo.account.id')">
-            <a-typography-paragraph class="!m-0" copyable> {{ userInfo.id }} </a-typography-paragraph>
-          </a-descriptions-item>
-        </a-descriptions>
-      </div>
-      <a-button type="outline" @click="onEditAccountInfo">{{ t('userInfo.account.editProfile') }}</a-button>
-    </div>
-
-    <EditAccountInfoModal ref="EditAccountInfoModalRef" />
+    <a-descriptions :column="1" bordered size="medium">
+      <a-descriptions-item :label="t('userInfo.account.id')">
+        <a-typography-paragraph class="!m-0" copyable>{{ userInfo.id ?? '-' }}</a-typography-paragraph>
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.name')">
+        {{ userInfo.name || '-' }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.email')">
+        {{ userInfo.email || '-' }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.roles')">
+        <a-space v-if="userInfo.roles?.length" wrap>
+          <a-tag v-for="role in userInfo.roles" :key="role">{{ role }}</a-tag>
+        </a-space>
+        <span v-else>-</span>
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.status')">
+        <a-tag v-if="typeof userInfo.is_active === 'boolean'" :color="userInfo.is_active ? 'green' : 'red'">
+          {{ t(userInfo.is_active ? 'userInfo.account.status.active' : 'userInfo.account.status.inactive') }}
+        </a-tag>
+        <span v-else>-</span>
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.lastLoginAt')">
+        {{ userInfo.last_login_at || '-' }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.lastLoginIp')">
+        {{ userInfo.last_login_ip || '-' }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.createdAt')">
+        {{ userInfo.created_at || '-' }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('userInfo.account.updatedAt')">
+        {{ userInfo.updated_at || '-' }}
+      </a-descriptions-item>
+    </a-descriptions>
   </a-card>
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, useAttrs } from 'vue';
-  import { FileItem, Message, RequestOption } from '@arco-design/web-vue';
+  import { computed, useAttrs } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useUserStore } from '@/store';
-  import EditAccountInfoModal from './EditAccountInfoModal.vue';
+
+  interface AdminIdentity {
+    id: string | number | null;
+    name?: string;
+    email?: string;
+    roles?: string[];
+    is_active?: boolean;
+    last_login_at?: string | null;
+    last_login_ip?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+  }
 
   const { t } = useI18n();
   const attrs = useAttrs();
-
   const userStore = useUserStore();
-  const userInfo = computed(() => userStore.userInfo);
-  const avatarUrl = ref(userInfo.value.avatar);
-  const fileList = ref<FileItem[]>([]);
-
-  const customUpload = async (option: RequestOption) => {
-    const { fileItem, onError, onSuccess } = option;
-
-    try {
-      // Validate file size (5MB limit)
-      const maxSize = 5 * 1024 * 1024;
-      if (fileItem.file && fileItem.file.size > maxSize) {
-        Message.error(t('userInfo.account.avatarSizeError'));
-        onError();
-        return;
-      }
-
-      // Upload avatar
-      const res = await userStore.updateAvatar(fileItem.file as File);
-      avatarUrl.value = res.data.avatar_url;
-      Message.success(t('userInfo.account.avatarSuccess'));
-      onSuccess();
-    } catch (error: any) {
-      Message.error(error.message || t('userInfo.account.avatarError'));
-      onError();
-    }
-  };
-
-  const onChange = (fileItemList: FileItem[]) => {
-    fileList.value = fileItemList;
-  };
-
-  // 修改昵称
-  const EditAccountInfoModalRef = ref<InstanceType<typeof EditAccountInfoModal>>();
-  const onEditAccountInfo = () => {
-    EditAccountInfoModalRef.value?.onEdit();
-  };
+  const userInfo = computed(() => userStore.userInfo as unknown as AdminIdentity);
 </script>
