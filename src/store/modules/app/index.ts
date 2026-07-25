@@ -2,10 +2,22 @@ import { defineStore } from 'pinia';
 import type { RouteRecordNormalized } from 'vue-router';
 import defaultSettings from '@/config/settings.json';
 import { getMenuList } from '@/api/user';
+import { appRoutes } from '@/router/routes';
+import { filterLocalAdminMenus } from '@/utils/admin-menu';
 import { AppState } from './types';
 
+let serverMenuGeneration = 0;
+let serverMenuRequest: Promise<void> | null = null;
+
+async function waitForLatestServerMenuRequest(): Promise<void> {
+  const request = serverMenuRequest;
+  if (!request) return;
+  await request;
+  if (serverMenuRequest !== request) await waitForLatestServerMenuRequest();
+}
+
 const useAppStore = defineStore('app', {
-  state: (): AppState => ({ ...defaultSettings }),
+  state: (): AppState => ({ ...defaultSettings, serverMenuLoaded: false }),
 
   getters: {
     appCurrentSetting(state: AppState): AppState {
@@ -43,16 +55,38 @@ const useAppStore = defineStore('app', {
       this.hideMenu = value;
     },
     async fetchServerMenuConfig() {
-      try {
-        const { data } = await getMenuList();
-        this.serverMenu = data;
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+      if (serverMenuRequest) {
+        await waitForLatestServerMenuRequest();
+        return;
       }
+
+      const generation = serverMenuGeneration;
+      const request = (async () => {
+        try {
+          const { data } = await getMenuList();
+          if (generation !== serverMenuGeneration) return;
+          this.serverMenu = filterLocalAdminMenus(appRoutes, data);
+          this.serverMenuLoaded = true;
+        } catch (error) {
+          if (generation !== serverMenuGeneration) return;
+          this.clearServerMenu();
+          // eslint-disable-next-line no-console
+          console.error(error);
+        }
+      })();
+      serverMenuRequest = request;
+      try {
+        await request;
+      } finally {
+        if (serverMenuRequest === request) serverMenuRequest = null;
+      }
+      await waitForLatestServerMenuRequest();
     },
     clearServerMenu() {
+      serverMenuGeneration += 1;
+      serverMenuRequest = null;
       this.serverMenu = [];
+      this.serverMenuLoaded = false;
     },
   },
 });

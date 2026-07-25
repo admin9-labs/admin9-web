@@ -1,31 +1,40 @@
-import { DirectiveBinding } from 'vue';
-import { useUserStore } from '@/store';
-import type { RoleType } from '@/store/modules/user/types';
+import { watchEffect, type DirectiveBinding, type WatchStopHandle } from 'vue';
+import usePermission from '@/hooks/permission';
 
-function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
-  const { value } = binding;
-  const userStore = useUserStore();
-  const { roles } = userStore;
+interface PermissionDirectiveState {
+  value: unknown;
+  stop: WatchStopHandle;
+}
 
-  if (Array.isArray(value)) {
-    if (value.length > 0) {
-      const permissionValues = value;
+const directiveStates = new WeakMap<HTMLElement, PermissionDirectiveState>();
 
-      const hasPermission = permissionValues.some((v: string) => roles.includes(v as RoleType));
-      if (!hasPermission && el.parentNode) {
-        el.parentNode.removeChild(el);
-      }
-    }
+function checkPermission(el: HTMLElement, value: unknown) {
+  const permission = usePermission();
+  const permissionValues = typeof value === 'string' ? [value] : value;
+
+  if (Array.isArray(permissionValues) && permissionValues.length > 0) {
+    el.hidden = !permission.hasPermission(permissionValues);
   } else {
-    throw new Error(`need roles! Like v-permission="['admin','user']"`);
+    throw new Error(`need permission names! Like v-permission="['system.user.create']"`);
   }
 }
 
 export default {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
-    checkPermission(el, binding);
+    const state: PermissionDirectiveState = {
+      value: binding.value,
+      stop: () => undefined,
+    };
+    state.stop = watchEffect(() => checkPermission(el, state.value));
+    directiveStates.set(el, state);
   },
   updated(el: HTMLElement, binding: DirectiveBinding) {
-    checkPermission(el, binding);
+    const state = directiveStates.get(el);
+    if (state) state.value = binding.value;
+    checkPermission(el, binding.value);
+  },
+  unmounted(el: HTMLElement) {
+    directiveStates.get(el)?.stop();
+    directiveStates.delete(el);
   },
 };

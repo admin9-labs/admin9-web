@@ -84,9 +84,9 @@
     appStore.updateSettings({ menuCollapse: val });
   };
   watch(
-    () => userStore.roles,
-    (rolesValue) => {
-      if (rolesValue.length > 0 && !permission.accessRouter(route)) router.push({ name: 'notFound' });
+    () => [userStore.roles, userStore.permissionNames],
+    () => {
+      if (userStore.id !== null && !permission.accessRouter(route)) router.push({ name: 'notFound' });
     }
   );
   const drawerVisible = ref(false);
