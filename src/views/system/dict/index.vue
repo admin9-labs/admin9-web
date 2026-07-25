@@ -1,94 +1,160 @@
 <template>
-  <div class="page-container">
-    <a-row :gutter="16" class="flex-1 min-h-0">
-      <a-col :span="8" class="h-full">
-        <grid :title="$t('system.dict.type.title')">
-          <GridToolbar @create="handleCreateType" @refresh="fetchTypes">
+  <div class="page-container dict-page">
+    <a-row :gutter="[16, 16]" class="dict-layout">
+      <a-col :xs="24" :lg="8" class="dict-pane">
+        <Grid :title="$t('system.dict.type.title')">
+          <GridToolbar @refresh="fetchTypes">
             <template #prepend>
               <a-input-search
                 v-model="typeKeyword"
                 :placeholder="$t('system.dict.search.placeholder')"
-                style="width: 200px"
+                allow-clear
+                class="dict-search"
+                @clear="handleSearchType"
                 @search="handleSearchType"
                 @press-enter="handleSearchType"
               />
             </template>
+            <template #append>
+              <a-button v-permission="['system.dictionary.create']" type="primary" @click="handleCreateType">
+                <template #icon><icon-plus /></template>
+                {{ $t('common.action.create') }}
+              </a-button>
+            </template>
           </GridToolbar>
           <GridTable
+            row-key="id"
             :loading="typeLoading"
             :data="typeData"
             :columns="typeColumns"
             :pagination="typePagination"
-            :row-class="(record: DictTypeRecord) => record.id === selectedTypeId ? 'row-selected' : ''"
+            :row-class="getTypeRowClass"
+            :scroll="{ x: 520 }"
             @row-click="handleSelectType"
-            @edit="handleEditType"
-            @delete="handleDeleteType"
             @page-change="onTypePageChange"
             @page-size-change="onTypePageSizeChange"
           >
+            <template #typeName="{ record }">
+              <div class="dict-name-cell">
+                <span class="dict-name">{{ record.name }}</span>
+                <code class="dict-code">{{ record.code }}</code>
+              </div>
+            </template>
             <template #status="{ record }">
-              <a-badge v-if="record.is_active" status="success" :text="$t('system.dict.status.active')" />
-              <a-badge v-else status="danger" :text="$t('system.dict.status.inactive')" />
+              <a-badge
+                :status="record.is_active ? 'success' : 'danger'"
+                :text="$t(record.is_active ? 'system.dict.status.active' : 'system.dict.status.inactive')"
+              />
+            </template>
+            <template #action="{ record }">
+              <a-space :size="4">
+                <a-tooltip v-permission="['system.dictionary.update']" :content="$t('common.action.edit')" mini>
+                  <a-button type="text" size="small" @click="handleEditType(record)">
+                    <template #icon><icon-edit /></template>
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip
+                  v-permission="['system.dictionary.delete']"
+                  :content="record.items_count ? $t('system.dict.delete.nonEmpty') : $t('common.action.delete')"
+                  mini
+                >
+                  <a-button
+                    type="text"
+                    size="small"
+                    status="danger"
+                    :disabled="Boolean(record.items_count)"
+                    @click="handleDeleteType(record)"
+                  >
+                    <template #icon><icon-delete /></template>
+                  </a-button>
+                </a-tooltip>
+              </a-space>
             </template>
           </GridTable>
           <EditDictTypeModal ref="editTypeModalRef" @success="fetchTypes" />
-        </grid>
+        </Grid>
       </a-col>
-      <a-col :span="16" class="h-full">
-        <grid :title="selectedType ? `${$t('system.dict.item.title')} - ${selectedType.name}` : $t('system.dict.item.title')">
-          <template v-if="selectedTypeId">
-            <GridToolbar @create="handleCreateItem" @refresh="fetchItems">
+
+      <a-col :xs="24" :lg="16" class="dict-pane">
+        <Grid :title="itemPaneTitle">
+          <template v-if="selectedTypeId !== undefined">
+            <GridToolbar @refresh="fetchItems">
               <template #prepend>
                 <a-input-search
                   v-model="itemKeyword"
                   :placeholder="$t('system.dict.search.itemPlaceholder')"
-                  style="width: 200px"
+                  allow-clear
+                  class="dict-search"
+                  @clear="handleSearchItem"
                   @search="handleSearchItem"
                   @press-enter="handleSearchItem"
                 />
               </template>
+              <template #append>
+                <a-button v-permission="['system.dictionary.create']" type="primary" @click="handleCreateItem">
+                  <template #icon><icon-plus /></template>
+                  {{ $t('common.action.create') }}
+                </a-button>
+              </template>
             </GridToolbar>
             <GridTable
+              row-key="id"
               :loading="itemLoading"
               :data="itemData"
               :columns="itemColumns"
               :pagination="itemPagination"
-              @edit="handleEditItem"
-              @delete="handleDeleteItem"
+              :scroll="{ x: 760 }"
               @page-change="onItemPageChange"
               @page-size-change="onItemPageSizeChange"
             >
+              <template #value="{ record }">
+                <span class="dict-value">{{ record.value ?? '-' }}</span>
+              </template>
               <template #status="{ record }">
-                <a-badge v-if="record.is_active" status="success" :text="$t('system.dict.status.active')" />
-                <a-badge v-else status="danger" :text="$t('system.dict.status.inactive')" />
+                <a-badge
+                  :status="record.is_active ? 'success' : 'danger'"
+                  :text="$t(record.is_active ? 'system.dict.status.active' : 'system.dict.status.inactive')"
+                />
+              </template>
+              <template #action="{ record }">
+                <a-space :size="4">
+                  <a-tooltip v-permission="['system.dictionary.update']" :content="$t('common.action.edit')" mini>
+                    <a-button type="text" size="small" @click="handleEditItem(record)">
+                      <template #icon><icon-edit /></template>
+                    </a-button>
+                  </a-tooltip>
+                  <a-tooltip v-permission="['system.dictionary.delete']" :content="$t('common.action.delete')" mini>
+                    <a-button type="text" size="small" status="danger" @click="handleDeleteItem(record)">
+                      <template #icon><icon-delete /></template>
+                    </a-button>
+                  </a-tooltip>
+                </a-space>
               </template>
             </GridTable>
-            <EditDictItemModal ref="editItemModalRef" :type-id="selectedTypeId" @success="fetchItems" />
+            <EditDictItemModal ref="editItemModalRef" :type-id="selectedTypeId" @success="handleItemMutationSuccess" />
           </template>
           <a-empty v-else :description="$t('system.dict.item.placeholder')" />
-        </grid>
+        </Grid>
       </a-col>
     </a-row>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, computed, onMounted } from 'vue';
+  import { computed, onMounted, reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { Message } from '@arco-design/web-vue';
   import { useModal } from '@admin9-labs/admin9-ui';
   import { useLoading } from '@/hooks';
-  import { HttpResponse } from '@/api/interceptor';
   import {
-    queryDictTypeList,
+    deleteDictItem,
     deleteDictType,
     queryDictItemList,
-    deleteDictItem,
-    type DictTypeRecord,
+    queryDictTypeList,
     type DictItemRecord,
+    type DictTypeRecord,
   } from '@/api/system/dict';
-  import EditDictTypeModal from './components/EditDictTypeModal.vue';
   import EditDictItemModal from './components/EditDictItemModal.vue';
+  import EditDictTypeModal from './components/EditDictTypeModal.vue';
 
   defineOptions({ name: 'SystemDict' });
 
@@ -105,6 +171,7 @@
   const selectedType = ref<DictTypeRecord>();
   const editTypeModalRef = ref<InstanceType<typeof EditDictTypeModal>>();
   const editItemModalRef = ref<InstanceType<typeof EditDictItemModal>>();
+  let itemRequestSequence = 0;
 
   const typePagination = reactive({
     current: 1,
@@ -122,53 +189,84 @@
   });
 
   const typeColumns = computed(() => [
-    { title: t('system.dict.columns.name'), dataIndex: 'name' },
-    { title: t('system.dict.columns.code'), dataIndex: 'code' },
-    { title: t('system.dict.columns.status'), slotName: 'status', width: 80 },
-    { title: t('system.dict.columns.operations'), slotName: 'action', width: 100, align: 'center' as const },
+    { title: t('system.dict.columns.name'), slotName: 'typeName', minWidth: 180 },
+    { title: t('system.dict.columns.itemCount'), dataIndex: 'items_count', width: 72, align: 'center' as const },
+    { title: t('system.dict.columns.status'), slotName: 'status', width: 86 },
+    { title: t('system.dict.columns.operations'), slotName: 'action', width: 84, align: 'center' as const },
   ]);
 
   const itemColumns = computed(() => [
-    { title: t('system.dict.columns.label'), dataIndex: 'label' },
-    { title: t('system.dict.columns.value'), dataIndex: 'value' },
-    { title: t('system.dict.columns.sort'), dataIndex: 'sort', width: 70, align: 'center' as const },
-    { title: t('system.dict.columns.status'), slotName: 'status', width: 80 },
-    { title: t('system.dict.columns.operations'), slotName: 'action', width: 100, align: 'center' as const },
+    { title: t('system.dict.columns.name'), dataIndex: 'name', minWidth: 140, ellipsis: true, tooltip: true },
+    { title: t('system.dict.columns.code'), dataIndex: 'code', minWidth: 140, ellipsis: true, tooltip: true },
+    { title: t('system.dict.columns.value'), slotName: 'value', minWidth: 150, ellipsis: true, tooltip: true },
+    { title: t('system.dict.columns.sort'), dataIndex: 'sort', width: 72, align: 'center' as const },
+    { title: t('system.dict.columns.status'), slotName: 'status', width: 86 },
+    { title: t('system.dict.columns.operations'), slotName: 'action', width: 84, align: 'center' as const },
   ]);
+
+  const itemPaneTitle = computed(() =>
+    selectedType.value ? `${t('system.dict.item.title')} - ${selectedType.value.name}` : t('system.dict.item.title')
+  );
+
+  const clearSelectedType = () => {
+    itemRequestSequence += 1;
+    selectedTypeId.value = undefined;
+    selectedType.value = undefined;
+    itemData.value = [];
+    itemPagination.current = 1;
+    itemPagination.total = 0;
+    setItemLoading(false);
+  };
 
   const fetchTypes = async () => {
     setTypeLoading(true);
     try {
-      const res = (await queryDictTypeList({
-        name: typeKeyword.value || undefined,
+      const res = await queryDictTypeList({
+        keyword: typeKeyword.value || undefined,
         current: typePagination.current,
         pageSize: typePagination.pageSize,
-      })) as unknown as HttpResponse<DictTypeRecord[]>;
+      });
       typeData.value = res.data;
       typePagination.total = res.meta?.total ?? 0;
+
+      if (selectedTypeId.value !== undefined) {
+        const currentSelection = res.data.find((record) => record.id === selectedTypeId.value);
+        if (currentSelection) {
+          selectedType.value = currentSelection;
+        } else {
+          clearSelectedType();
+        }
+      }
     } finally {
       setTypeLoading(false);
     }
   };
 
   const fetchItems = async () => {
-    if (!selectedTypeId.value) return;
+    if (selectedTypeId.value === undefined) return;
+    const dictionaryTypeId = selectedTypeId.value;
+    itemRequestSequence += 1;
+    const requestSequence = itemRequestSequence;
     setItemLoading(true);
     try {
-      const res = (await queryDictItemList({
-        dictionary_type_id: String(selectedTypeId.value),
-        label: itemKeyword.value || undefined,
+      const res = await queryDictItemList({
+        dictionary_type_id: dictionaryTypeId,
+        keyword: itemKeyword.value || undefined,
         current: itemPagination.current,
         pageSize: itemPagination.pageSize,
-      })) as unknown as HttpResponse<DictItemRecord[]>;
+      });
+      if (requestSequence !== itemRequestSequence) return;
       itemData.value = res.data;
       itemPagination.total = res.meta?.total ?? 0;
     } finally {
-      setItemLoading(false);
+      if (requestSequence === itemRequestSequence) setItemLoading(false);
     }
   };
 
+  const getTypeRowClass = (record: DictTypeRecord) => (record.id === selectedTypeId.value ? 'row-selected' : '');
+
   const handleSelectType = (record: DictTypeRecord) => {
+    if (selectedTypeId.value === record.id) return;
     selectedTypeId.value = record.id;
     selectedType.value = record;
     itemPagination.current = 1;
@@ -180,77 +278,120 @@
     typePagination.current = 1;
     fetchTypes();
   };
+
   const handleSearchItem = () => {
     itemPagination.current = 1;
     fetchItems();
   };
-  const onTypePageChange = (p: number) => {
-    typePagination.current = p;
+
+  const onTypePageChange = (page: number) => {
+    typePagination.current = page;
     fetchTypes();
   };
-  const onTypePageSizeChange = (s: number) => {
-    typePagination.pageSize = s;
+
+  const onTypePageSizeChange = (pageSize: number) => {
+    typePagination.pageSize = pageSize;
     typePagination.current = 1;
     fetchTypes();
   };
-  const onItemPageChange = (p: number) => {
-    itemPagination.current = p;
+
+  const onItemPageChange = (page: number) => {
+    itemPagination.current = page;
     fetchItems();
   };
-  const onItemPageSizeChange = (s: number) => {
-    itemPagination.pageSize = s;
+
+  const onItemPageSizeChange = (pageSize: number) => {
+    itemPagination.pageSize = pageSize;
     itemPagination.current = 1;
     fetchItems();
   };
 
-  const handleCreateType = () => {
-    editTypeModalRef.value?.onCreate();
-  };
-  const handleEditType = (record: DictTypeRecord) => {
-    editTypeModalRef.value?.onEdit(record);
-  };
+  const handleCreateType = () => editTypeModalRef.value?.onCreate();
+  const handleEditType = (record: DictTypeRecord) => editTypeModalRef.value?.onEdit(record);
+  const handleCreateItem = () => editItemModalRef.value?.onCreate();
+  const handleEditItem = (record: DictItemRecord) => editItemModalRef.value?.onEdit(record);
+  const handleItemMutationSuccess = () => Promise.all([fetchItems(), fetchTypes()]);
+
   const handleDeleteType = (record: DictTypeRecord) => {
     confirmDelete({
-      onDelete: async () => {
-        await deleteDictType(record.id);
-      },
+      title: t('system.dict.delete.title'),
+      content: t('system.dict.delete.content'),
+      successMsg: t('system.dict.delete.success'),
+      onDelete: () => deleteDictType(record.id).then(() => undefined),
       onSuccess: () => {
-        Message.success(t('system.dict.delete.success'));
-        if (selectedTypeId.value === record.id) {
-          selectedTypeId.value = undefined;
-          selectedType.value = undefined;
-          itemData.value = [];
-        }
+        if (selectedTypeId.value === record.id) clearSelectedType();
+        if (typeData.value.length === 1 && typePagination.current > 1) typePagination.current -= 1;
         fetchTypes();
       },
     });
   };
 
-  const handleCreateItem = () => {
-    editItemModalRef.value?.onCreate();
-  };
-  const handleEditItem = (record: DictItemRecord) => {
-    editItemModalRef.value?.onEdit(record);
-  };
   const handleDeleteItem = (record: DictItemRecord) => {
     confirmDelete({
-      onDelete: async () => {
-        await deleteDictItem(record.id);
-      },
+      title: t('system.dict.deleteItem.title'),
+      content: t('system.dict.deleteItem.content'),
+      successMsg: t('system.dict.deleteItem.success'),
+      onDelete: () => deleteDictItem(record.id).then(() => undefined),
       onSuccess: () => {
-        Message.success(t('system.dict.deleteItem.success'));
+        if (itemData.value.length === 1 && itemPagination.current > 1) itemPagination.current -= 1;
         fetchItems();
+        fetchTypes();
       },
     });
   };
 
-  onMounted(() => {
-    fetchTypes();
-  });
+  onMounted(fetchTypes);
 </script>
 
 <style lang="less" scoped>
+  .dict-layout {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .dict-pane {
+    min-height: 0;
+  }
+
+  .dict-search {
+    width: min(220px, 36vw);
+  }
+
+  .dict-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .dict-name,
+  .dict-code,
+  .dict-value {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .dict-code {
+    color: var(--color-text-3);
+    font-size: 12px;
+  }
+
   :deep(.row-selected) td {
     background-color: var(--color-primary-light-1) !important;
+  }
+
+  @media (width <= 991px) {
+    .dict-page {
+      height: auto;
+    }
+
+    .dict-pane {
+      min-height: 420px;
+    }
+
+    .dict-search {
+      width: min(220px, 48vw);
+    }
   }
 </style>

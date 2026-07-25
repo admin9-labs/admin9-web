@@ -1,8 +1,7 @@
 import axios from 'axios';
+import type { HttpResponse } from '@/api/interceptor';
 
-// ---- Types ----
-
-export interface DictTypeRecord {
+export interface DictTypeReference {
   id: number;
   name: string;
   code: string;
@@ -14,10 +13,10 @@ export interface DictTypeRecord {
 }
 
 export interface DictTypeListParams {
-  id?: string;
-  name?: string;
   code?: string;
-  is_active?: string;
+  name?: string;
+  is_active?: boolean;
+  keyword?: string;
   sort?: string;
   current?: number;
   pageSize?: number;
@@ -26,7 +25,7 @@ export interface DictTypeListParams {
 export interface DictTypeCreateData {
   name: string;
   code: string;
-  description?: string;
+  description?: string | null;
   sort?: number;
   is_active?: boolean;
 }
@@ -36,20 +35,31 @@ export type DictTypeUpdateData = DictTypeCreateData;
 export interface DictItemRecord {
   id: number;
   dictionary_type_id: number;
-  label: string;
-  value: string;
+  name: string;
+  code: string;
+  value: string | null;
+  description: string | null;
+  meta: Record<string, unknown> | unknown[] | null;
   sort: number;
   is_active: boolean;
+  type?: DictTypeReference;
   created_at: string | null;
   updated_at: string | null;
 }
 
+export interface DictTypeRecord extends DictTypeReference {
+  items_count?: number;
+  items?: DictItemRecord[];
+}
+
 export interface DictItemListParams {
-  id?: string;
-  dictionary_type_id?: string;
-  label?: string;
+  dictionary_type_id?: number;
+  type_code?: string;
+  code?: string;
+  name?: string;
   value?: string;
-  is_active?: string;
+  is_active?: boolean;
+  keyword?: string;
   sort?: string;
   current?: number;
   pageSize?: number;
@@ -57,63 +67,66 @@ export interface DictItemListParams {
 
 export interface DictItemCreateData {
   dictionary_type_id: number;
-  label: string;
-  value: string;
+  name: string;
+  code: string;
+  value?: string | null;
+  description?: string | null;
+  meta?: Record<string, unknown> | unknown[] | null;
   sort?: number;
   is_active?: boolean;
 }
 
-export interface DictItemUpdateData {
-  label: string;
-  value: string;
-  sort?: number;
-  is_active?: boolean;
+export type DictItemUpdateData = Omit<DictItemCreateData, 'dictionary_type_id'> & {
+  dictionary_type_id?: number;
+};
+
+interface DictTypeResponseData {
+  dictionary_type: DictTypeRecord;
 }
 
-// ---- Dict Type API ----
+interface DictItemResponseData {
+  dictionary_item: DictItemRecord;
+}
+
+const DICT_TYPE_URL = '/api/admin/dictionary-types';
+const DICT_ITEM_URL = '/api/admin/dictionary-items';
 
 export function queryDictTypeList(params?: DictTypeListParams) {
-  return axios.get<DictTypeRecord[]>('/api/system/dict-types', { params });
+  return axios.get<unknown, HttpResponse<DictTypeRecord[]>>(DICT_TYPE_URL, { params });
 }
 
 export function queryDictTypeDetail(id: number) {
-  return axios.get<DictTypeRecord>(`/api/system/dict-types/${id}`);
-}
-
-export function queryDictItemsByCode(code: string) {
-  return axios.get<DictItemRecord[]>(`/api/system/dict-types/${code}/items`);
+  return axios.get<unknown, HttpResponse<DictTypeResponseData>>(`${DICT_TYPE_URL}/${id}`);
 }
 
 export function createDictType(data: DictTypeCreateData) {
-  return axios.post<DictTypeRecord>('/api/system/dict-types', data);
+  return axios.post<unknown, HttpResponse<DictTypeResponseData>>(DICT_TYPE_URL, data);
 }
 
 export function updateDictType(id: number, data: DictTypeUpdateData) {
-  return axios.put<DictTypeRecord>(`/api/system/dict-types/${id}`, data);
+  return axios.put<unknown, HttpResponse<DictTypeResponseData>>(`${DICT_TYPE_URL}/${id}`, data);
 }
 
 export function deleteDictType(id: number) {
-  return axios.delete(`/api/system/dict-types/${id}`);
+  return axios.delete<unknown, HttpResponse<null>>(`${DICT_TYPE_URL}/${id}`);
 }
 
-// ---- Dict Item API ----
-
 export function queryDictItemList(params?: DictItemListParams) {
-  return axios.get<DictItemRecord[]>('/api/system/dict-items', { params });
+  return axios.get<unknown, HttpResponse<DictItemRecord[]>>(DICT_ITEM_URL, { params });
 }
 
 export function queryDictItemDetail(id: number) {
-  return axios.get<DictItemRecord>(`/api/system/dict-items/${id}`);
+  return axios.get<unknown, HttpResponse<DictItemResponseData>>(`${DICT_ITEM_URL}/${id}`);
 }
 
 export function createDictItem(data: DictItemCreateData) {
-  return axios.post<DictItemRecord>('/api/system/dict-items', data);
+  return axios.post<unknown, HttpResponse<DictItemResponseData>>(DICT_ITEM_URL, data);
 }
 
-export function updateDictItem(itemId: number, data: DictItemUpdateData) {
-  return axios.put<DictItemRecord>(`/api/system/dict-items/${itemId}`, data);
+export function updateDictItem(id: number, data: DictItemUpdateData) {
+  return axios.put<unknown, HttpResponse<DictItemResponseData>>(`${DICT_ITEM_URL}/${id}`, data);
 }
 
-export function deleteDictItem(itemId: number) {
-  return axios.delete(`/api/system/dict-items/${itemId}`);
+export function deleteDictItem(id: number) {
+  return axios.delete<unknown, HttpResponse<null>>(`${DICT_ITEM_URL}/${id}`);
 }
