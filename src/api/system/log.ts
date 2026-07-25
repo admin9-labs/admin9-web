@@ -1,63 +1,95 @@
 import axios from 'axios';
 
-// ---- Types ----
+export type LogProperties = Record<string, unknown> | unknown[];
+export type LogDateRange = [string, string];
 
-export interface LogCauser {
-  id: number;
-  name: string;
-  email: string;
-}
-
-export interface LogRecord {
+export interface ActivityLogRecord {
   id: number;
   log_name: string | null;
+  event: string | null;
   description: string;
   subject_type: string | null;
-  event: string | null;
   subject_id: number | null;
   causer_type: string | null;
   causer_id: number | null;
-  properties: Record<string, unknown> | null;
-  batch_uuid: string | null;
+  properties: LogProperties;
   created_at: string | null;
-  updated_at: string | null;
-  causer: LogCauser | null;
-  subject: LogCauser | null;
 }
 
-export interface LogListParams {
-  'id'?: string;
-  'log_name'?: string[];
-  'event'?: string;
-  'causer_id'?: string;
-  'description'?: string;
-  'date_from:created_at'?: string;
-  'date_to:created_at'?: string;
-  'sort'?: string;
-  'current'?: number;
-  'pageSize'?: number;
+export interface ActivityLogListParams {
+  log_name?: string;
+  event?: string;
+  subject_type?: string;
+  subject_id?: string;
+  causer_id?: string;
+  created_at?: LogDateRange;
+  sort?: string;
+  current?: number;
+  pageSize?: number;
 }
 
-// ---- API ----
+export interface LoginLogRecord {
+  id: number;
+  guard: string;
+  account: string | null;
+  subject_type: string | null;
+  subject_id: number | null;
+  event: string;
+  successful: boolean;
+  failure_reason: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  request_id: string | null;
+  context: LogProperties;
+  created_at: string | null;
+}
 
-export function queryLogList(params?: LogListParams) {
-  return axios.get<LogRecord[]>('/api/system/audit-logs', {
+export interface LoginLogListParams {
+  guard?: string;
+  event?: string;
+  successful?: boolean;
+  account?: string;
+  subject_id?: string;
+  ip_address?: string;
+  created_at?: LogDateRange;
+  sort?: string;
+  current?: number;
+  pageSize?: number;
+}
+
+function serializeLogParams(params: Record<string, unknown>) {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return;
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => searchParams.append(`${key}[]`, String(item)));
+      return;
+    }
+
+    let serializedValue: string;
+    if (typeof value === 'boolean') {
+      serializedValue = value ? '1' : '0';
+    } else {
+      serializedValue = String(value);
+    }
+    searchParams.append(key, serializedValue);
+  });
+
+  return searchParams.toString();
+}
+
+export function queryActivityLogList(params?: ActivityLogListParams) {
+  return axios.get<ActivityLogRecord[]>('/api/admin/activity-logs', {
     params,
-    paramsSerializer: (p) => {
-      const parts: string[] = [];
-      Object.entries(p).forEach(([key, val]) => {
-        if (val == null) return;
-        if (Array.isArray(val)) {
-          val.forEach((v) => parts.push(`${encodeURIComponent(`${key}[]`)}=${encodeURIComponent(v)}`));
-        } else {
-          parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(val as string)}`);
-        }
-      });
-      return parts.join('&');
-    },
+    paramsSerializer: serializeLogParams,
   });
 }
 
-export function queryLogDetail(id: number) {
-  return axios.get<LogRecord>(`/api/system/audit-logs/${id}`);
+export function queryLoginLogList(params?: LoginLogListParams) {
+  return axios.get<LoginLogRecord[]>('/api/admin/login-logs', {
+    params,
+    paramsSerializer: serializeLogParams,
+  });
 }
