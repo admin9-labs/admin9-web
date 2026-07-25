@@ -13,17 +13,6 @@ const SYSTEM: AppRouteRecordRaw = {
   },
   children: [
     {
-      path: 'user',
-      name: 'SystemUser',
-      component: () => import('@/views/system/user/index.vue'),
-      meta: {
-        locale: 'menu.system.user',
-        icon: 'icon-user',
-        requiresAuth: true,
-        roles: ['super-admin', 'admin'],
-      },
-    },
-    {
       path: 'role',
       name: 'SystemRole',
       component: () => import('@/views/system/role/index.vue'),
@@ -31,7 +20,29 @@ const SYSTEM: AppRouteRecordRaw = {
         locale: 'menu.system.role',
         icon: 'icon-user-group',
         requiresAuth: true,
-        roles: ['super-admin', 'admin'],
+        permissions: ['system.role.view'],
+      },
+    },
+    {
+      path: 'permission',
+      name: 'SystemPermission',
+      component: () => import('@/views/system/permission/index.vue'),
+      meta: {
+        locale: 'menu.system.permission',
+        icon: 'icon-safe',
+        requiresAuth: true,
+        permissions: ['system.permission.view'],
+      },
+    },
+    {
+      path: 'user',
+      name: 'SystemUser',
+      component: () => import('@/views/system/user/index.vue'),
+      meta: {
+        locale: 'menu.system.user',
+        icon: 'icon-user',
+        requiresAuth: true,
+        permissions: ['system.user.view'],
       },
     },
     {
@@ -42,7 +53,7 @@ const SYSTEM: AppRouteRecordRaw = {
         locale: 'menu.system.menu',
         icon: 'icon-menu',
         requiresAuth: true,
-        roles: ['super-admin', 'admin'],
+        permissions: ['system.menu.view'],
       },
     },
     {
@@ -53,7 +64,18 @@ const SYSTEM: AppRouteRecordRaw = {
         locale: 'menu.system.dict',
         icon: 'icon-book',
         requiresAuth: true,
-        roles: ['super-admin', 'admin'],
+        permissions: ['system.dictionary.view'],
+      },
+    },
+    {
+      path: 'config',
+      name: 'SystemConfig',
+      component: () => import('@/views/system/config/index.vue'),
+      meta: {
+        locale: 'menu.system.config',
+        icon: 'icon-settings',
+        requiresAuth: true,
+        permissions: ['system.config.view'],
       },
     },
     {
@@ -64,7 +86,7 @@ const SYSTEM: AppRouteRecordRaw = {
         locale: 'menu.system.log',
         icon: 'icon-file',
         requiresAuth: true,
-        roles: ['super-admin', 'admin'],
+        permissions: ['system.activity-log.view', 'system.login-log.view'],
       },
     },
   ],
