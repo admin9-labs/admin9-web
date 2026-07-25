@@ -29,7 +29,8 @@ export default function setupPermissionGuard(router: Router) {
       }
       const existsInServerMenu = isWhiteListed || routeExists(appStore.appAsyncMenus, to.name);
       const requiresServerMenuEntry = isAdminMenuRouteName(to.name);
-      if (permissionsAllow && (existsInServerMenu || !requiresServerMenuEntry)) {
+      const routeAllowed = requiresServerMenuEntry ? existsInServerMenu : permissionsAllow;
+      if (routeAllowed) {
         next();
       } else next(NOT_FOUND);
     } else {
