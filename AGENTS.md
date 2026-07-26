@@ -88,7 +88,7 @@ Uses Pinia with persistence (`pinia-plugin-persistedstate`):
 
 ### Component Structure
 
-- **Layout Components**: `src/layout/` (default-layout, page-layout, workflow-layout)
+- **Layout Components**: `src/layout/` (default-layout, page-layout)
 - **Global Components**: Auto-registered via `src/components/index.ts`
 - **Arco Design**: Components auto-imported via `unplugin-vue-components`
 
