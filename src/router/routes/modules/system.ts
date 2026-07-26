@@ -46,6 +46,17 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
+      path: 'member',
+      name: 'SystemMember',
+      component: () => import('@/views/system/member/index.vue'),
+      meta: {
+        locale: 'menu.system.member',
+        icon: 'icon-user-group',
+        requiresAuth: true,
+        permissions: ['system.member.view'],
+      },
+    },
+    {
       path: 'menu',
       name: 'SystemMenu',
       component: () => import('@/views/system/menu/index.vue'),

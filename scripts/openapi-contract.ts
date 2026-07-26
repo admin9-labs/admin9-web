@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const workspaceRoot = path.resolve(__dirname, '..');
-const expectedSourceCommit = '989a15c0dca4ff390ba2a792a00a6ff1557b0d15';
+const expectedSourceCommit = '522a3cdb4e6103fcb6c7585df944ea973b9e79ee';
 const sourcePath = path.resolve(workspaceRoot, process.env.ADMIN9_OPENAPI_PATH ?? '../admin9-api-laravel/docs/api.json');
 const sourceRepository = path.resolve(path.dirname(sourcePath), '..');
 const outputPath = path.join(workspaceRoot, 'src/api/generated/admin-api.ts');
@@ -73,7 +73,9 @@ function main() {
   if (
     schema.info?.title !== 'Admin9 API Laravel' ||
     !schema.paths?.['/api/admin/auth/login'] ||
-    !schema.paths?.['/api/admin/users']
+    !schema.paths?.['/api/admin/users'] ||
+    !schema.paths?.['/api/admin/members'] ||
+    !schema.paths?.['/api/admin/media']
   ) {
     throw new Error(`Unexpected Admin9 OpenAPI contract: ${sourcePath}`);
   }

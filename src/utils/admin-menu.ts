@@ -6,6 +6,7 @@ export const ADMIN_MENU_ROUTE_NAMES = {
   'system.roles': 'SystemRole',
   'system.permissions': 'SystemPermission',
   'system.users': 'SystemUser',
+  'SystemMember': 'SystemMember',
   'system.menus': 'SystemMenu',
   'system.dictionaries': 'SystemDict',
   'system.configs': 'SystemConfig',
