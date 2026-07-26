@@ -9,9 +9,22 @@ import AMediaPicker from '../packages/admin9-ui/src/components/media-picker/inde
 const mountedApps: App[] = [];
 const media = { id: '7', name: 'avatar.png', url: '/media/avatar.png', status: 'ready' as const };
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}
+
 const Transparent = defineComponent({
   setup(_, { slots }) {
     return () => h('div', slots.default?.());
+  },
+});
+const ModalStub = defineComponent({
+  setup(_, { slots }) {
+    return () => h('div', [slots.default?.(), slots.footer?.()]);
   },
 });
 const ChoiceStub = defineComponent({
@@ -64,6 +77,29 @@ const ImageStub = defineComponent({
     return () => h('img', { 'data-testid': 'media-preview', 'data-src': props.src });
   },
 });
+const SpinStub = defineComponent({
+  props: { loading: Boolean },
+  setup(props, { slots }) {
+    return () => h('div', { 'data-testid': 'media-gallery', 'data-loading': String(props.loading) }, slots.default?.());
+  },
+});
+const PaginationStub = defineComponent({
+  props: { current: Number, pageSize: Number, total: Number },
+  emits: ['change'],
+  setup(props, { emit }) {
+    return () =>
+      h(
+        'div',
+        {
+          'data-testid': 'media-pagination',
+          'data-current': String(props.current),
+          'data-page-size': String(props.pageSize),
+          'data-total': String(props.total),
+        },
+        [h('button', { 'data-testid': 'next-page', 'onClick': () => emit('change', (props.current ?? 0) + 1) })]
+      );
+  },
+});
 
 async function flush() {
   await Promise.resolve();
@@ -98,9 +134,9 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
     })
   );
   app.component('AUpload', UploadStub);
-  app.component('AModal', Transparent);
+  app.component('AModal', ModalStub);
   app.component('ASpace', Transparent);
-  app.component('ASpin', Transparent);
+  app.component('ASpin', SpinStub);
   app.component('ACheckboxGroup', CheckboxGroupStub);
   app.component('ACheckbox', ChoiceStub);
   app.component('ARadio', ChoiceStub);
@@ -114,7 +150,7 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
       },
     })
   );
-  app.component('APagination', Transparent);
+  app.component('APagination', PaginationStub);
   app.component('AEmpty', Transparent);
   app.component('IconRefresh', Transparent);
   app.component('IconUpload', Transparent);
@@ -285,5 +321,70 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
     expect(document.body.textContent).not.toContain('Delete (1)');
+  });
+
+  it('keeps loading and pagination owned by the newer list request when an older request settles first', async () => {
+    const first = deferred<Awaited<ReturnType<MediaService['list']>>>();
+    const second = deferred<Awaited<ReturnType<MediaService['list']>>>();
+    const olderMedia = { ...media, id: '8', name: 'older.png', url: '/media/older.png' };
+    const latestMedia = { ...media, id: '9', name: 'latest.png', url: '/media/latest.png' };
+    const service: MediaService = {
+      list: vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise),
+      upload: vi.fn(),
+      remove: vi.fn(),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="next-page"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+
+    first.resolve({ list: [olderMedia], pagination: { page: 1, pageSize: 12, total: 1, hasMore: false } });
+    await first.promise;
+    await flush();
+
+    expect(document.querySelector('[data-testid="media-gallery"]')?.getAttribute('data-loading')).toBe('true');
+    expect(document.querySelector('[data-testid="media-preview"]')).toBeNull();
+    expect(document.querySelector('[data-testid="media-pagination"]')?.getAttribute('data-total')).toBe('0');
+
+    second.resolve({ list: [latestMedia], pagination: { page: 2, pageSize: 48, total: 3, hasMore: false } });
+    await second.promise;
+    await flush();
+
+    expect(document.querySelector('[data-testid="media-gallery"]')?.getAttribute('data-loading')).toBe('false');
+    expect(document.querySelector('[data-testid="media-preview"]')?.getAttribute('data-src')).toBe('/media/latest.png');
+    expect(document.querySelector('[data-testid="media-pagination"]')?.getAttribute('data-page-size')).toBe('48');
+    expect(document.querySelector('[data-testid="media-pagination"]')?.getAttribute('data-total')).toBe('3');
+  });
+
+  it('does not let an older list response replace a newer list result', async () => {
+    const first = deferred<Awaited<ReturnType<MediaService['list']>>>();
+    const second = deferred<Awaited<ReturnType<MediaService['list']>>>();
+    const olderMedia = { ...media, id: '8', name: 'older.png', url: '/media/older.png' };
+    const latestMedia = { ...media, id: '9', name: 'latest.png', url: '/media/latest.png' };
+    const service: MediaService = {
+      list: vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise),
+      upload: vi.fn(),
+      remove: vi.fn(),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="next-page"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+
+    second.resolve({ list: [latestMedia], pagination: { page: 2, pageSize: 24, total: 3, hasMore: false } });
+    await second.promise;
+    await flush();
+    first.resolve({ list: [olderMedia], pagination: { page: 1, pageSize: 12, total: 1, hasMore: false } });
+    await first.promise;
+    await flush();
+
+    expect(document.querySelector('[data-testid="media-preview"]')?.getAttribute('data-src')).toBe('/media/latest.png');
+    expect(document.querySelector('[data-testid="media-pagination"]')?.getAttribute('data-current')).toBe('2');
+    expect(document.querySelector('[data-testid="media-pagination"]')?.getAttribute('data-page-size')).toBe('24');
+    expect(document.querySelector('[data-testid="media-pagination"]')?.getAttribute('data-total')).toBe('3');
   });
 });

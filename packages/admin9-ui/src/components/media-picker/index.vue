@@ -76,6 +76,7 @@
   const current = ref(1);
   const pageSize = ref(props.pageSize);
   const total = ref(0);
+  let latestListRequest = 0;
   const isEmpty = computed(() => list.value.length === 0 && !loading.value);
   type SelectableMediaItem = MediaItem & { url: string };
   const isSelectable = (item: MediaItem): item is SelectableMediaItem =>
@@ -85,22 +86,26 @@
     item.status === 'pending' ? t('admin9Ui.mediaPicker.processing') : t('admin9Ui.mediaPicker.failed');
 
   const fetchList = async () => {
+    const request = latestListRequest + 1;
+    latestListRequest = request;
     setLoading(true);
     try {
       const { list: items, pagination } = await service.list({
         page: current.value,
         pageSize: pageSize.value,
       });
+      if (request !== latestListRequest) return;
       list.value = items;
       total.value = pagination.total;
       pageSize.value = pagination.pageSize;
     } catch {
+      if (request !== latestListRequest) return;
       // service 抛错时给出提示并清空，不阻塞交互
       Message.error(t('admin9Ui.mediaPicker.loadFailed'));
       list.value = [];
       total.value = 0;
     } finally {
-      setLoading(false);
+      if (request === latestListRequest) setLoading(false);
     }
   };
 
