@@ -1,7 +1,7 @@
 /* eslint-disable vue/one-component-per-file */
 import { createApp, defineComponent, h, nextTick, type Component } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
-import { createMemoryHistory, createRouter, RouterView, type RouteRecordRaw, type Router } from 'vue-router';
+import { createMemoryHistory, createRouter, RouterLink, RouterView, type RouteRecordRaw, type Router } from 'vue-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PageLayout from '@/layout/page-layout.vue';
 import setupPermissionGuard from '@/router/guard/permission';
@@ -248,6 +248,7 @@ describe('permission route recovery', () => {
     const roleLoad = vi.fn();
     const roleRequest = vi.fn();
     const userRequest = vi.fn();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const lazyError = new Error('lazy route failed');
     const pinia = preparePinia();
     const appStore = useAppStore();
@@ -284,6 +285,66 @@ describe('permission route recovery', () => {
     expect(userRequest).toHaveBeenCalledTimes(2);
     expect(roleLoad).toHaveBeenCalledTimes(1);
     expect(roleRequest).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalledWith(lazyError);
+  });
+
+  it('reports a lazy component failure triggered by a RouterLink click', async () => {
+    const roleLoad = vi.fn();
+    const roleRequest = vi.fn();
+    const userRequest = vi.fn();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const lazyError = new Error('lazy route failed from link');
+    const pinia = preparePinia();
+    const appStore = useAppStore();
+    const RolePage = pageComponent('SystemRole', 'role-page', roleRequest);
+    const UserPage = defineComponent({
+      name: 'SystemUser',
+      setup() {
+        userRequest();
+        return () =>
+          h('div', [
+            h('div', { 'data-testid': 'user-page' }, 'SystemUser page'),
+            h(RouterLink, { 'data-testid': 'role-link', 'to': '/system/role' }, () => 'Role'),
+          ]);
+      },
+    });
+    const router = createGuardedRouter([
+      {
+        path: 'role',
+        name: 'SystemRole',
+        component: async () => {
+          roleLoad();
+          await Promise.reject(lazyError);
+          return RolePage;
+        },
+        meta: { requiresAuth: true, permissions: ['system.role.view'] },
+      },
+      {
+        path: 'user',
+        name: 'SystemUser',
+        component: UserPage,
+        meta: { requiresAuth: true, permissions: ['system.user.view'] },
+      },
+    ]);
+    await mountRouter(router, pinia);
+    await router.push('/system/user');
+    await renderSettled();
+
+    const roleLink = document.querySelector('[data-testid="role-link"]');
+    expect(roleLink).not.toBeNull();
+    roleLink?.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 0, cancelable: true }));
+    await renderSettled();
+
+    expect(router.currentRoute.value.fullPath).toBe('/system/user');
+    expect(appStore.routePermissionDenied).toBe(false);
+    expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="permission-denied"]')).toBeNull();
+    expect(userRequest).toHaveBeenCalledTimes(2);
+    expect(roleLoad).toHaveBeenCalledTimes(1);
+    expect(roleRequest).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalledWith(lazyError);
   });
 
   it('preserves cached page instances across normal allowed navigation', async () => {

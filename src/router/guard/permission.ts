@@ -30,5 +30,9 @@ export default function setupPermissionGuard(router: Router) {
   });
 
   router.afterEach(syncCurrentRoutePermission);
-  router.onError(syncCurrentRoutePermission);
+  router.onError((error) => {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    syncCurrentRoutePermission();
+  });
 }
