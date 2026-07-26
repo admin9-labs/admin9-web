@@ -1,10 +1,14 @@
 /* eslint-disable vue/one-component-per-file */
 import { createApp, defineComponent, h, nextTick, type Component } from 'vue';
+import { createI18n } from 'vue-i18n';
 import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter, RouterLink, RouterView, type RouteRecordRaw, type Router } from 'vue-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import NProgress from 'nprogress';
 import PageLayout from '@/layout/page-layout.vue';
+import { EXCEPTION_500_ROUTE_NAME } from '@/router/constants';
 import setupPermissionGuard from '@/router/guard/permission';
+import { EXCEPTION_500_ROUTE } from '@/router/routes/base';
 import useAppStore from '@/store/modules/app';
 import useTabBarStore from '@/store/modules/tab-bar';
 import useUserStore from '@/store/modules/user';
@@ -50,25 +54,61 @@ function preparePinia(permissionNames = ['system.user.view']) {
   return pinia;
 }
 
-function createGuardedRouter(children: RouteRecordRaw[]) {
+function createGuardedRouter(children: RouteRecordRaw[], initialPath?: string) {
+  const history = createMemoryHistory();
+  if (initialPath) history.push(initialPath);
   const router = createRouter({
-    history: createMemoryHistory(),
+    history,
     routes: [
       { path: '/', component: TestLayout, children: [{ path: '', component: HomePage }] },
       { path: '/system', component: TestLayout, children },
+      EXCEPTION_500_ROUTE,
     ],
   });
   setupPermissionGuard(router);
   return router;
 }
 
-async function mountRouter(router: Router, pinia: ReturnType<typeof createPinia>) {
+async function mountRouter(router: Router, pinia: ReturnType<typeof createPinia>, allowInitialFailure = false) {
   const app = createApp(RouterView);
+  const i18n = createI18n({
+    legacy: false,
+    locale: 'en-US',
+    messages: {
+      'en-US': {
+        'common.action.retry': 'Retry',
+        'exception.500.subtitle': 'The request could not be completed. Please try again.',
+        'exception.500.title': 'Service temporarily unavailable',
+      },
+    },
+  });
   mountedApps.push(app);
+  app.component(
+    'AResult',
+    defineComponent({
+      props: { status: String, subtitle: String, title: String },
+      setup(props, { slots }) {
+        return () => h('section', [h('h1', props.title), h('p', props.subtitle), slots.extra?.()]);
+      },
+    })
+  );
+  app.component(
+    'AButton',
+    defineComponent({
+      setup(_, { attrs, slots }) {
+        return () => h('button', attrs, slots.default?.());
+      },
+    })
+  );
   app.use(pinia);
+  app.use(i18n);
   app.use(router);
   app.mount('#app');
-  await router.isReady();
+  if (allowInitialFailure) {
+    await router.isReady().catch(() => undefined);
+  } else {
+    await router.isReady();
+  }
   await renderSettled();
 }
 
@@ -79,6 +119,61 @@ describe('permission route recovery', () => {
 
   afterEach(() => {
     mountedApps.splice(0).forEach((app) => app.unmount());
+  });
+
+  it('recovers a cold-start lazy route failure through the synchronous error page', async () => {
+    const userLoad = vi.fn();
+    const userRequest = vi.fn();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const progressDone = vi.spyOn(NProgress, 'done').mockImplementation(() => undefined);
+    const lazyError = new Error('cold-start lazy route failed');
+    let serviceAvailable = false;
+    const UserPage = pageComponent('SystemUser', 'user-page', userRequest);
+    const pinia = preparePinia();
+    const initialPath = '/system/user?filter=%E4%B8%AD%E6%96%87#details';
+    const router = createGuardedRouter(
+      [
+        {
+          path: 'user',
+          name: 'SystemUser',
+          component: async () => {
+            userLoad();
+            if (!serviceAvailable) throw lazyError;
+            return UserPage;
+          },
+          meta: { requiresAuth: true, permissions: ['system.user.view'] },
+        },
+      ],
+      initialPath
+    );
+
+    await mountRouter(router, pinia, true);
+
+    expect(router.currentRoute.value.name).toBe(EXCEPTION_500_ROUTE_NAME);
+    expect(router.currentRoute.value.query.redirect).toBe(initialPath);
+    expect(document.querySelector('[data-testid="session-startup-error"]')?.textContent).toContain(
+      'Service temporarily unavailable'
+    );
+    expect(document.querySelector('[data-testid="user-page"]')).toBeNull();
+    expect(userLoad).toHaveBeenCalledTimes(1);
+    expect(userRequest).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalledWith(lazyError);
+    expect(progressDone).toHaveBeenCalled();
+    expect(typeof EXCEPTION_500_ROUTE.component).not.toBe('function');
+
+    serviceAvailable = true;
+    document
+      .querySelector('[data-testid="session-startup-retry"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    await renderSettled();
+
+    expect(router.currentRoute.value.fullPath).toBe(initialPath);
+    expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="session-startup-error"]')).toBeNull();
+    expect(userLoad).toHaveBeenCalledTimes(2);
+    expect(userRequest).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalledTimes(1);
   });
 
   it('mounts the allowed page directly after a denied route without requesting denied data', async () => {
