@@ -21,6 +21,8 @@ export interface MediaItem {
   size?: number;
   /** MIME 类型，如 image/jpeg，可选 */
   mime?: string;
+  /** 文件扩展名，如 jpg 或 webp，可选 */
+  extension?: string;
   /** 缩略图 URL，缺省时库回退用 url */
   thumbnail?: string;
   width?: number;

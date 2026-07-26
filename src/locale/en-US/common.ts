@@ -69,10 +69,6 @@ export default {
   'common.verifyCode.invalidEmail': 'Please enter a valid email',
 
   // Image gallery
-  'common.imageGallery.title': 'Image Gallery',
-  'common.imageGallery.selectImage': 'Select Image',
-  'common.imageGallery.uploadImage': 'Upload Image',
-  'common.imageGallery.deleteCount': 'Delete ({count})',
 
   // Message status
   'common.messageStatus.notStarted': 'Not Started',

@@ -69,10 +69,6 @@ export default {
   'common.verifyCode.invalidEmail': '请输入正确的邮箱',
 
   // 图片库
-  'common.imageGallery.title': '图片列表',
-  'common.imageGallery.selectImage': '选择图片',
-  'common.imageGallery.uploadImage': '上传图片',
-  'common.imageGallery.deleteCount': '删除（{count}）',
 
   // 消息状态
   'common.messageStatus.notStarted': '未开始',

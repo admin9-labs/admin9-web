@@ -2,15 +2,14 @@
   import { computed, PropType } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { Editor } from '@tiptap/vue-3';
-
-  export interface FileRecord {
-    id: string;
-    name: string;
-    path: string;
-    url: string;
-  }
+  import type { MediaItem } from '@admin9-labs/admin9-ui';
+  import usePermission from '@/hooks/permission';
 
   const { t } = useI18n();
+  const { hasPermission } = usePermission();
+  const canViewMedia = computed(() => hasPermission('system.media.view'));
+  const canUploadMedia = computed(() => hasPermission('system.media.create'));
+  const canDeleteMedia = computed(() => hasPermission('system.media.delete'));
 
   const props = defineProps({
     editor: {
@@ -73,7 +72,7 @@
     props.editor.chain().focus().setFontSize(size).run();
   };
 
-  const onInsertImage = (images: FileRecord[]) => {
+  const onInsertImage = (images: MediaItem[]) => {
     const chain = props.editor.chain().focus();
 
     images.forEach((image) => {
@@ -254,8 +253,15 @@
             <a-color-picker :model-value="textStyleColor" show-history show-preset @popup-visible-change="setColor" />
           </template>
           <!-- 插入图片 -->
-          <template v-else-if="option === 'insertImage'">
-            <ImageGallery :show-file-list="false" @change="onInsertImage">
+          <template v-else-if="option === 'insertImage' && canViewMedia">
+            <AMediaPicker
+              :can-upload="canUploadMedia"
+              :can-delete="canDeleteMedia"
+              :multiple="true"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+              :show-file-list="false"
+              @change="onInsertImage"
+            >
               <template #upload-button>
                 <a-button size="small">
                   <template #icon>
@@ -263,7 +269,7 @@
                   </template>
                 </a-button>
               </template>
-            </ImageGallery>
+            </AMediaPicker>
           </template>
           <template v-else>
             <a-button

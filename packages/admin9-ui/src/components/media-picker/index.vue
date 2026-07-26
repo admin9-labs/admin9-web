@@ -8,12 +8,12 @@
   import type { MediaItem, MediaService } from '../../services/types';
 
   /**
-   * AMediaPicker —— 素材选择器（image-gallery 的后端无关升级版）。
+   * AMediaPicker —— 后端无关的素材选择器。
    *
    * 设计要点（见 DESIGN.md §5.1）：
    * - 库不直接调任何后端，列表/上传/删除全部走注入的 MediaService。
    * - 上传用 a-upload :custom-request → service.upload（不再 :action 绕过 axios）。
-   * - emit 与 onMounted 反构统一用 id（修 image-gallery 的 uid/id 混用 bug）。
+   * - emit 与 onMounted 反构统一用 id，避免 uid/id 混用。
    * - 单选(multiple=false)即选即关；多选(multiple=true)底部确认。
    */
   type ModelValue = MediaItem[] | MediaItem | string | undefined;
@@ -31,6 +31,10 @@
       buttonText?: string;
       /** 上传接受的 MIME */
       accept?: string;
+      /** 是否允许在素材弹窗中上传 */
+      canUpload?: boolean;
+      /** 是否允许在素材弹窗中删除 */
+      canDelete?: boolean;
       /** 媒体服务；未传时回退到插件全局注入 */
       service?: MediaService;
       /** 是否展示外层已选文件列表 */
@@ -42,6 +46,8 @@
       pageSize: 24,
       buttonText: '',
       accept: 'image/png,image/jpeg,image/gif',
+      canUpload: true,
+      canDelete: true,
       showFileList: true,
     }
   );
@@ -178,6 +184,7 @@
       selectedMap.value = next;
       await fetchList();
     } catch {
+      await fetchList();
       Message.error(t('admin9Ui.mediaPicker.deleteFailed'));
     } finally {
       deleteLoading.value = false;
@@ -319,6 +326,7 @@
         <div class="a9-media-picker__toolbar">
           <a-space>
             <a-upload
+              v-if="canUpload"
               :multiple="true"
               :show-file-list="false"
               :auto-upload="false"
@@ -332,7 +340,13 @@
                 </a-button>
               </template>
             </a-upload>
-            <a-button v-if="selectCount" :loading="deleteLoading" type="primary" status="danger" @click="onDeleteItems">
+            <a-button
+              v-if="canDelete && selectCount"
+              :loading="deleteLoading"
+              type="primary"
+              status="danger"
+              @click="onDeleteItems"
+            >
               {{ t('admin9Ui.mediaPicker.deleteCount', { count: selectCount }) }}
             </a-button>
           </a-space>
