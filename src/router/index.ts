@@ -3,7 +3,7 @@ import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css';
 
 import { appRoutes } from './routes';
-import { REDIRECT_MAIN, NOT_FOUND_ROUTE } from './routes/base';
+import { EXCEPTION_500_ROUTE, REDIRECT_MAIN, NOT_FOUND_ROUTE } from './routes/base';
 import createRouteGuard from './guard';
 import { DEFAULT_ROUTE_NAME } from './constants';
 
@@ -27,6 +27,7 @@ const router = createRouter({
     },
     ...appRoutes,
     REDIRECT_MAIN,
+    EXCEPTION_500_ROUTE,
     NOT_FOUND_ROUTE,
   ],
   scrollBehavior() {

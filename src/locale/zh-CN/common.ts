@@ -19,6 +19,7 @@ export default {
   'common.action.submit': '提交',
   'common.action.close': '关闭',
   'common.action.reload': '重新加载',
+  'common.action.retry': '重试',
   'common.action.login': '登录',
   'common.action.register': '注册',
 

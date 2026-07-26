@@ -3,6 +3,7 @@ import NProgress from 'nprogress';
 
 import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
+import { EXCEPTION_500_ROUTE_NAME } from '../constants';
 
 export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
@@ -25,8 +26,12 @@ export default function setupUserLoginInfoGuard(router: Router) {
         await userStore.info();
         next();
       } catch {
+        NProgress.done();
         if (isLogin()) {
-          next(false);
+          next({
+            name: EXCEPTION_500_ROUTE_NAME,
+            query: { redirect: to.fullPath },
+          });
         } else {
           next({
             name: 'login',

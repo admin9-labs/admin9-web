@@ -1,5 +1,8 @@
+export const EXCEPTION_500_ROUTE_NAME = 'Exception500';
+
 export const WHITE_LIST = [
   { name: 'notFound', children: [] },
+  { name: EXCEPTION_500_ROUTE_NAME, children: [] },
   { name: 'login', children: [] },
   { name: 'register', children: [] },
   { name: 'forgot-password', children: [] },

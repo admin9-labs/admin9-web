@@ -52,23 +52,34 @@ const backendMenus = [
 
 function installPermissionGuard() {
   type Guard = Parameters<Router['beforeEach']>[0];
+  type AfterGuard = Parameters<Router['afterEach']>[0];
   let guard: Guard | undefined;
+  let afterGuard: AfterGuard | undefined;
+  const currentRoute = { value: { name: undefined, meta: {} } as RouteLocationNormalized };
   const router = {
+    currentRoute,
     beforeEach: vi.fn((handler: Guard) => {
       guard = handler;
       return () => undefined;
     }),
-    afterEach: vi.fn(() => () => undefined),
+    afterEach: vi.fn((handler: AfterGuard) => {
+      afterGuard = handler;
+      return () => undefined;
+    }),
     onError: vi.fn(() => () => undefined),
   } as unknown as Router;
   setupPermissionGuard(router);
-  if (!guard) throw new Error('Permission guard was not installed');
-  return guard;
+  if (!guard || !afterGuard) throw new Error('Permission guard was not installed');
+  return { afterGuard, currentRoute, guard };
 }
 
-async function navigate(guard: Parameters<Router['beforeEach']>[0], to: Partial<RouteLocationNormalized>) {
+async function navigate(installed: ReturnType<typeof installPermissionGuard>, to: Partial<RouteLocationNormalized>) {
+  const from = { name: undefined, meta: {} } as RouteLocationNormalized;
+  const confirmed = to as RouteLocationNormalized;
   const next = vi.fn() as NavigationGuardNext;
-  await guard.call(undefined, to as RouteLocationNormalized, { name: undefined, meta: {} } as RouteLocationNormalized, next);
+  await installed.guard.call(undefined, confirmed, from, next);
+  installed.currentRoute.value = confirmed;
+  installed.afterGuard.call(undefined, confirmed, from);
   return next;
 }
 

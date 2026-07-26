@@ -19,6 +19,7 @@ export default {
   'common.action.submit': 'Submit',
   'common.action.close': 'Close',
   'common.action.reload': 'Reload',
+  'common.action.retry': 'Retry',
   'common.action.login': 'Login',
   'common.action.register': 'Register',
 
