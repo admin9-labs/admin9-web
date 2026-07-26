@@ -7,6 +7,12 @@ module.exports = {
   ],
   defaultSeverity: 'warning',
   plugins: ['stylelint-order'],
+  overrides: [
+    {
+      files: ['**/*.less'],
+      customSyntax: 'postcss-less',
+    },
+  ],
   rules: {
     'at-rule-no-unknown': [
       true,
