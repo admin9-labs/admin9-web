@@ -7,6 +7,7 @@ import type {
   MediaService,
   MediaUploadOptions,
 } from '@admin9-labs/admin9-ui';
+import type { operations } from '@/api/generated/admin-api';
 import type {
   AdminMedia,
   AdminMediaDestroyResponse,
@@ -47,12 +48,13 @@ async function removeSequentially(ids: string[], index = 0, removed: string[] = 
 
 const mediaService: MediaService = {
   async list(params: MediaListParams): Promise<MediaListResult> {
+    const query: NonNullable<operations['admin.media.index']['parameters']['query']> = {
+      page: params.page,
+      per_page: params.pageSize,
+      search: params.keyword || undefined,
+    };
     const response = await axios.get<unknown, AdminMediaListResponse>(MEDIA_ENDPOINT, {
-      params: {
-        current: params.page,
-        pageSize: params.pageSize,
-        search: params.keyword || undefined,
-      },
+      params: query,
     });
     const pagination: MediaPagination = {
       page: response.meta.page,

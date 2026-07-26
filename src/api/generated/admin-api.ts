@@ -301,7 +301,7 @@ export interface components {
       /** @enum {string} */
       status: "pending" | "ready" | "failed";
       /** Format: uri */
-      url: string;
+      url: string | null;
       width: number | null;
     };
     /** MemberResource */

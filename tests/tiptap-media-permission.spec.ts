@@ -34,6 +34,10 @@ vi.mock('@admin9-labs/admin9-ui', async () => {
                 'data-testid': 'insert-ready-media',
                 'onClick': () => emit('change', [{ id: 'ready', name: 'ready.png', url: '/media/ready.png', status: 'ready' }]),
               }),
+              render('button', {
+                'data-testid': 'insert-ready-media-without-url',
+                'onClick': () => emit('change', [{ id: 'missing', name: 'missing.png', url: null, status: 'ready' }]),
+              }),
             ]
           );
       },
@@ -45,6 +49,11 @@ const mountedApps: App[] = [];
 const Transparent = defineComponent({
   setup(_, { slots }) {
     return () => h('div', slots.default?.());
+  },
+});
+const ToolbarActionStub = defineComponent({
+  setup(_, { slots }) {
+    return () => h('div', { 'data-testid': 'toolbar-action' }, slots.default?.());
   },
 });
 
@@ -64,7 +73,7 @@ function mountToolbar(permissionNames: string[]) {
   app.use(
     createI18n({ legacy: false, locale: 'en-US', messages: { 'en-US': { 'common.tiptap.insertImage': 'Insert image' } } })
   );
-  app.component('ATooltip', Transparent);
+  app.component('ATooltip', ToolbarActionStub);
   app.component('AButton', Transparent);
   mountedApps.push(app);
   app.mount('#app');
@@ -83,6 +92,7 @@ describe('Tiptap media permission wiring', () => {
   it('hides image selection without media view permission', () => {
     mountToolbar([]);
     expect(document.querySelector('[data-testid="media-picker"]')).toBeNull();
+    expect(document.querySelector('[data-testid="toolbar-action"]')).toBeNull();
   });
 
   it('keeps existing media selection available while passing upload and delete permissions independently', () => {
@@ -101,5 +111,11 @@ describe('Tiptap media permission wiring', () => {
 
     document.querySelector('[data-testid="insert-ready-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(insertContent).toHaveBeenCalledWith([{ type: 'image', attrs: { src: '/media/ready.png' } }]);
+
+    insertContent.mockClear();
+    document
+      .querySelector('[data-testid="insert-ready-media-without-url"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(insertContent).not.toHaveBeenCalled();
   });
 });

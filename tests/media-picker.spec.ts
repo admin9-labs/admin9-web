@@ -35,6 +35,12 @@ const CheckboxGroupStub = defineComponent({
       ]);
   },
 });
+const ImageStub = defineComponent({
+  props: { src: String },
+  setup(props) {
+    return () => h('img', { 'data-testid': 'media-preview', 'data-src': props.src });
+  },
+});
 
 async function flush() {
   await Promise.resolve();
@@ -73,7 +79,7 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
   app.component('ACheckbox', ChoiceStub);
   app.component('ARadio', ChoiceStub);
   app.component('ARadioGroup', Transparent);
-  app.component('AImage', Transparent);
+  app.component('AImage', ImageStub);
   app.component(
     'AButton',
     defineComponent({
@@ -135,8 +141,8 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
   });
 
   it('keeps pending and failed media visible but out of selection while allowing failed cleanup', async () => {
-    const pending = { id: '8', name: 'pending.png', url: '/media/pending.png', status: 'pending' as const };
-    const failed = { id: '9', name: 'failed.png', url: '/media/failed.png', status: 'failed' as const };
+    const pending = { id: '8', name: 'pending.png', url: null, status: 'pending' as const };
+    const failed = { id: '9', name: 'failed.png', url: null, status: 'failed' as const };
     const service: MediaService = {
       list: vi
         .fn()
@@ -150,6 +156,7 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     expect(document.body.textContent).toContain('Processing');
     expect(document.body.textContent).toContain('Failed');
+    expect(document.querySelectorAll('[data-testid="media-preview"]')).toHaveLength(1);
 
     document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
@@ -161,5 +168,25 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     expect(service.remove).toHaveBeenCalledWith(['9']);
     expect(service.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps ready media without a URL visible but prevents preview and selection', async () => {
+    const unavailableReady = { id: '10', name: 'missing.png', url: null, status: 'ready' as const };
+    const service: MediaService = {
+      list: vi
+        .fn()
+        .mockResolvedValue({ list: [unavailableReady], pagination: { page: 1, pageSize: 24, total: 1, hasMore: false } }),
+      upload: vi.fn(),
+      remove: vi.fn(),
+    };
+    mountPicker(service);
+
+    document.querySelector('button')?.click();
+    await flush();
+
+    expect(document.querySelector('[data-testid="media-preview"]')).toBeNull();
+    document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    expect(document.body.textContent).not.toContain('Delete (1)');
   });
 });

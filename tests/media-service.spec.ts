@@ -46,7 +46,7 @@ describe('admin media service', () => {
       pagination: { page: 2, pageSize: 24, total: 30, hasMore: true },
     });
     expect(axios.get).toHaveBeenCalledWith('/api/admin/media', {
-      params: { current: 2, pageSize: 24, search: 'avatar' },
+      params: { page: 2, per_page: 24, search: 'avatar' },
     });
   });
 

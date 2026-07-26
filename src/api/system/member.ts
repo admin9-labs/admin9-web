@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { components } from '@/api/generated/admin-api';
+import type { components, operations } from '@/api/generated/admin-api';
 import type {
   AdminEmptyResponse,
   AdminMember,
@@ -18,12 +18,7 @@ export type MemberUpdateData = components['schemas']['UpdateMemberRequest'];
 export type MemberStatusData = components['schemas']['UpdateMemberStatusRequest'];
 export type MemberPasswordData = components['schemas']['ResetMemberPasswordRequest'];
 
-export interface MemberListParams {
-  current?: number;
-  pageSize?: number;
-  search?: string;
-  is_active?: boolean;
-}
+export type MemberListParams = NonNullable<operations['admin.members.index']['parameters']['query']>;
 
 const MEMBER_ENDPOINT = '/api/admin/members';
 

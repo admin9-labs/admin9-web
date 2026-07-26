@@ -77,7 +77,10 @@
   const pageSize = ref(props.pageSize);
   const total = ref(0);
   const isEmpty = computed(() => list.value.length === 0 && !loading.value);
-  const isSelectable = (item: MediaItem) => !item.status || item.status === 'ready';
+  type SelectableMediaItem = MediaItem & { url: string };
+  const isSelectable = (item: MediaItem): item is SelectableMediaItem =>
+    (!item.status || item.status === 'ready') && typeof item.url === 'string' && item.url.length > 0;
+  const previewUrl = (item: MediaItem) => (isSelectable(item) ? item.thumbnail || item.url : undefined);
   const statusLabel = (item: MediaItem) =>
     item.status === 'pending' ? t('admin9Ui.mediaPicker.processing') : t('admin9Ui.mediaPicker.failed');
 
@@ -113,7 +116,7 @@
   const toFileItem = (item: MediaItem): FileItem => ({
     uid: item.id,
     name: item.name,
-    url: item.url,
+    url: item.url ?? undefined,
     status: 'done',
   });
 
@@ -125,7 +128,7 @@
       return;
     }
     // 保留消费者原始形态：字符串模式回传 URL，否则回传 MediaItem
-    emit('update:modelValue', isStringModel.value ? item.url : item);
+    emit('update:modelValue', isStringModel.value ? item.url ?? undefined : item);
   };
 
   const confirmSelection = (items: MediaItem[]) => {
@@ -378,13 +381,15 @@
                 <a-radio :value="item.id" :disabled="!isSelectable(item)">
                   <template #radio>
                     <a-image
-                      :src="item.thumbnail || item.url"
+                      v-if="previewUrl(item)"
+                      :src="previewUrl(item)"
                       :preview="false"
                       width="120"
                       height="90"
                       fit="cover"
                       show-loader
                     />
+                    <div v-else class="a9-media-picker__placeholder" aria-hidden="true" />
                   </template>
                 </a-radio>
                 <span v-if="!isSelectable(item)" class="a9-media-picker__status">{{ statusLabel(item) }}</span>
@@ -415,13 +420,15 @@
                 >
                   <template #checkbox>
                     <a-image
-                      :src="item.thumbnail || item.url"
+                      v-if="previewUrl(item)"
+                      :src="previewUrl(item)"
                       :preview="false"
                       width="120"
                       height="90"
                       fit="cover"
                       show-loader
                     />
+                    <div v-else class="a9-media-picker__placeholder" aria-hidden="true" />
                   </template>
                 </a-checkbox>
                 <span v-if="!isSelectable(item)" class="a9-media-picker__status">{{ statusLabel(item) }}</span>
@@ -504,6 +511,13 @@
       &.is-unavailable {
         opacity: 0.6;
       }
+    }
+
+    &__placeholder {
+      width: 120px;
+      height: 90px;
+      background: var(--color-fill-2);
+      border: 2px solid var(--color-neutral-1);
     }
 
     &__status,

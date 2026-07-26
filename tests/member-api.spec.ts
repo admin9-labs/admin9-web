@@ -20,7 +20,7 @@ describe('member management API contract', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('binds all member operations to their generated-contract endpoints', () => {
-    queryMemberList({ current: 2, pageSize: 20, search: 'ada', is_active: true });
+    queryMemberList({ page: 2, per_page: 20, search: 'ada', is_active: true });
     createMember({ name: 'Ada', email: 'ada@example.test', password: 'password-123', password_confirmation: 'password-123' });
     queryMemberDetail(7);
     updateMember(7, { name: 'Ada Lovelace', mobile: '13800000000' });
@@ -29,7 +29,7 @@ describe('member management API contract', () => {
     invalidateMemberSessions(7);
 
     expect(axios.get).toHaveBeenNthCalledWith(1, '/api/admin/members', {
-      params: { current: 2, pageSize: 20, search: 'ada', is_active: true },
+      params: { page: 2, per_page: 20, search: 'ada', is_active: true },
     });
     expect(axios.post).toHaveBeenNthCalledWith(1, '/api/admin/members', expect.any(Object));
     expect(axios.get).toHaveBeenNthCalledWith(2, '/api/admin/members/7');

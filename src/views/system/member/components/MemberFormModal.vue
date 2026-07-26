@@ -49,6 +49,7 @@
   const editingId = ref<number>();
   const detailLoading = ref(false);
   const submitLoading = ref(false);
+  let detailRequestGeneration = 0;
   const isEdit = computed(() => editingId.value !== undefined);
 
   const getDefaultForm = () => ({
@@ -95,6 +96,7 @@
   };
 
   const onReset = () => {
+    detailRequestGeneration += 1;
     editingId.value = undefined;
     detailLoading.value = false;
     Object.assign(formData, getDefaultForm());
@@ -106,19 +108,21 @@
   };
   const onEdit = async (memberId: number) => {
     onReset();
+    const requestGeneration = detailRequestGeneration;
     editingId.value = memberId;
     setVisible(true);
     detailLoading.value = true;
     try {
       const res = await queryMemberDetail(memberId);
+      if (requestGeneration !== detailRequestGeneration || editingId.value !== memberId) return;
       const { member } = res.data;
       formData.name = member.name;
       formData.email = member.email ?? '';
       formData.mobile = member.mobile ?? '';
     } catch {
-      setVisible(false);
+      if (requestGeneration === detailRequestGeneration && editingId.value === memberId) setVisible(false);
     } finally {
-      detailLoading.value = false;
+      if (requestGeneration === detailRequestGeneration && editingId.value === memberId) detailLoading.value = false;
     }
   };
   const onSave = async (done: (closed: boolean) => void) => {

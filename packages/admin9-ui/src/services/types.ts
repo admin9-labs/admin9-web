@@ -14,7 +14,7 @@
 export interface MediaItem {
   id: string;
   name: string;
-  url: string;
+  url: string | null;
   /** 后端相对路径（引用/删除用），可选 */
   path?: string;
   /** 字节数，可选 */

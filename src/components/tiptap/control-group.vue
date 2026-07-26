@@ -46,6 +46,7 @@
       ],
     },
   });
+  const visibleToolbars = computed(() => props.toolbars.filter((option) => option !== 'insertImage' || canViewMedia.value));
 
   // 颜色
   const textStyleColor = computed(() => {
@@ -76,7 +77,10 @@
     const chain = props.editor.chain().focus();
 
     images
-      .filter((image) => !image.status || image.status === 'ready')
+      .filter(
+        (image): image is MediaItem & { url: string } =>
+          (!image.status || image.status === 'ready') && typeof image.url === 'string' && image.url.length > 0
+      )
       .forEach((image) => {
         chain.insertContent([
           {
@@ -229,7 +233,7 @@
 <template>
   <div class="control-group">
     <a-space size="mini" wrap>
-      <template v-for="option in toolbars" :key="option">
+      <template v-for="option in visibleToolbars" :key="option">
         <!-- 间隔符 -->
         <a-divider v-if="option === 'divider'" direction="vertical" />
         <!-- 按钮 -->
@@ -255,7 +259,7 @@
             <a-color-picker :model-value="textStyleColor" show-history show-preset @popup-visible-change="setColor" />
           </template>
           <!-- 插入图片 -->
-          <template v-else-if="option === 'insertImage' && canViewMedia">
+          <template v-else-if="option === 'insertImage'">
             <AMediaPicker
               :can-upload="canUploadMedia"
               :can-delete="canDeleteMedia"

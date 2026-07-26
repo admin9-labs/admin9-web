@@ -125,8 +125,8 @@
     setLoading(true);
     try {
       const res = await queryMemberList({
-        current: pagination.current,
-        pageSize: pagination.pageSize,
+        page: pagination.current,
+        per_page: pagination.pageSize,
         search: search.value.trim() || undefined,
         is_active: isActive.value,
       });
