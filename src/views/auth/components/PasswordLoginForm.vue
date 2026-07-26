@@ -22,10 +22,10 @@
   import { useRouter } from 'vue-router';
   import { useI18n } from 'vue-i18n';
   import { Message } from '@arco-design/web-vue';
-  import { DEFAULT_ROUTE_NAME } from '@/router/constants';
   import useLoading from '@/hooks/loading';
   import { useUserStore } from '@/store';
   import AgreementNotice from './AgreementNotice.vue';
+  import resolveLoginRedirect from './login-redirect';
 
   const { t } = useI18n();
   const { loading, setLoading } = useLoading();
@@ -51,10 +51,7 @@
       setLoading(true);
       await userStore.login({ ...userInfo });
       const { redirect, ...othersQuery } = router.currentRoute.value.query;
-      router.push({
-        name: (redirect as string) || DEFAULT_ROUTE_NAME,
-        query: { ...othersQuery },
-      });
+      router.push(resolveLoginRedirect(router, redirect, othersQuery));
       Message.success(t('login.form.login.success'));
     } catch (err) {
       loginForm.value.setFields({
