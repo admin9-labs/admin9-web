@@ -6,6 +6,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ControlGroup from '@/components/tiptap/control-group.vue';
 import useUserStore from '@/store/modules/user';
 
+vi.mock('@admin9-labs/admin9-ui', async () => {
+  const { defineComponent: defineMockComponent, h: render } = await import('vue');
+
+  return {
+    AMediaPicker: defineMockComponent({
+      props: { canUpload: Boolean, canDelete: Boolean, multiple: Boolean, accept: String },
+      setup(props) {
+        return () =>
+          render('div', {
+            'data-testid': 'media-picker',
+            'data-upload': String(props.canUpload),
+            'data-delete': String(props.canDelete),
+            'data-multiple': String(props.multiple),
+            'data-accept': props.accept,
+          });
+      },
+    }),
+  };
+});
+
 const mountedApps: App[] = [];
 const Transparent = defineComponent({
   setup(_, { slots }) {
@@ -30,22 +50,6 @@ function mountToolbar(permissionNames: string[]) {
   );
   app.component('ATooltip', Transparent);
   app.component('AButton', Transparent);
-  app.component(
-    'AMediaPicker',
-    defineComponent({
-      props: { canUpload: Boolean, canDelete: Boolean, multiple: Boolean, accept: String },
-      setup(props) {
-        return () =>
-          h('div', {
-            'data-testid': 'media-picker',
-            'data-upload': String(props.canUpload),
-            'data-delete': String(props.canDelete),
-            'data-multiple': String(props.multiple),
-            'data-accept': props.accept,
-          });
-      },
-    })
-  );
   mountedApps.push(app);
   app.mount('#app');
 }

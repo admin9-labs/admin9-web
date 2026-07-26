@@ -2,7 +2,7 @@
   import { computed, PropType } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { Editor } from '@tiptap/vue-3';
-  import type { MediaItem } from '@admin9-labs/admin9-ui';
+  import { AMediaPicker, type MediaItem } from '@admin9-labs/admin9-ui';
   import usePermission from '@/hooks/permission';
 
   const { t } = useI18n();
