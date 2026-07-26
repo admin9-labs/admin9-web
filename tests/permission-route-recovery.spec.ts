@@ -31,10 +31,11 @@ async function renderSettled() {
   await nextTick();
 }
 
-function pageComponent(name: string, testId: string, request: () => void): Component {
+function pageComponent(name: string, testId: string, request: () => void, mount: () => void = () => undefined): Component {
   return defineComponent({
     name,
     setup() {
+      mount();
       request();
       return () => h('div', { 'data-testid': testId }, `${name} page`);
     },
@@ -117,8 +118,9 @@ describe('permission route recovery', () => {
     expect(roleRequest).not.toHaveBeenCalled();
   });
 
-  it('restores the allowed route after a denied navigation is aborted', async () => {
+  it('does not mount a denied page after leaving an allowed page', async () => {
     const roleRequest = vi.fn();
+    const roleMount = vi.fn();
     const userRequest = vi.fn();
     const pinia = preparePinia();
     const appStore = useAppStore();
@@ -126,8 +128,7 @@ describe('permission route recovery', () => {
       {
         path: 'role',
         name: 'SystemRole',
-        component: pageComponent('SystemRole', 'role-page', roleRequest),
-        beforeEnter: () => false,
+        component: pageComponent('SystemRole', 'role-page', roleRequest, roleMount),
         meta: { requiresAuth: true, permissions: ['system.role.view'] },
       },
       {
@@ -144,11 +145,49 @@ describe('permission route recovery', () => {
     await router.push('/system/role');
     await renderSettled();
 
+    expect(router.currentRoute.value.fullPath).toBe('/system/role');
+    expect(appStore.routePermissionDenied).toBe(true);
+    expect(document.querySelector('[data-testid="permission-denied"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="role-page"]')).toBeNull();
+    expect(roleMount).not.toHaveBeenCalled();
+    expect(roleRequest).not.toHaveBeenCalled();
+    expect(userRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it('restores the allowed route after a denied navigation is aborted', async () => {
+    const roleRequest = vi.fn();
+    const userRequest = vi.fn();
+    const userMount = vi.fn();
+    const pinia = preparePinia();
+    const appStore = useAppStore();
+    const router = createGuardedRouter([
+      {
+        path: 'role',
+        name: 'SystemRole',
+        component: pageComponent('SystemRole', 'role-page', roleRequest),
+        beforeEnter: () => false,
+        meta: { requiresAuth: true, permissions: ['system.role.view'] },
+      },
+      {
+        path: 'user',
+        name: 'SystemUser',
+        component: pageComponent('SystemUser', 'user-page', userRequest, userMount),
+        meta: { requiresAuth: true, permissions: ['system.user.view'] },
+      },
+    ]);
+    await mountRouter(router, pinia);
+    await router.push('/system/user');
+    await renderSettled();
+
+    await router.push('/system/role');
+    await renderSettled();
+
     expect(router.currentRoute.value.fullPath).toBe('/system/user');
     expect(appStore.routePermissionDenied).toBe(false);
     expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
     expect(document.querySelector('[data-testid="permission-denied"]')).toBeNull();
-    expect(userRequest).toHaveBeenCalledTimes(2);
+    expect(userMount).toHaveBeenCalledTimes(1);
+    expect(userRequest).toHaveBeenCalledTimes(1);
     expect(roleRequest).not.toHaveBeenCalled();
   });
 
@@ -189,6 +228,7 @@ describe('permission route recovery', () => {
     const roleRequest = vi.fn();
     const userRequest = vi.fn();
     const configRequest = vi.fn();
+    const userMount = vi.fn();
     let releaseRoleNavigation: () => void = () => undefined;
     const roleNavigationStarted = new Promise<void>((resolve) => {
       releaseRoleNavigation = resolve;
@@ -214,7 +254,7 @@ describe('permission route recovery', () => {
       {
         path: 'user',
         name: 'SystemUser',
-        component: pageComponent('SystemUser', 'user-page', userRequest),
+        component: pageComponent('SystemUser', 'user-page', userRequest, userMount),
         meta: { requiresAuth: true, permissions: ['system.user.view'] },
       },
       {
@@ -241,6 +281,8 @@ describe('permission route recovery', () => {
     expect(document.querySelector('[data-testid="config-page"]')).not.toBeNull();
     expect(document.querySelector('[data-testid="permission-denied"]')).toBeNull();
     expect(configRequest).toHaveBeenCalledTimes(1);
+    expect(userMount).toHaveBeenCalledTimes(1);
+    expect(userRequest).toHaveBeenCalledTimes(1);
     expect(roleRequest).not.toHaveBeenCalled();
   });
 
@@ -248,6 +290,7 @@ describe('permission route recovery', () => {
     const roleLoad = vi.fn();
     const roleRequest = vi.fn();
     const userRequest = vi.fn();
+    const userMount = vi.fn();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const lazyError = new Error('lazy route failed');
     const pinia = preparePinia();
@@ -267,7 +310,7 @@ describe('permission route recovery', () => {
       {
         path: 'user',
         name: 'SystemUser',
-        component: pageComponent('SystemUser', 'user-page', userRequest),
+        component: pageComponent('SystemUser', 'user-page', userRequest, userMount),
         meta: { requiresAuth: true, permissions: ['system.user.view'] },
       },
     ]);
@@ -282,7 +325,8 @@ describe('permission route recovery', () => {
     expect(appStore.routePermissionDenied).toBe(false);
     expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
     expect(document.querySelector('[data-testid="permission-denied"]')).toBeNull();
-    expect(userRequest).toHaveBeenCalledTimes(2);
+    expect(userMount).toHaveBeenCalledTimes(1);
+    expect(userRequest).toHaveBeenCalledTimes(1);
     expect(roleLoad).toHaveBeenCalledTimes(1);
     expect(roleRequest).not.toHaveBeenCalled();
     expect(consoleError).toHaveBeenCalledTimes(1);
@@ -293,6 +337,7 @@ describe('permission route recovery', () => {
     const roleLoad = vi.fn();
     const roleRequest = vi.fn();
     const userRequest = vi.fn();
+    const userMount = vi.fn();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const lazyError = new Error('lazy route failed from link');
     const pinia = preparePinia();
@@ -301,6 +346,7 @@ describe('permission route recovery', () => {
     const UserPage = defineComponent({
       name: 'SystemUser',
       setup() {
+        userMount();
         userRequest();
         return () =>
           h('div', [
@@ -340,7 +386,8 @@ describe('permission route recovery', () => {
     expect(appStore.routePermissionDenied).toBe(false);
     expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
     expect(document.querySelector('[data-testid="permission-denied"]')).toBeNull();
-    expect(userRequest).toHaveBeenCalledTimes(2);
+    expect(userMount).toHaveBeenCalledTimes(1);
+    expect(userRequest).toHaveBeenCalledTimes(1);
     expect(roleLoad).toHaveBeenCalledTimes(1);
     expect(roleRequest).not.toHaveBeenCalled();
     expect(consoleError).toHaveBeenCalledTimes(1);

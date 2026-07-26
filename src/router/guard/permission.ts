@@ -14,8 +14,6 @@ export default function setupPermissionGuard(router: Router) {
 
   router.beforeEach(async (to, from, next) => {
     const appStore = useAppStore();
-    const Permission = usePermission();
-    const permissionsAllow = Permission.accessRouter(to);
     const isWhiteListed = WHITE_LIST.some((route) => route.name === to.name);
 
     if (appStore.menuFromServer && !isWhiteListed) {
@@ -24,7 +22,6 @@ export default function setupPermissionGuard(router: Router) {
       }
     }
 
-    if (!permissionsAllow) appStore.routePermissionDenied = true;
     next();
     NProgress.done();
   });
