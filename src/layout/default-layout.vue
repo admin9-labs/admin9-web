@@ -18,7 +18,23 @@
           @collapse="setCollapsed"
         >
           <div class="menu-wrapper">
-            <Menu />
+            <a-spin v-if="serverMenuLoading" class="menu-state" />
+            <a-result
+              v-else-if="serverMenuFailed"
+              class="menu-state"
+              status="error"
+              :title="$t('common.message.failed', { action: $t('menu.system') })"
+            >
+              <template #extra>
+                <a-tooltip :content="$t('common.action.refresh')">
+                  <a-button type="text" @click="retryServerMenu">
+                    <template #icon><icon-refresh /></template>
+                  </a-button>
+                </a-tooltip>
+              </template>
+            </a-result>
+            <a-empty v-else-if="serverMenuEmpty" class="menu-state" />
+            <Menu v-else />
           </div>
         </a-layout-sider>
         <a-drawer
@@ -30,12 +46,29 @@
           :closable="false"
           @cancel="drawerCancel"
         >
-          <Menu />
+          <a-spin v-if="serverMenuLoading" class="menu-state" />
+          <a-result
+            v-else-if="serverMenuFailed"
+            class="menu-state"
+            status="error"
+            :title="$t('common.message.failed', { action: $t('menu.system') })"
+          >
+            <template #extra>
+              <a-tooltip :content="$t('common.action.refresh')">
+                <a-button type="text" @click="retryServerMenu">
+                  <template #icon><icon-refresh /></template>
+                </a-button>
+              </a-tooltip>
+            </template>
+          </a-result>
+          <a-empty v-else-if="serverMenuEmpty" class="menu-state" />
+          <Menu v-else />
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
           <TabBar v-if="appStore.tabBar" />
           <a-layout-content>
-            <PageLayout />
+            <a-result v-if="appStore.routePermissionDenied" class="permission-denied" status="403" />
+            <PageLayout v-else />
           </a-layout-content>
           <Footer v-if="footer" />
         </a-layout>
@@ -46,7 +79,7 @@
 
 <script lang="ts" setup>
   import { ref, computed, watch, provide, onMounted } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
+  import { useRoute } from 'vue-router';
   import { useAppStore, useUserStore } from '@/store';
   import NavBar from '@/components/navbar/index.vue';
   import Menu from '@/components/menu/index.vue';
@@ -59,7 +92,6 @@
   const isInit = ref(false);
   const appStore = useAppStore();
   const userStore = useUserStore();
-  const router = useRouter();
   const route = useRoute();
   const permission = usePermission();
   useResponsive(true);
@@ -74,6 +106,11 @@
   const collapsed = computed(() => {
     return appStore.menuCollapse;
   });
+  const serverMenuLoading = computed(() => appStore.menuFromServer && appStore.serverMenuStatus === 'loading');
+  const serverMenuFailed = computed(() => appStore.menuFromServer && appStore.serverMenuStatus === 'error');
+  const serverMenuEmpty = computed(
+    () => appStore.menuFromServer && appStore.serverMenuStatus === 'ready' && appStore.appAsyncMenus.length === 0
+  );
   const paddingStyle = computed(() => {
     const paddingLeft = renderMenu.value && !hideMenu.value ? { paddingLeft: `${menuWidth.value}px` } : {};
     const paddingTop = navbar.value ? { paddingTop: navbarHeight } : {};
@@ -83,10 +120,11 @@
     if (!isInit.value) return; // for page initialization menu state problem
     appStore.updateSettings({ menuCollapse: val });
   };
+  const retryServerMenu = () => appStore.fetchServerMenuConfig();
   watch(
     () => [userStore.roles, userStore.permissionNames],
     () => {
-      if (userStore.id !== null && !permission.accessRouter(route)) router.push({ name: 'notFound' });
+      appStore.routePermissionDenied = userStore.id !== null && !permission.accessRouter(route);
     }
   );
   const drawerVisible = ref(false);
@@ -197,6 +235,20 @@
         background-color: unset;
       }
     }
+  }
+
+  .menu-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 160px;
+  }
+
+  .permission-denied {
+    min-height: calc(100vh - 60px);
+    padding-top: 15vh;
+    background-color: var(--color-bg-2);
   }
 
   .layout-content {

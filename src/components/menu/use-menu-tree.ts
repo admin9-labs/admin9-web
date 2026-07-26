@@ -24,7 +24,7 @@ export default function useMenuTree() {
 
       const collector: any = _routes.map((element) => {
         // no access
-        if (!appStore.menuFromServer && !permission.accessRouter(element)) {
+        if (!permission.accessRouter(element)) {
           return null;
         }
 

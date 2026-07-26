@@ -17,7 +17,11 @@ async function waitForLatestServerMenuRequest(): Promise<void> {
 }
 
 const useAppStore = defineStore('app', {
-  state: (): AppState => ({ ...defaultSettings, serverMenuLoaded: false }),
+  state: (): AppState => ({
+    ...defaultSettings,
+    serverMenuStatus: 'idle',
+    routePermissionDenied: false,
+  }),
 
   getters: {
     appCurrentSetting(state: AppState): AppState {
@@ -28,6 +32,9 @@ const useAppStore = defineStore('app', {
     },
     appAsyncMenus(state: AppState): RouteRecordNormalized[] {
       return state.serverMenu as unknown as RouteRecordNormalized[];
+    },
+    serverMenuLoaded(state: AppState): boolean {
+      return state.serverMenuStatus === 'ready';
     },
   },
 
@@ -62,14 +69,16 @@ const useAppStore = defineStore('app', {
 
       const generation = serverMenuGeneration;
       const request = (async () => {
+        this.serverMenuStatus = 'loading';
         try {
           const { data } = await getMenuList();
           if (generation !== serverMenuGeneration) return;
           this.serverMenu = filterLocalAdminMenus(appRoutes, data);
-          this.serverMenuLoaded = true;
+          this.serverMenuStatus = 'ready';
         } catch (error) {
           if (generation !== serverMenuGeneration) return;
-          this.clearServerMenu();
+          this.serverMenu = [];
+          this.serverMenuStatus = 'error';
           // eslint-disable-next-line no-console
           console.error(error);
         }
@@ -86,7 +95,7 @@ const useAppStore = defineStore('app', {
       serverMenuGeneration += 1;
       serverMenuRequest = null;
       this.serverMenu = [];
-      this.serverMenuLoaded = false;
+      this.serverMenuStatus = 'idle';
     },
   },
 });

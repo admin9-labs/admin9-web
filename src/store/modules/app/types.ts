@@ -1,5 +1,7 @@
 import type { RouteRecordNormalized } from 'vue-router';
 
+export type ServerMenuStatus = 'idle' | 'loading' | 'ready' | 'error';
+
 export interface AppState {
   theme: string;
   colorWeak: boolean;
@@ -16,6 +18,7 @@ export interface AppState {
   tabBar: boolean;
   menuFromServer: boolean;
   serverMenu: RouteRecordNormalized[];
-  serverMenuLoaded: boolean;
+  serverMenuStatus: ServerMenuStatus;
+  routePermissionDenied: boolean;
   [key: string]: unknown;
 }
