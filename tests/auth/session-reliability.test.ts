@@ -308,7 +308,7 @@ describe('request replay policy', () => {
     expect(sessionRetryDecision({ ...base, retried: true }, current)).toBe('none');
   });
 
-  it('never refreshes auth endpoints or replays under a different identity generation', () => {
+  it('refreshes protected identity requests once while excluding credential endpoints', () => {
     expect(
       sessionRetryDecision(
         {
@@ -320,7 +320,38 @@ describe('request replay policy', () => {
         },
         current
       )
+    ).toBe('refresh');
+
+    ['/api/admin/auth/login', '/api/admin/auth/refresh', '/api/admin/auth/logout'].forEach((url) => {
+      expect(
+        sessionRetryDecision(
+          {
+            status: 401,
+            url,
+            retried: false,
+            requestGeneration: current.generation,
+            requestToken: current.token,
+          },
+          current
+        )
+      ).toBe('none');
+    });
+
+    expect(
+      sessionRetryDecision(
+        {
+          status: 401,
+          url: '/api/admin/auth/me',
+          retried: true,
+          requestGeneration: current.generation,
+          requestToken: current.token,
+        },
+        current
+      )
     ).toBe('none');
+  });
+
+  it('does not replay requests from a different identity generation', () => {
     expect(
       sessionRetryDecision(
         {

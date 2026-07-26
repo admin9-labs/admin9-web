@@ -268,18 +268,20 @@ export interface SessionRetryInput {
 
 export type SessionRetryDecision = 'none' | 'refresh' | 'replay';
 
-export function isAdminAuthUrl(url: string | undefined): boolean {
+const NON_RETRIABLE_ADMIN_AUTH_PATHS = new Set(['/api/admin/auth/login', '/api/admin/auth/logout', '/api/admin/auth/refresh']);
+
+export function isNonRetriableAdminAuthUrl(url: string | undefined): boolean {
   if (!url) return false;
 
   try {
-    return new URL(url, 'http://admin9.local').pathname.startsWith('/api/admin/auth/');
+    return NON_RETRIABLE_ADMIN_AUTH_PATHS.has(new URL(url, 'http://admin9.local').pathname);
   } catch {
-    return url.split('?')[0].startsWith('/api/admin/auth/');
+    return NON_RETRIABLE_ADMIN_AUTH_PATHS.has(url.split('?')[0]);
   }
 }
 
 export function sessionRetryDecision(input: SessionRetryInput, current: AuthSessionSnapshot): SessionRetryDecision {
-  if (input.status !== 401 || input.retried || isAdminAuthUrl(input.url)) return 'none';
+  if (input.status !== 401 || input.retried || isNonRetriableAdminAuthUrl(input.url)) return 'none';
   if (!input.requestGeneration || input.requestGeneration !== current.generation) return 'none';
   if (!input.requestToken || !current.token) return 'none';
   return input.requestToken === current.token ? 'refresh' : 'replay';
