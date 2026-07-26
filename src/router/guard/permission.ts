@@ -6,6 +6,12 @@ import { useAppStore } from '@/store';
 import { WHITE_LIST } from '../constants';
 
 export default function setupPermissionGuard(router: Router) {
+  const syncCurrentRoutePermission = () => {
+    const appStore = useAppStore();
+    const Permission = usePermission();
+    appStore.routePermissionDenied = !Permission.accessRouter(router.currentRoute.value);
+  };
+
   router.beforeEach(async (to, from, next) => {
     const appStore = useAppStore();
     const Permission = usePermission();
@@ -23,9 +29,6 @@ export default function setupPermissionGuard(router: Router) {
     NProgress.done();
   });
 
-  router.afterEach((to) => {
-    const appStore = useAppStore();
-    const Permission = usePermission();
-    appStore.routePermissionDenied = !Permission.accessRouter(to);
-  });
+  router.afterEach(syncCurrentRoutePermission);
+  router.onError(syncCurrentRoutePermission);
 }
