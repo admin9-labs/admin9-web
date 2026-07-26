@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Admin9 Pro is an enterprise admin management system built with Vue 3, TypeScript, Vite, and Arco Design Pro. The application supports OIDC authentication and provides a comprehensive admin interface with internationalization support.
+Admin9 Pro is an enterprise admin management system built with Vue 3, TypeScript, Vite, and Arco Design Pro. The application uses Laravel administrator JWT authentication and provides a comprehensive admin interface with internationalization support.
 
 ## Development Commands
 
@@ -36,34 +36,29 @@ npm run new
 
 ### Authentication System
 
-The application uses a dual authentication strategy:
-
-1. **Traditional Login**: Username/password authentication via `/api/user/login`
-2. **OIDC Authentication**: OAuth2/OIDC flow with token exchange
-   - Redirect to OIDC provider: `{API_BASE_URL}/auth/redirect`
-   - Exchange authorization code: `/api/auth/exchange`
-   - Logout with OIDC: `/api/auth/logout` (returns `logout_url`)
+The application uses Laravel administrator JWT authentication through `/api/admin/auth/*`.
 
 Authentication flow is managed in `src/store/modules/user/index.ts`:
 - `login()`: Traditional login
-- `exchangeToken()`: OIDC token exchange
-- `handleLoginRedirect()`: Initiates OIDC flow
+- `refreshSession()`: JWT refresh and identity update
+- `logout()`: Server logout followed by local session cleanup
 - Token storage uses localStorage via `src/utils/auth.ts`
 
 ### API Layer
 
 All API requests go through axios interceptors (`src/api/interceptor.ts`):
 - **Request interceptor**: Adds `Bearer` token to Authorization header, transforms pagination params (`current` → `page`, `pageSize` → `page_size`)
-- **Response interceptor**: Handles error codes, shows error messages, triggers logout on authentication failures (code: -1)
+- **Response interceptor**: Handles numeric HTTP/business codes, preserves validation details, and only clears terminal sessions
 - **Base URL**: Configured via `VITE_API_BASE_URL` environment variable
 
 API response format:
 ```typescript
 {
-  status: number;
+  success: boolean;
   message: string;
-  code: number;  // 0 = success, -1 = auth error
+  code: number;  // 0 = success
   data: T;
+  request_id: string;
 }
 ```
 
@@ -148,5 +143,4 @@ Configure in `.env.development` or `.env.production`:
 ## Notes
 
 - The application expects a Laravel-style backend API (based on pagination param transformation)
-- OIDC integration requires backend endpoints at `/auth/redirect`, `/auth/exchange`, and `/auth/logout`
 - Menu configuration can be loaded from server or defined locally (controlled by `menuFromServer` flag)

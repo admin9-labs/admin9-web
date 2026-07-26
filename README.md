@@ -6,7 +6,7 @@ Admin9 Pro 是一个基于 Vue 3、TypeScript、Vite、Arco Design 的企业级�
 
 - Vue 3 + TypeScript + Vite 工程化开发体验
 - 基于 Pinia 的状态管理与持久化
-- 支持 `local` / `oidc` 双认证策略
+- 对接 Laravel 管理员 JWT 认证
 - 基于权限的路由与菜单控制（支持服务端下发菜单）
 - 内置系统管理模块：用户、角色、菜单、字典、日志
 - 内置多语言（`zh-CN` / `en-US`）
@@ -29,13 +29,13 @@ Admin9 Pro 是一个基于 Vue 3、TypeScript、Vite、Arco Design 的企业级�
 
 ### 1. 环境要求
 
-- Node.js >= 14
-- pnpm（推荐）或 npm
+- Node.js 22.23.1
+- pnpm 10.10.0
 
 ### 2. 安装依赖
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 ### 3. 配置环境变量
@@ -62,7 +62,6 @@ pnpm preview
 | 变量名 | 说明 | 示例 |
 | --- | --- | --- |
 | `VITE_API_BASE_URL` | 后端 API 基础地址 | `http://localhost:8080` |
-| `VITE_AUTH_STRATEGY` | 登录策略：`local` 或 `oidc` | `local` |
 | `VITE_QQ_MAP_KEY` | 腾讯地图 Key（可选） | `YOUR_QQ_MAP_KEY` |
 
 ## 开发命令
@@ -71,18 +70,22 @@ pnpm preview
 | --- | --- |
 | `pnpm dev` | 启动开发服务器 |
 | `pnpm build` | Type Check + 打包 |
+| `pnpm build:ui` | 构建内部 `admin9-ui` 包 |
 | `pnpm preview` | 预览生产构建 |
 | `pnpm type:check` | TypeScript 类型检查 |
+| `pnpm test` | 运行 Vitest 测试 |
+| `pnpm lint` | 非修复 ESLint + Stylelint 检查 |
 | `pnpm lint:fix` | 自动修复 ESLint 问题 |
 | `pnpm format` | Prettier + ESLint 格式化 |
 | `pnpm report` | 构建并输出包体积分析 |
 | `pnpm i18n:check` | 检查 i18n Key 完整性 |
+| `pnpm openapi:generate` | 从固定 Laravel 合同生成 API 类型 |
+| `pnpm openapi:check` | 检查生成类型是否漂移 |
 | `pnpm new` | 使用 plop 生成模板代码 |
 
 ## 认证说明
 
-- `local`：使用账号密码登录接口
-- `oidc`：走 OIDC 授权流程，前端会跳转至后端 `/auth/redirect`，并在回调后调用 `/api/auth/exchange` 完成登录
+当前管理端使用邮箱和密码登录，并通过 Laravel 管理员 JWT 接口维护会话。
 
 ## 项目结构
 
@@ -106,7 +109,9 @@ pnpm preview
 
 - 所有请求通过 Axios 拦截器统一注入 `Bearer Token`
 - 分页参数自动转换：`current -> page`、`pageSize -> page_size`
-- 统一响应体包含：`code`、`message`、`data`
+- 统一响应体包含：`success`、`code`、`message`、`data`、`request_id`
+- OpenAPI 唯一权威源为 sibling `../admin9-api-laravel/docs/api.json`，当前固定提交为
+  `989a15c0dca4ff390ba2a792a00a6ff1557b0d15`
 
 ## 开源协作
 
