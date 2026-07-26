@@ -18,8 +18,14 @@ export default function setupPermissionGuard(router: Router) {
       }
     }
 
-    appStore.routePermissionDenied = !permissionsAllow;
+    if (!permissionsAllow) appStore.routePermissionDenied = true;
     next();
     NProgress.done();
+  });
+
+  router.afterEach((to) => {
+    const appStore = useAppStore();
+    const Permission = usePermission();
+    appStore.routePermissionDenied = !Permission.accessRouter(to);
   });
 }
