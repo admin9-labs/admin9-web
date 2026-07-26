@@ -1,9 +1,9 @@
-import type { Router } from 'vue-router';
+import { START_LOCATION, type Router } from 'vue-router';
 import NProgress from 'nprogress'; // progress bar
 
 import usePermission from '@/hooks/permission';
 import { useAppStore } from '@/store';
-import { WHITE_LIST } from '../constants';
+import { EXCEPTION_500_ROUTE_NAME, WHITE_LIST } from '../constants';
 
 export default function setupPermissionGuard(router: Router) {
   const syncCurrentRoutePermission = () => {
@@ -27,9 +27,19 @@ export default function setupPermissionGuard(router: Router) {
   });
 
   router.afterEach(syncCurrentRoutePermission);
-  router.onError((error) => {
+  router.onError((error, to) => {
     // eslint-disable-next-line no-console
     console.error(error);
     syncCurrentRoutePermission();
+    NProgress.done();
+
+    if (router.currentRoute.value === START_LOCATION && to.name !== EXCEPTION_500_ROUTE_NAME) {
+      router
+        .replace({
+          name: EXCEPTION_500_ROUTE_NAME,
+          query: { redirect: to.fullPath },
+        })
+        .catch(() => undefined);
+    }
   });
 }
