@@ -1,4 +1,5 @@
 export const EXCEPTION_500_ROUTE_NAME = 'Exception500';
+export const EXCEPTION_RETRY_MODE_DOCUMENT = 'document';
 
 export const WHITE_LIST = [
   { name: 'notFound', children: [] },

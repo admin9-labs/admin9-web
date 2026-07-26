@@ -218,6 +218,7 @@ describe('session startup recovery routing', () => {
 
     expect(router.currentRoute.value.name).toBe(EXCEPTION_500_ROUTE_NAME);
     expect(router.currentRoute.value.query.redirect).toBe('/system/user?tab=active#details');
+    expect(router.currentRoute.value.query.retry).toBeUndefined();
     expect(document.querySelector('[data-testid="session-startup-error"]')?.textContent).toContain(
       'Service temporarily unavailable'
     );

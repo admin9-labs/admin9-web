@@ -3,7 +3,7 @@ import NProgress from 'nprogress'; // progress bar
 
 import usePermission from '@/hooks/permission';
 import { useAppStore } from '@/store';
-import { EXCEPTION_500_ROUTE_NAME, WHITE_LIST } from '../constants';
+import { EXCEPTION_500_ROUTE_NAME, EXCEPTION_RETRY_MODE_DOCUMENT, WHITE_LIST } from '../constants';
 
 export default function setupPermissionGuard(router: Router) {
   const syncCurrentRoutePermission = () => {
@@ -37,7 +37,7 @@ export default function setupPermissionGuard(router: Router) {
       router
         .replace({
           name: EXCEPTION_500_ROUTE_NAME,
-          query: { redirect: to.fullPath },
+          query: { redirect: to.fullPath, retry: EXCEPTION_RETRY_MODE_DOCUMENT },
         })
         .catch(() => undefined);
     }
