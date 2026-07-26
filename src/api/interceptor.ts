@@ -3,7 +3,15 @@ import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message, Modal } from '@arco-design/web-vue';
 import i18n from '@/locale';
 import { useUserStore } from '@/store';
-import { getToken } from '@/utils/auth';
+import { getSessionSnapshot } from '@/utils/auth';
+import { isTerminalAccountErrorCode, sessionRetryDecision } from '@/utils/auth-session';
+import {
+  ApiErrorContext,
+  ApiErrorPayload,
+  createApiErrorContext,
+  firstValidationMessage,
+  formatApiErrorMessage,
+} from './error-context';
 
 export interface PaginationMeta {
   pagination: string;
@@ -17,27 +25,60 @@ export interface HttpResponse<T = unknown> {
   success: boolean;
   message: string;
   code: number;
+  error_code?: string;
   data: T;
   meta?: PaginationMeta;
   errors?: Record<string, unknown> | unknown[];
-  request_id: string;
+  request_id?: string;
 }
 
-interface ErrorResponse {
-  message?: string;
-  errors?: unknown;
+export class ApiRequestError extends Error {
+  readonly code: number;
+
+  readonly errorCode?: string;
+
+  readonly errors?: unknown;
+
+  readonly requestId?: string;
+
+  readonly status: number;
+
+  constructor(message: string, context: ApiErrorContext) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.code = context.code;
+    this.errorCode = context.errorCode;
+    this.errors = context.errors;
+    this.requestId = context.requestId;
+    this.status = context.status;
+  }
 }
 
-const ADMIN_LOGIN_URL = '/api/admin/auth/login';
-const ADMIN_REFRESH_URL = '/api/admin/auth/refresh';
-const ADMIN_LOGOUT_URL = '/api/admin/auth/logout';
-
-let expiredToken: string | null = null;
-let refreshPromise: Promise<string> | null = null;
-let refreshedTokenPair: { previous: string; current: string } | null = null;
+type ErrorResponse = ApiErrorPayload;
 
 interface RetriableRequestConfig extends AxiosRequestConfig {
   admin9Retried?: boolean;
+  admin9SessionGeneration?: string;
+}
+
+type ContextualAxiosError = AxiosError<ErrorResponse> & {
+  apiError?: ApiErrorContext;
+  fieldErrors?: unknown;
+  requestId?: string;
+};
+
+const ADMIN_LOGIN_URL = '/api/admin/auth/login';
+const ADMIN_LOGOUT_URL = '/api/admin/auth/logout';
+
+let expiredGeneration: string | null = null;
+
+function requestPath(config?: AxiosRequestConfig): string {
+  if (!config?.url) return '';
+  try {
+    return new URL(config.url, 'http://admin9.local').pathname;
+  } catch {
+    return config.url.split('?')[0];
+  }
 }
 
 function requestToken(config?: AxiosRequestConfig): string | null {
@@ -48,20 +89,30 @@ function requestToken(config?: AxiosRequestConfig): string | null {
   return null;
 }
 
-function handleExpiredSession(config?: AxiosRequestConfig): boolean {
-  if (config?.url === ADMIN_LOGIN_URL) return false;
+export function getApiErrorContext(error: unknown): ApiErrorContext | undefined {
+  if (error instanceof ApiRequestError) {
+    return {
+      code: error.code,
+      errorCode: error.errorCode,
+      errors: error.errors,
+      requestId: error.requestId,
+      status: error.status,
+    };
+  }
 
-  const token = requestToken(config);
-  if (!token) return false;
-  if (token !== getToken()) return true;
-  if (expiredToken === token) return true;
+  if (axios.isAxiosError(error)) return (error as ContextualAxiosError).apiError;
+  return undefined;
+}
 
-  const userStore = useUserStore();
-  userStore.logoutCallBack();
+function attachApiErrorContext(error: AxiosError<ErrorResponse>, context: ApiErrorContext): ContextualAxiosError {
+  const contextualError = error as ContextualAxiosError;
+  contextualError.apiError = context;
+  contextualError.fieldErrors = context.errors;
+  contextualError.requestId = context.requestId;
+  return contextualError;
+}
 
-  expiredToken = token;
-  if (config?.url === ADMIN_LOGOUT_URL) return true;
-
+function showExpiredSession() {
   const { t } = i18n.global;
   Modal.error({
     title: t('common.session.expired.title'),
@@ -71,34 +122,25 @@ function handleExpiredSession(config?: AxiosRequestConfig): boolean {
       window.location.reload();
     },
   });
-
-  return true;
 }
 
-function excludesSessionRefresh(config: AxiosRequestConfig): boolean {
-  return [ADMIN_LOGIN_URL, ADMIN_REFRESH_URL, ADMIN_LOGOUT_URL].includes(config.url ?? '');
-}
+function handleTerminalSessionFailure(config: RetriableRequestConfig | undefined, status: number, errorCode?: string): boolean {
+  const terminalFailure = status === 401 || (status === 403 && isTerminalAccountErrorCode(errorCode));
+  if (!terminalFailure || requestPath(config) === ADMIN_LOGIN_URL) return false;
 
-function canRefreshSession(error: AxiosError<ErrorResponse>): error is AxiosError<ErrorResponse> & {
-  config: RetriableRequestConfig;
-} {
-  const config = error.config as RetriableRequestConfig | undefined;
-  if (error.response?.status !== 401 || !config || config.admin9Retried) return false;
-  if (excludesSessionRefresh(config)) return false;
-
+  const requestGeneration = config?.admin9SessionGeneration;
   const token = requestToken(config);
-  return !!token && token === getToken();
-}
+  if (!requestGeneration || !token) return false;
+  if (expiredGeneration === requestGeneration) return true;
 
-function currentTokenForLateRetry(error: AxiosError<ErrorResponse>): string | null {
-  const config = error.config as RetriableRequestConfig | undefined;
-  if (error.response?.status !== 401 || !config || config.admin9Retried) return null;
-  if (excludesSessionRefresh(config)) return null;
+  const current = getSessionSnapshot();
+  if (current.generation !== requestGeneration || current.token !== token) return true;
 
-  const requestAuthToken = requestToken(config);
-  const currentAuthToken = getToken();
-  if (requestAuthToken !== refreshedTokenPair?.previous || currentAuthToken !== refreshedTokenPair.current) return null;
-  return currentAuthToken;
+  expiredGeneration = requestGeneration;
+  const userStore = useUserStore();
+  if (!userStore.logoutCallBack(requestGeneration)) return true;
+  if (requestPath(config) !== ADMIN_LOGOUT_URL) showExpiredSession();
+  return true;
 }
 
 function retryWithToken(config: RetriableRequestConfig, token: string) {
@@ -108,43 +150,42 @@ function retryWithToken(config: RetriableRequestConfig, token: string) {
   return axios(config);
 }
 
+function retryDecision(error: AxiosError<ErrorResponse>) {
+  const config = error.config as RetriableRequestConfig | undefined;
+  return sessionRetryDecision(
+    {
+      status: error.response?.status,
+      url: config?.url,
+      retried: !!config?.admin9Retried,
+      requestGeneration: config?.admin9SessionGeneration,
+      requestToken: requestToken(config),
+    },
+    getSessionSnapshot()
+  );
+}
+
 async function refreshAndRetry(error: AxiosError<ErrorResponse>) {
   const config = error.config as RetriableRequestConfig;
-  const previousToken = requestToken(config);
-
-  if (!refreshPromise) {
-    const userStore = useUserStore();
-    refreshPromise = userStore.refreshSession().finally(() => {
-      refreshPromise = null;
-    });
+  const requestGeneration = config.admin9SessionGeneration;
+  const userStore = useUserStore();
+  const token = await userStore.refreshSession();
+  const current = getSessionSnapshot();
+  if (!requestGeneration || current.generation !== requestGeneration || current.token !== token) {
+    throw new Error('Authentication session changed before request replay');
   }
-
-  const token = await refreshPromise;
-  if (previousToken) refreshedTokenPair = { previous: previousToken, current: token };
   return retryWithToken(config, token);
 }
 
-function validationMessage(errors: unknown): string | null {
-  if (!errors || Array.isArray(errors) || typeof errors !== 'object') return null;
-
-  const [firstError] = Object.values(errors);
-  if (typeof firstError === 'string') return firstError;
-  if (Array.isArray(firstError)) {
-    const [firstMessage] = firstError;
-    if (typeof firstMessage === 'string') return firstMessage;
-  }
-
-  return null;
-}
-
-function errorMessage(error: AxiosError<ErrorResponse>): string {
-  const { response } = error;
-  if (response?.status === 422) {
-    const message = validationMessage(response.data?.errors);
+function responseErrorMessage(data: ErrorResponse | undefined, fallback: string, status: number): string {
+  if (status === 422) {
+    const message = firstValidationMessage(data?.errors);
     if (message) return message;
   }
+  return data?.message || fallback || 'Request Error';
+}
 
-  return response?.data?.message || error.message || 'Request Error';
+function showRequestError(message: string) {
+  Message.error({ content: message, duration: 5 * 1000 });
 }
 
 if (import.meta.env.VITE_API_BASE_URL) {
@@ -152,19 +193,15 @@ if (import.meta.env.VITE_API_BASE_URL) {
 }
 
 axios.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
-    // let each request carry token
-    // this example using the JWT token
-    // Authorization is a custom headers key
-    // please modify it according to the actual situation
-    const token = getToken();
-    if (token) {
-      if (!config.headers) {
-        config.headers = {};
-      }
-      config.headers.Authorization = `Bearer ${token}`;
+  (requestConfig: AxiosRequestConfig) => {
+    const config = requestConfig as RetriableRequestConfig;
+    const session = getSessionSnapshot();
+    if (session.token && requestPath(config) !== ADMIN_LOGIN_URL) {
+      if (!config.headers) config.headers = {};
+      config.headers.Authorization = `Bearer ${session.token}`;
     }
-    // 定制分页参数
+    if (!config.admin9SessionGeneration) config.admin9SessionGeneration = session.generation;
+
     if (config.params?.current) {
       config.params.page = config.params.current;
       delete config.params.current;
@@ -175,50 +212,54 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    // do something
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
-// add response interceptors
+
 axios.interceptors.response.use(
   (response: AxiosResponse<HttpResponse>) => {
     const res = response.data;
     if (res.success === false || res.code !== 0) {
-      const sessionExpired = res.code === 401 && handleExpiredSession(response.config);
-      if (!sessionExpired) {
-        Message.error({
-          content: res.message || 'Error',
-          duration: 5 * 1000,
-        });
-      }
-      return Promise.reject(new Error(res.message || 'Error'));
+      const context = createApiErrorContext(res, res.code);
+      const handled = handleTerminalSessionFailure(
+        response.config as RetriableRequestConfig,
+        context.status,
+        context.errorCode
+      );
+      if (!handled) showRequestError(formatApiErrorMessage(res.message || 'Error', context.requestId));
+      return Promise.reject(new ApiRequestError(res.message || 'Error', context));
     }
     return res;
   },
-  async (error: AxiosError<ErrorResponse>) => {
-    const message = errorMessage(error);
-    const lateRetryToken = currentTokenForLateRetry(error);
+  async (axiosError: AxiosError<ErrorResponse>) => {
+    const status = axiosError.response?.status ?? 0;
+    const context = createApiErrorContext(axiosError.response?.data, status);
+    const error = attachApiErrorContext(axiosError, context);
+    const message = formatApiErrorMessage(
+      responseErrorMessage(axiosError.response?.data, axiosError.message, status),
+      context.requestId
+    );
+    const decision = retryDecision(error);
 
-    if (lateRetryToken) return retryWithToken(error.config as RetriableRequestConfig, lateRetryToken);
+    if (decision === 'replay') {
+      const currentToken = getSessionSnapshot().token;
+      if (currentToken) return retryWithToken(error.config as RetriableRequestConfig, currentToken);
+    }
 
-    if (canRefreshSession(error)) {
+    if (decision === 'refresh') {
       try {
         return await refreshAndRetry(error);
-      } catch {
-        handleExpiredSession(error.config);
+      } catch (refreshError) {
+        const refreshContext = getApiErrorContext(refreshError);
+        if (refreshContext?.status === 401 || isTerminalAccountErrorCode(refreshContext?.errorCode)) {
+          handleTerminalSessionFailure(error.config as RetriableRequestConfig, status, refreshContext?.errorCode);
+        }
         error.message = message;
         return Promise.reject(error);
       }
     }
 
-    const sessionExpired = error.response?.status === 401 && handleExpiredSession(error.config);
-    if (!sessionExpired) {
-      Message.error({
-        content: message,
-        duration: 5 * 1000,
-      });
-    }
+    const handled = handleTerminalSessionFailure(error.config as RetriableRequestConfig | undefined, status, context.errorCode);
+    if (!handled) showRequestError(message);
     error.message = message;
     return Promise.reject(error);
   }

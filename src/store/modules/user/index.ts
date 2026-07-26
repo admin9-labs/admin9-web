@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
 import { login as userLogin, logout as userLogout, refreshToken, getUserInfo, AuthIdentityRes, LoginData } from '@/api/user';
-import { setToken, clearToken, getToken } from '@/utils/auth';
+import { clearToken, getSessionSnapshot, isCurrentSessionGeneration, refreshCurrentSession, setToken } from '@/utils/auth';
+import { sessionGenerationChangedError } from '@/utils/auth-session';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
@@ -42,58 +42,62 @@ const useUserStore = defineStore('user', {
       this.$reset();
     },
     async info() {
-      const requestAuthToken = getToken();
-      try {
-        const res = await getUserInfo();
-        if (requestAuthToken === getToken()) this.setIdentity(res.data);
-      } catch (error) {
-        if (requestAuthToken === getToken() && axios.isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0)) {
-          this.logoutCallBack();
-        }
-        throw error;
-      }
+      const requestSession = getSessionSnapshot();
+      const res = await getUserInfo();
+      if (!isCurrentSessionGeneration(requestSession.generation)) throw sessionGenerationChangedError();
+      this.setIdentity(res.data);
     },
     async login(loginForm: LoginData) {
-      try {
-        const res = await userLogin(loginForm);
-        const appStore = useAppStore();
-        appStore.clearServerMenu();
-        setToken(res.data.access_token);
-        this.setIdentity(res.data);
-      } catch (err) {
-        this.logoutCallBack();
-        throw err;
-      }
+      const requestSession = getSessionSnapshot();
+      const res = await userLogin(loginForm);
+      const nextSession = setToken(res.data.access_token, requestSession.generation);
+      if (!nextSession) throw sessionGenerationChangedError();
+
+      const appStore = useAppStore();
+      appStore.clearServerMenu();
+      this.setIdentity(res.data);
     },
     async refreshSession() {
-      const requestAuthToken = getToken();
-      if (!requestAuthToken) throw new Error('No active session to refresh');
+      const requestSession = getSessionSnapshot();
+      const result = await refreshCurrentSession(requestSession, async () => {
+        const res = await refreshToken();
+        return { accessToken: res.data.access_token, value: res.data };
+      });
 
-      const res = await refreshToken();
-      if (requestAuthToken !== getToken()) throw new Error('Session changed while refreshing');
+      const currentSession = getSessionSnapshot();
+      if (
+        result.applied &&
+        result.value &&
+        currentSession.generation === requestSession.generation &&
+        currentSession.token === result.accessToken
+      ) {
+        this.setIdentity(result.value);
+      }
 
-      setToken(res.data.access_token);
-      this.setIdentity(res.data);
-      return res.data.access_token;
+      return result.accessToken;
     },
-    logoutCallBack() {
+    logoutCallBack(expectedGeneration = getSessionSnapshot().generation) {
+      if (!clearToken(expectedGeneration)) return false;
+
       const appStore = useAppStore();
       this.resetInfo();
-      clearToken();
       removeRouteListener();
       appStore.clearServerMenu();
+      return true;
     },
     async logout() {
-      if (!getToken()) {
-        this.logoutCallBack();
+      const requestSession = getSessionSnapshot();
+      if (!requestSession.token) {
+        this.logoutCallBack(requestSession.generation);
         return;
       }
 
       try {
         await userLogout();
-        this.logoutCallBack();
       } catch {
-        if (getToken()) this.logoutCallBack();
+        // Local logout remains authoritative when the server session is already unavailable.
+      } finally {
+        this.logoutCallBack(requestSession.generation);
       }
     },
   },

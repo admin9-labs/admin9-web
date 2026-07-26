@@ -40,6 +40,7 @@
   import { useVisible } from '@/hooks';
   import { changePassword } from '@/api/user';
   import { useUserStore } from '@/store';
+  import { getSessionSnapshot } from '@/utils/auth';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -94,10 +95,10 @@
 
     saving.value = true;
     try {
+      const requestGeneration = getSessionSnapshot().generation;
       await changePassword({ ...formData });
-      userStore.logoutCallBack();
       Message.success(t('userInfo.editPassword.success'));
-      await router.replace({ name: 'login' });
+      if (userStore.logoutCallBack(requestGeneration)) await router.replace({ name: 'login' });
       return true;
     } catch {
       return false;
