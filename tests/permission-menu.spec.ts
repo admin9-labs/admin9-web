@@ -58,6 +58,7 @@ function installPermissionGuard() {
       guard = handler;
       return () => undefined;
     }),
+    afterEach: vi.fn(() => () => undefined),
   } as unknown as Router;
   setupPermissionGuard(router);
   if (!guard) throw new Error('Permission guard was not installed');
