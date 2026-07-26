@@ -13,14 +13,22 @@
 <script lang="ts" setup>
   import { useRoute, useRouter } from 'vue-router';
   import { useI18n } from 'vue-i18n';
-  import { DEFAULT_ROUTE } from '@/router/constants';
+  import { EXCEPTION_500_ROUTE_NAME, EXCEPTION_RETRY_MODE_DOCUMENT } from '@/router/constants';
+  import resolveSafeRedirect from '@/router/safe-redirect';
 
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
 
   const retry = () => {
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : DEFAULT_ROUTE.fullPath;
+    const redirect = resolveSafeRedirect(router, route.query.redirect, {
+      forbiddenRouteNames: ['login', EXCEPTION_500_ROUTE_NAME],
+    });
+    if (route.query.retry === EXCEPTION_RETRY_MODE_DOCUMENT) {
+      window.location.replace(redirect);
+      return;
+    }
+
     router.replace(redirect);
   };
 </script>

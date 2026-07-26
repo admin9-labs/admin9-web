@@ -2,11 +2,19 @@
 import { createApp, defineComponent, h, nextTick, type Component } from 'vue';
 import { createI18n } from 'vue-i18n';
 import { createPinia, setActivePinia } from 'pinia';
-import { createMemoryHistory, createRouter, RouterLink, RouterView, type RouteRecordRaw, type Router } from 'vue-router';
+import {
+  createMemoryHistory,
+  createRouter,
+  RouterLink,
+  RouterView,
+  START_LOCATION,
+  type RouteRecordRaw,
+  type Router,
+} from 'vue-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import NProgress from 'nprogress';
 import PageLayout from '@/layout/page-layout.vue';
-import { EXCEPTION_500_ROUTE_NAME } from '@/router/constants';
+import { EXCEPTION_500_ROUTE_NAME, EXCEPTION_RETRY_MODE_DOCUMENT } from '@/router/constants';
 import setupPermissionGuard from '@/router/guard/permission';
 import { EXCEPTION_500_ROUTE } from '@/router/routes/base';
 import useAppStore from '@/store/modules/app';
@@ -121,14 +129,13 @@ describe('permission route recovery', () => {
     mountedApps.splice(0).forEach((app) => app.unmount());
   });
 
-  it('recovers a cold-start lazy route failure through the synchronous error page', async () => {
+  it('marks a cold-start lazy route failure for a document retry', async () => {
     const userLoad = vi.fn();
     const userRequest = vi.fn();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const progressDone = vi.spyOn(NProgress, 'done').mockImplementation(() => undefined);
+    const locationReplace = vi.spyOn(window.location, 'replace').mockImplementation(() => undefined);
     const lazyError = new Error('cold-start lazy route failed');
-    let serviceAvailable = false;
-    const UserPage = pageComponent('SystemUser', 'user-page', userRequest);
     const pinia = preparePinia();
     const initialPath = '/system/user?filter=%E4%B8%AD%E6%96%87#details';
     const router = createGuardedRouter(
@@ -138,8 +145,7 @@ describe('permission route recovery', () => {
           name: 'SystemUser',
           component: async () => {
             userLoad();
-            if (!serviceAvailable) throw lazyError;
-            return UserPage;
+            throw lazyError;
           },
           meta: { requiresAuth: true, permissions: ['system.user.view'] },
         },
@@ -151,6 +157,7 @@ describe('permission route recovery', () => {
 
     expect(router.currentRoute.value.name).toBe(EXCEPTION_500_ROUTE_NAME);
     expect(router.currentRoute.value.query.redirect).toBe(initialPath);
+    expect(router.currentRoute.value.query.retry).toBe(EXCEPTION_RETRY_MODE_DOCUMENT);
     expect(document.querySelector('[data-testid="session-startup-error"]')?.textContent).toContain(
       'Service temporarily unavailable'
     );
@@ -161,19 +168,49 @@ describe('permission route recovery', () => {
     expect(consoleError).toHaveBeenCalledWith(lazyError);
     expect(progressDone).toHaveBeenCalled();
     expect(typeof EXCEPTION_500_ROUTE.component).not.toBe('function');
+    expect(locationReplace).not.toHaveBeenCalled();
 
-    serviceAvailable = true;
     document
       .querySelector('[data-testid="session-startup-retry"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     await renderSettled();
 
-    expect(router.currentRoute.value.fullPath).toBe(initialPath);
-    expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
-    expect(document.querySelector('[data-testid="session-startup-error"]')).toBeNull();
-    expect(userLoad).toHaveBeenCalledTimes(2);
-    expect(userRequest).toHaveBeenCalledTimes(1);
+    expect(locationReplace).toHaveBeenCalledTimes(1);
+    expect(locationReplace).toHaveBeenCalledWith(initialPath);
+    expect(router.currentRoute.value.name).toBe(EXCEPTION_500_ROUTE_NAME);
+    expect(document.querySelector('[data-testid="session-startup-error"]')).not.toBeNull();
+    expect(userLoad).toHaveBeenCalledTimes(1);
+    expect(userRequest).not.toHaveBeenCalled();
     expect(consoleError).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not recursively replace a failed exception route', () => {
+    const replace = vi.fn();
+    let errorHandler: Parameters<Router['onError']>[0] = () => undefined;
+    const router = {
+      afterEach: vi.fn(),
+      beforeEach: vi.fn(),
+      currentRoute: { value: START_LOCATION },
+      onError: vi.fn((handler: Parameters<Router['onError']>[0]) => {
+        errorHandler = handler;
+      }),
+      replace,
+    } as unknown as Router;
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    setupPermissionGuard(router);
+    const error = new Error('exception route failed');
+    errorHandler(
+      error,
+      {
+        fullPath: '/exception/500?redirect=/system/user',
+        name: EXCEPTION_500_ROUTE_NAME,
+      } as Parameters<typeof errorHandler>[1],
+      START_LOCATION
+    );
+
+    expect(consoleError).toHaveBeenCalledWith(error);
+    expect(replace).not.toHaveBeenCalled();
   });
 
   it('mounts the allowed page directly after a denied route without requesting denied data', async () => {
