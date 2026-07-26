@@ -1,5 +1,5 @@
 <template>
-  <a-drawer v-model:visible="visible" :width="480" :title="$t('system.member.detail.title')" unmount-on-close>
+  <a-drawer v-model:visible="visible" :width="480" :title="$t('system.member.detail.title')" unmount-on-close @close="onClose">
     <a-spin :loading="loading">
       <a-descriptions v-if="member" :column="1" bordered>
         <a-descriptions-item :label="$t('system.member.columns.id')">{{ member.id }}</a-descriptions-item>
@@ -30,16 +30,25 @@
   const { visible, setVisible } = useVisible(false);
   const loading = ref(false);
   const member = ref<MemberRecord>();
+  let detailRequestGeneration = 0;
+  const onClose = () => {
+    detailRequestGeneration += 1;
+    loading.value = false;
+    member.value = undefined;
+  };
   const onView = async (memberId: number) => {
+    detailRequestGeneration += 1;
+    const requestGeneration = detailRequestGeneration;
     member.value = undefined;
     setVisible(true);
     loading.value = true;
     try {
-      member.value = (await queryMemberDetail(memberId)).data.member;
+      const nextMember = (await queryMemberDetail(memberId)).data.member;
+      if (requestGeneration === detailRequestGeneration) member.value = nextMember;
     } catch {
-      setVisible(false);
+      if (requestGeneration === detailRequestGeneration) setVisible(false);
     } finally {
-      loading.value = false;
+      if (requestGeneration === detailRequestGeneration) loading.value = false;
     }
   };
   defineExpose({ onView });
