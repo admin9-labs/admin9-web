@@ -90,7 +90,6 @@ pnpm preview
 | `pnpm i18n:check` | 检查 i18n Key 完整性 |
 | `pnpm openapi:generate` | 从固定 Laravel 合同生成 API 类型 |
 | `pnpm openapi:check` | 检查生成类型是否漂移 |
-| `pnpm new` | 使用 plop 生成模板代码 |
 
 ## 认证说明
 

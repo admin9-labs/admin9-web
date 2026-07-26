@@ -28,8 +28,6 @@ npm run preview
 # Generate bundle analysis report
 npm run report
 
-# Generate new components/pages using plop
-npm run new
 ```
 
 ## Architecture
