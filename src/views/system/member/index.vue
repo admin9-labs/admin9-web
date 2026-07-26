@@ -77,7 +77,7 @@
         </template>
       </GridTable>
       <MemberFormModal ref="formModalRef" @success="handleMemberSaved" />
-      <MemberPasswordModal ref="passwordModalRef" />
+      <MemberPasswordModal ref="passwordModalRef" @success="fetchData" />
       <MemberDetailDrawer ref="detailDrawerRef" />
     </Grid>
   </div>
@@ -162,6 +162,7 @@
     try {
       Object.assign(record, (await updateMemberStatus(record.id, { is_active: isActiveValue })).data.member);
       Message.success(t('system.member.status.updateSuccess'));
+      await fetchData();
     } finally {
       setStatusUpdating(record.id, false);
     }
@@ -170,7 +171,10 @@
     confirm({
       title: t('system.member.action.invalidateSessions'),
       content: t('system.member.sessions.confirm', { name: record.name }),
-      onOk: () => invalidateMemberSessions(record.id).then(() => undefined),
+      onOk: async () => {
+        await invalidateMemberSessions(record.id);
+        await fetchData();
+      },
       successMsg: t('system.member.sessions.success'),
     });
   };

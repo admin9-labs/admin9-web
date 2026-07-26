@@ -28,6 +28,7 @@
   import { useVisible } from '@/hooks';
   import { resetMemberPassword, type MemberRecord } from '@/api/system/member';
 
+  const emit = defineEmits<{ success: [] }>();
   const { t } = useI18n();
   const { visible, setVisible } = useVisible(false);
   const formRef = ref<FormInstance>();
@@ -79,6 +80,7 @@
     try {
       await resetMemberPassword(memberId.value, formData);
       Message.success(t('system.member.password.success'));
+      emit('success');
       done(true);
     } catch {
       done(false);
