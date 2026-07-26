@@ -58,7 +58,7 @@
     try {
       const [userRes, roleRes] = await Promise.all([queryUserDetail(userId), queryRoleList()]);
       roleOptions.value = allowReservedRoles ? roleRes.data : roleRes.data.filter((role) => !reservedRoleNames.has(role.name));
-      formData.roles = userRes.data.user.roles.map((role) => role.name);
+      formData.roles = (userRes.data.user.roles ?? []).map((role) => role.name);
     } catch {
       setVisible(false);
     } finally {

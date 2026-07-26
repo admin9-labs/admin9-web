@@ -18,8 +18,8 @@
         @page-change="onPageChange"
       >
         <template #roles="{ record }">
-          <a-space v-if="record.roles.length" wrap>
-            <a-tag v-for="role in record.roles" :key="role.id" color="blue">
+          <a-space v-if="userRoles(record).length" wrap>
+            <a-tag v-for="role in userRoles(record)" :key="role.id" color="blue">
               {{ role.name }}
             </a-tag>
           </a-space>
@@ -189,8 +189,9 @@
   };
 
   const isCurrentUser = (record: UserRecord) => record.id === userStore.id;
+  const userRoles = (record: UserRecord) => record.roles ?? [];
   const isProtectedTarget = (record: UserRecord) =>
-    !isSuperAdmin.value && record.roles.some((role) => reservedRoleNames.has(role.name));
+    !isSuperAdmin.value && userRoles(record).some((role) => reservedRoleNames.has(role.name));
   const cannotChangeStatus = (record: UserRecord) => isCurrentUser(record) || isProtectedTarget(record);
 
   const protectedActionTooltip = (record: UserRecord, fallback: string, currentUserMessage?: string) => {
