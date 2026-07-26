@@ -11,7 +11,9 @@ import setupPermissionGuard from '@/router/guard/permission';
 import setupUserLoginInfoGuard from '@/router/guard/userLoginInfo';
 import { EXCEPTION_500_ROUTE } from '@/router/routes/base';
 import useAppStore from '@/store/modules/app';
+import useUserStore from '@/store/modules/user';
 import { getSessionSnapshot, setToken } from '@/utils/auth';
+import resolveLoginRedirect from '@/views/auth/components/login-redirect';
 
 const progressSpies = vi.hoisted(() => ({
   done: vi.fn(),
@@ -114,7 +116,7 @@ function createStartupRouter(): Router {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/', redirect: '/system/user?tab=active' },
+      { path: '/', redirect: '/system/user?tab=active#details' },
       {
         path: '/auth/login',
         name: 'login',
@@ -215,7 +217,7 @@ describe('session startup recovery routing', () => {
     const router = await mountColdStart();
 
     expect(router.currentRoute.value.name).toBe(EXCEPTION_500_ROUTE_NAME);
-    expect(router.currentRoute.value.query.redirect).toBe('/system/user?tab=active');
+    expect(router.currentRoute.value.query.redirect).toBe('/system/user?tab=active#details');
     expect(document.querySelector('[data-testid="session-startup-error"]')?.textContent).toContain(
       'Service temporarily unavailable'
     );
@@ -230,7 +232,7 @@ describe('session startup recovery routing', () => {
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     await renderSettled();
 
-    expect(router.currentRoute.value.fullPath).toBe('/system/user?tab=active');
+    expect(router.currentRoute.value.fullPath).toBe('/system/user?tab=active#details');
     expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
     expect(document.querySelector('[data-testid="session-startup-error"]')).toBeNull();
     expect(requests).toEqual(['/api/admin/auth/me', '/api/admin/auth/refresh', '/api/admin/auth/me']);
@@ -248,10 +250,19 @@ describe('session startup recovery routing', () => {
     const router = await mountColdStart();
 
     expect(router.currentRoute.value.name).toBe('login');
-    expect(router.currentRoute.value.query).toEqual({ redirect: 'SystemUser', tab: 'active' });
+    expect(router.currentRoute.value.query).toEqual({ redirect: '/system/user?tab=active#details' });
     expect(document.querySelector('[data-testid="login-page"]')).not.toBeNull();
     expect(getSessionSnapshot().token).toBeNull();
     expect(requests).toEqual(['/api/admin/auth/me', '/api/admin/auth/refresh']);
     expect(progressSpies.done).toHaveBeenCalled();
+
+    beginSession('new-access-token');
+    useUserStore().setInfo({ id: 1, permissionNames: ['system.user.view'] });
+    await router.push(resolveLoginRedirect(router, router.currentRoute.value.query.redirect));
+    await renderSettled();
+
+    expect(router.currentRoute.value.fullPath).toBe('/system/user?tab=active#details');
+    expect(document.querySelector('[data-testid="user-page"]')).not.toBeNull();
+    expect(requests).toEqual(['/api/admin/auth/me', '/api/admin/auth/refresh']);
   });
 });

@@ -1,4 +1,4 @@
-import type { LocationQueryRaw, Router } from 'vue-router';
+import type { Router } from 'vue-router';
 import NProgress from 'nprogress';
 
 import { useUserStore } from '@/store';
@@ -35,10 +35,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
         } else {
           next({
             name: 'login',
-            query: {
-              redirect: to.name,
-              ...to.query,
-            } as LocationQueryRaw,
+            query: { redirect: to.fullPath },
           });
         }
       }
@@ -52,10 +49,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
 
     next({
       name: 'login',
-      query: {
-        redirect: to.name,
-        ...to.query,
-      } as LocationQueryRaw,
+      query: { redirect: to.fullPath },
     });
   });
 }
