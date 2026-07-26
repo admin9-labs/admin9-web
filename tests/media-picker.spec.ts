@@ -21,7 +21,30 @@ const ChoiceStub = defineComponent({
 });
 const UploadStub = defineComponent({
   setup(_, { attrs, slots }) {
-    return () => h('div', { onClick: attrs.onButtonClick as () => void }, slots['upload-button']?.());
+    const triggerUpload = () => {
+      if (attrs.onButtonClick) {
+        (attrs.onButtonClick as () => void)();
+        return;
+      }
+      const customRequest = attrs.customRequest ?? attrs['custom-request'];
+      const autoUpload = attrs.autoUpload ?? attrs['auto-upload'];
+      if (!customRequest || autoUpload === false) return;
+      (customRequest as (option: Record<string, unknown>) => unknown)({
+        fileItem: { file: new File(['image'], 'upload.png', { type: 'image/png' }) },
+        onProgress: vi.fn(),
+        onSuccess: vi.fn(),
+        onError: vi.fn(),
+      });
+    };
+    return () =>
+      h(
+        'div',
+        {
+          'data-testid': attrs.customRequest || attrs['custom-request'] ? 'picker-upload' : 'picker-trigger',
+          'onClick': triggerUpload,
+        },
+        slots['upload-button']?.()
+      );
   },
 });
 const CheckboxGroupStub = defineComponent({
@@ -47,6 +70,8 @@ async function flush() {
   await nextTick();
   await Promise.resolve();
   await nextTick();
+  await Promise.resolve();
+  await nextTick();
 }
 
 function mountPicker(service: MediaService, props: Record<string, unknown> = {}) {
@@ -65,6 +90,7 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
           'admin9Ui.mediaPicker.cancel': 'Cancel',
           'admin9Ui.mediaPicker.selectImage': 'Select image',
           'admin9Ui.mediaPicker.uploadImage': 'Upload image',
+          'admin9Ui.mediaPicker.uploadFailed': 'Upload failed',
           'admin9Ui.mediaPicker.processing': 'Processing',
           'admin9Ui.mediaPicker.failed': 'Failed',
         },
@@ -122,6 +148,77 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
 
     expect(service.remove).toHaveBeenCalledWith(['7']);
+    expect(service.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('clears stale selection after a partial delete failure before allowing a new retry', async () => {
+    const nextMedia = { ...media, id: '8', name: 'next.png', url: '/media/next.png' };
+    const service: MediaService = {
+      list: vi
+        .fn()
+        .mockResolvedValueOnce({ list: [media], pagination: { page: 1, pageSize: 24, total: 1, hasMore: false } })
+        .mockResolvedValueOnce({ list: [nextMedia], pagination: { page: 1, pageSize: 24, total: 1, hasMore: false } })
+        .mockResolvedValueOnce({ list: [], pagination: { page: 1, pageSize: 24, total: 0, hasMore: false } }),
+      upload: vi.fn(),
+      remove: vi.fn().mockRejectedValueOnce(new Error('media_delete_failed')).mockResolvedValueOnce(['8']),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="select-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    Array.from(document.querySelectorAll('button'))
+      .find((button) => button.textContent?.includes('Delete (1)'))
+      ?.click();
+    await flush();
+
+    expect(document.body.textContent).not.toContain('Delete (1)');
+    document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    Array.from(document.querySelectorAll('button'))
+      .find((button) => button.textContent?.includes('Delete (1)'))
+      ?.click();
+    await flush();
+
+    expect(service.remove).toHaveBeenNthCalledWith(1, ['7']);
+    expect(service.remove).toHaveBeenNthCalledWith(2, ['8']);
+  });
+
+  it('uploads a selected file exactly once and refreshes the list after success', async () => {
+    const service: MediaService = {
+      list: vi.fn().mockResolvedValue({ list: [media], pagination: { page: 1, pageSize: 24, total: 1, hasMore: false } }),
+      upload: vi.fn().mockResolvedValue(media),
+      remove: vi.fn(),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="picker-upload"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+
+    expect(service.upload).toHaveBeenCalledTimes(1);
+    expect(service.upload).toHaveBeenCalledWith(expect.objectContaining({ file: expect.any(File) }));
+    expect(service.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('recovers after an upload failure and allows the next file selection', async () => {
+    const service: MediaService = {
+      list: vi.fn().mockResolvedValue({ list: [media], pagination: { page: 1, pageSize: 24, total: 1, hasMore: false } }),
+      upload: vi.fn().mockRejectedValueOnce(new Error('upload failed')).mockResolvedValueOnce(media),
+      remove: vi.fn(),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="picker-upload"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="picker-upload"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+
+    expect(service.upload).toHaveBeenCalledTimes(2);
     expect(service.list).toHaveBeenCalledTimes(2);
   });
 

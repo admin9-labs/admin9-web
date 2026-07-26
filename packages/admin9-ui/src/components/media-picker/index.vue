@@ -195,6 +195,8 @@
       selectedMap.value = next;
       await fetchList();
     } catch {
+      selectedMap.value = new Map();
+      emit('select', []);
       await fetchList();
       Message.error(t('admin9Ui.mediaPicker.deleteFailed'));
     } finally {
@@ -342,7 +344,7 @@
               v-if="canUpload"
               :multiple="true"
               :show-file-list="false"
-              :auto-upload="false"
+              :auto-upload="true"
               :custom-request="customUpload"
               :accept="accept"
             >
