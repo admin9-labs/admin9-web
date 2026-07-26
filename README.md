@@ -44,13 +44,22 @@ pnpm install --frozen-lockfile
 cp .env.example .env.development
 ```
 
-### 4. 启动开发环境
+### 4. 启动 Laravel API
+
+在 sibling API 仓库中执行以下命令。`composer dev` 默认监听 `http://localhost:8000`，与本项目的 API 示例地址一致。
+
+```bash
+cd ../admin9-api-laravel
+composer dev
+```
+
+### 5. 启动开发环境
 
 ```bash
 pnpm dev
 ```
 
-### 5. 生产构建与预览
+### 6. 生产构建与预览
 
 ```bash
 pnpm build
@@ -61,7 +70,7 @@ pnpm preview
 
 | 变量名 | 说明 | 示例 |
 | --- | --- | --- |
-| `VITE_API_BASE_URL` | 后端 API 基础地址 | `http://localhost:8080` |
+| `VITE_API_BASE_URL` | 后端 API 基础地址 | `http://localhost:8000` |
 | `VITE_QQ_MAP_KEY` | 腾讯地图 Key（可选） | `YOUR_QQ_MAP_KEY` |
 
 ## 开发命令
