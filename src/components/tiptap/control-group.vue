@@ -75,16 +75,18 @@
   const onInsertImage = (images: MediaItem[]) => {
     const chain = props.editor.chain().focus();
 
-    images.forEach((image) => {
-      chain.insertContent([
-        {
-          type: 'image',
-          attrs: {
-            src: image.url,
+    images
+      .filter((image) => !image.status || image.status === 'ready')
+      .forEach((image) => {
+        chain.insertContent([
+          {
+            type: 'image',
+            attrs: {
+              src: image.url,
+            },
           },
-        },
-      ]);
-    });
+        ]);
+      });
 
     chain.run();
   };

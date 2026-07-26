@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const workspaceRoot = path.resolve(__dirname, '..');
-const expectedSourceCommit = '522a3cdb4e6103fcb6c7585df944ea973b9e79ee';
+const expectedSourceCommit = 'd2bd975cc7385325f1982a8cea7f22c25c434cfe';
 const sourcePath = path.resolve(workspaceRoot, process.env.ADMIN9_OPENAPI_PATH ?? '../admin9-api-laravel/docs/api.json');
 const sourceRepository = path.resolve(path.dirname(sourcePath), '..');
 const outputPath = path.join(workspaceRoot, 'src/api/generated/admin-api.ts');

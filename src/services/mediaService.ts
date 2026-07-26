@@ -27,6 +27,7 @@ function toMediaItem(media: AdminMedia): MediaItem {
     width: media.width ?? undefined,
     height: media.height ?? undefined,
     createdAt: media.created_at,
+    status: media.status,
   };
   return item;
 }

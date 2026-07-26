@@ -298,6 +298,8 @@ export interface components {
       name: string;
       /** Format: int64 */
       size: number;
+      /** @enum {string} */
+      status: "pending" | "ready" | "failed";
       /** Format: uri */
       url: string;
       width: number | null;
@@ -1511,6 +1513,7 @@ export interface operations {
       403: components["responses"]["ApiForbiddenResponse"];
       413: components["responses"]["ApiContentTooLargeResponse"];
       422: components["responses"]["ApiValidationErrorResponse"];
+      429: components["responses"]["ApiRateLimitResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };

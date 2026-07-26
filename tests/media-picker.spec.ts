@@ -7,11 +7,16 @@ import type { MediaService } from '@admin9-labs/admin9-ui';
 import AMediaPicker from '../packages/admin9-ui/src/components/media-picker/index.vue';
 
 const mountedApps: App[] = [];
-const media = { id: '7', name: 'avatar.png', url: '/media/avatar.png' };
+const media = { id: '7', name: 'avatar.png', url: '/media/avatar.png', status: 'ready' as const };
 
 const Transparent = defineComponent({
   setup(_, { slots }) {
     return () => h('div', slots.default?.());
+  },
+});
+const ChoiceStub = defineComponent({
+  setup(_, { slots }) {
+    return () => h('div', slots.checkbox?.() ?? slots.radio?.() ?? slots.default?.());
   },
 });
 const UploadStub = defineComponent({
@@ -23,7 +28,11 @@ const CheckboxGroupStub = defineComponent({
   emits: ['change'],
   setup(_, { emit, slots }) {
     return () =>
-      h('div', [h('button', { 'data-testid': 'select-media', 'onClick': () => emit('change', ['7']) }), slots.default?.()]);
+      h('div', [
+        h('button', { 'data-testid': 'select-media', 'onClick': () => emit('change', ['7']) }),
+        h('button', { 'data-testid': 'select-all-media', 'onClick': () => emit('change', ['7', '8', '9']) }),
+        slots.default?.(),
+      ]);
   },
 });
 
@@ -43,10 +52,15 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
       messages: {
         'en-US': {
           'admin9Ui.mediaPicker.deleteCount': 'Delete ({count})',
+          'admin9Ui.mediaPicker.delete': 'Delete',
           'admin9Ui.mediaPicker.deleteFailed': 'Delete failed',
           'admin9Ui.mediaPicker.empty': 'Empty',
+          'admin9Ui.mediaPicker.confirm': 'OK',
+          'admin9Ui.mediaPicker.cancel': 'Cancel',
           'admin9Ui.mediaPicker.selectImage': 'Select image',
           'admin9Ui.mediaPicker.uploadImage': 'Upload image',
+          'admin9Ui.mediaPicker.processing': 'Processing',
+          'admin9Ui.mediaPicker.failed': 'Failed',
         },
       },
     })
@@ -56,8 +70,8 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
   app.component('ASpace', Transparent);
   app.component('ASpin', Transparent);
   app.component('ACheckboxGroup', CheckboxGroupStub);
-  app.component('ACheckbox', Transparent);
-  app.component('ARadio', Transparent);
+  app.component('ACheckbox', ChoiceStub);
+  app.component('ARadio', ChoiceStub);
   app.component('ARadioGroup', Transparent);
   app.component('AImage', Transparent);
   app.component(
@@ -118,5 +132,34 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
 
     expect(document.querySelector('[data-testid="select-media"]')).not.toBeNull();
     expect(document.body.textContent).not.toContain('Upload image');
+  });
+
+  it('keeps pending and failed media visible but out of selection while allowing failed cleanup', async () => {
+    const pending = { id: '8', name: 'pending.png', url: '/media/pending.png', status: 'pending' as const };
+    const failed = { id: '9', name: 'failed.png', url: '/media/failed.png', status: 'failed' as const };
+    const service: MediaService = {
+      list: vi
+        .fn()
+        .mockResolvedValue({ list: [media, pending, failed], pagination: { page: 1, pageSize: 24, total: 3, hasMore: false } }),
+      upload: vi.fn(),
+      remove: vi.fn().mockResolvedValue(['9']),
+    };
+    mountPicker(service);
+
+    document.querySelector('button')?.click();
+    await flush();
+    expect(document.body.textContent).toContain('Processing');
+    expect(document.body.textContent).toContain('Failed');
+
+    document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    expect(document.body.textContent).toContain('Delete (1)');
+
+    Array.from(document.querySelectorAll('button'))
+      .find((button) => button.textContent === 'Delete')
+      ?.click();
+    await flush();
+    expect(service.remove).toHaveBeenCalledWith(['9']);
+    expect(service.list).toHaveBeenCalledTimes(2);
   });
 });

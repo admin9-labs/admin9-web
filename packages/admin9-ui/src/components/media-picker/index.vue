@@ -77,6 +77,9 @@
   const pageSize = ref(props.pageSize);
   const total = ref(0);
   const isEmpty = computed(() => list.value.length === 0 && !loading.value);
+  const isSelectable = (item: MediaItem) => !item.status || item.status === 'ready';
+  const statusLabel = (item: MediaItem) =>
+    item.status === 'pending' ? t('admin9Ui.mediaPicker.processing') : t('admin9Ui.mediaPicker.failed');
 
   const fetchList = async () => {
     setLoading(true);
@@ -126,14 +129,15 @@
   };
 
   const confirmSelection = (items: MediaItem[]) => {
+    const selectableItems = items.filter(isSelectable);
     setVisible(false);
-    selectedItems.value = items;
-    fileList.value = items.map(toFileItem);
-    emit('change', items);
+    selectedItems.value = selectableItems;
+    fileList.value = selectableItems.map(toFileItem);
+    emit('change', selectableItems);
     if (props.multiple) {
-      emit('update:modelValue', items);
+      emit('update:modelValue', selectableItems);
     } else {
-      emitSingle(items[items.length - 1]);
+      emitSingle(selectableItems[selectableItems.length - 1]);
     }
   };
 
@@ -152,6 +156,10 @@
     const next = new Map(selectedMap.value);
     // 仅同步当前页：勾上→加入，取消→移除（其它页选中项保留）
     list.value.forEach((item) => {
+      if (!isSelectable(item)) {
+        next.delete(item.id);
+        return;
+      }
       if (incoming.has(item.id)) next.set(item.id, item);
       else next.delete(item.id);
     });
@@ -162,7 +170,7 @@
   const onSingleSelect = (value: string | number | boolean) => {
     const id = String(value);
     const item = list.value.find((m) => m.id === id);
-    if (!item) return;
+    if (!item || !isSelectable(item)) return;
     singleKey.value = id;
     // 即选即关
     confirmSelection([item]);
@@ -174,13 +182,13 @@
 
   /* ------------------------------ 删除 ------------------------------ */
   const deleteLoading = ref(false);
-  const onDeleteItems = async () => {
-    if (selectedKeys.value.length === 0) return;
+  const removeItems = async (ids: string[]) => {
+    if (ids.length === 0) return;
     try {
       deleteLoading.value = true;
-      await service.remove(selectedKeys.value);
+      await service.remove(ids);
       const next = new Map(selectedMap.value);
-      selectedKeys.value.forEach((id) => next.delete(id));
+      ids.forEach((id) => next.delete(id));
       selectedMap.value = next;
       await fetchList();
     } catch {
@@ -190,6 +198,8 @@
       deleteLoading.value = false;
     }
   };
+  const onDeleteItems = () => removeItems(selectedKeys.value);
+  const onDeleteFailed = (id: string) => removeItems([id]);
 
   /* ----------------------- 上传（走 service，不绕过 axios） ------------- */
   const uploadCount = ref(0);
@@ -359,26 +369,72 @@
           <!-- 单选：radio 即选即关 -->
           <a-radio-group v-else-if="!multiple" :model-value="singleKey" @change="onSingleSelect">
             <div class="a9-media-picker__grid">
-              <a-radio v-for="item in list" :key="item.id" :value="item.id">
-                <template #radio>
-                  <a-image :src="item.thumbnail || item.url" :preview="false" width="120" height="90" fit="cover" show-loader />
-                </template>
-              </a-radio>
+              <div
+                v-for="item in list"
+                :key="item.id"
+                class="a9-media-picker__item"
+                :class="{ 'is-unavailable': !isSelectable(item) }"
+              >
+                <a-radio :value="item.id" :disabled="!isSelectable(item)">
+                  <template #radio>
+                    <a-image
+                      :src="item.thumbnail || item.url"
+                      :preview="false"
+                      width="120"
+                      height="90"
+                      fit="cover"
+                      show-loader
+                    />
+                  </template>
+                </a-radio>
+                <span v-if="!isSelectable(item)" class="a9-media-picker__status">{{ statusLabel(item) }}</span>
+                <a-button
+                  v-if="item.status === 'failed' && canDelete"
+                  class="a9-media-picker__delete"
+                  size="mini"
+                  status="danger"
+                  @click.stop="onDeleteFailed(item.id)"
+                >
+                  {{ t('admin9Ui.mediaPicker.delete') }}
+                </a-button>
+              </div>
             </div>
           </a-radio-group>
           <!-- 多选：checkbox + 底部确认 -->
           <a-checkbox-group v-else :model-value="selectedKeys" @change="onMultiSelect">
             <div class="a9-media-picker__grid">
-              <a-checkbox
+              <div
                 v-for="item in list"
                 :key="item.id"
-                :value="item.id"
-                :disabled="limitReached && !selectedKeys.includes(item.id)"
+                class="a9-media-picker__item"
+                :class="{ 'is-unavailable': !isSelectable(item) }"
               >
-                <template #checkbox>
-                  <a-image :src="item.thumbnail || item.url" :preview="false" width="120" height="90" fit="cover" show-loader />
-                </template>
-              </a-checkbox>
+                <a-checkbox
+                  :value="item.id"
+                  :disabled="!isSelectable(item) || (limitReached && !selectedKeys.includes(item.id))"
+                >
+                  <template #checkbox>
+                    <a-image
+                      :src="item.thumbnail || item.url"
+                      :preview="false"
+                      width="120"
+                      height="90"
+                      fit="cover"
+                      show-loader
+                    />
+                  </template>
+                </a-checkbox>
+                <span v-if="!isSelectable(item)" class="a9-media-picker__status">{{ statusLabel(item) }}</span>
+                <a-button
+                  v-if="item.status === 'failed' && canDelete"
+                  class="a9-media-picker__delete"
+                  size="mini"
+                  status="danger"
+                  @click.stop="onDeleteFailed(item.id)"
+                >
+                  {{ t('admin9Ui.mediaPicker.delete') }}
+                </a-button>
+              </div>
             </div>
           </a-checkbox-group>
         </a-spin>
@@ -440,6 +496,39 @@
       :deep(.arco-checkbox-checked) .arco-image {
         border-color: rgb(var(--primary-6));
       }
+    }
+
+    &__item {
+      position: relative;
+
+      &.is-unavailable {
+        opacity: 0.6;
+      }
+    }
+
+    &__status,
+    &__delete {
+      position: absolute;
+      right: 4px;
+      z-index: 1;
+    }
+
+    &__status {
+      bottom: 4px;
+      padding: 2px 6px;
+      color: var(--color-white);
+      font-size: 12px;
+      line-height: 18px;
+      background: rgb(var(--danger-6));
+      border-radius: 2px;
+    }
+
+    &__item:not(.is-unavailable) &__status {
+      display: none;
+    }
+
+    &__delete {
+      top: 4px;
     }
 
     &__footer {

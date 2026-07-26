@@ -12,15 +12,30 @@ vi.mock('@admin9-labs/admin9-ui', async () => {
   return {
     AMediaPicker: defineMockComponent({
       props: { canUpload: Boolean, canDelete: Boolean, multiple: Boolean, accept: String },
-      setup(props) {
+      emits: ['change'],
+      setup(props, { emit }) {
         return () =>
-          render('div', {
-            'data-testid': 'media-picker',
-            'data-upload': String(props.canUpload),
-            'data-delete': String(props.canDelete),
-            'data-multiple': String(props.multiple),
-            'data-accept': props.accept,
-          });
+          render(
+            'div',
+            {
+              'data-testid': 'media-picker',
+              'data-upload': String(props.canUpload),
+              'data-delete': String(props.canDelete),
+              'data-multiple': String(props.multiple),
+              'data-accept': props.accept,
+            },
+            [
+              render('button', {
+                'data-testid': 'insert-pending-media',
+                'onClick': () =>
+                  emit('change', [{ id: 'pending', name: 'pending.png', url: '/media/pending.png', status: 'pending' }]),
+              }),
+              render('button', {
+                'data-testid': 'insert-ready-media',
+                'onClick': () => emit('change', [{ id: 'ready', name: 'ready.png', url: '/media/ready.png', status: 'ready' }]),
+              }),
+            ]
+          );
       },
     }),
   };
@@ -34,8 +49,9 @@ const Transparent = defineComponent({
 });
 
 function mountToolbar(permissionNames: string[]) {
+  const insertContent = vi.fn().mockReturnThis();
   const editor = {
-    chain: () => ({ focus: () => ({ insertContent: vi.fn().mockReturnThis(), run: vi.fn() }) }),
+    chain: () => ({ focus: () => ({ insertContent, run: vi.fn() }) }),
     can: () => ({ chain: () => ({ focus: () => ({}) }) }),
     getAttributes: vi.fn().mockReturnValue({}),
     isActive: vi.fn().mockReturnValue(false),
@@ -52,6 +68,7 @@ function mountToolbar(permissionNames: string[]) {
   app.component('AButton', Transparent);
   mountedApps.push(app);
   app.mount('#app');
+  return { insertContent };
 }
 
 describe('Tiptap media permission wiring', () => {
@@ -75,5 +92,14 @@ describe('Tiptap media permission wiring', () => {
     expect(picker?.getAttribute('data-delete')).toBe('false');
     expect(picker?.getAttribute('data-multiple')).toBe('true');
     expect(picker?.getAttribute('data-accept')).toBe('image/png,image/jpeg,image/gif,image/webp');
+  });
+
+  it('never inserts pending media even if a picker event is emitted', () => {
+    const { insertContent } = mountToolbar(['system.media.view']);
+    document.querySelector('[data-testid="insert-pending-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(insertContent).not.toHaveBeenCalled();
+
+    document.querySelector('[data-testid="insert-ready-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(insertContent).toHaveBeenCalledWith([{ type: 'image', attrs: { src: '/media/ready.png' } }]);
   });
 });

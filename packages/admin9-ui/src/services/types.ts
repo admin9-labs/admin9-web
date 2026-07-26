@@ -29,6 +29,8 @@ export interface MediaItem {
   height?: number;
   /** ISO 时间，可选 */
   createdAt?: string;
+  /** 服务端处理状态；未提供时按历史行为视为 ready */
+  status?: 'pending' | 'ready' | 'failed';
 }
 
 export interface MediaListParams {
