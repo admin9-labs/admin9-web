@@ -7,87 +7,80 @@ import type {
   MediaService,
   MediaUploadOptions,
 } from '@admin9-labs/admin9-ui';
-import type { HttpResponse } from '@/api/interceptor';
-import { deleteFiles, queryFiles } from '@/api/file';
+import type { operations } from '@/api/generated/admin-api';
+import type {
+  AdminMedia,
+  AdminMediaDestroyResponse,
+  AdminMediaListResponse,
+  AdminMediaStoreResponse,
+} from '@/api/generated/contracts';
 
-/**
- * /api/upload/image 的响应 data 结构无文档（DESIGN.md §11.1），
- * 按可能返回的字段宽松定义，缺省时回退到上传文件本身的属性。
- */
-interface UploadImageResponse {
-  id?: string;
-  name?: string;
-  url?: string;
-  path?: string;
-  size?: number;
-  mime?: string;
+const MEDIA_ENDPOINT = '/api/admin/media';
+
+function toMediaItem(media: AdminMedia): MediaItem {
+  const item = {
+    id: String(media.id),
+    name: media.name,
+    url: media.url,
+    size: media.size,
+    mime: media.mime_type,
+    extension: media.extension,
+    width: media.width ?? undefined,
+    height: media.height ?? undefined,
+    createdAt: media.created_at,
+    status: media.status,
+  };
+  return item;
 }
 
-/**
- * MediaService adapter：把库的媒体服务契约落到本 App 后端。
- *
- * 库本身不调任何后端（见 services/types.ts 契约），所有后端能力在此注入：
- * - list：调 /api/file/images，请求拦截器自动补 Bearer token + 转 page/page_size
- * - upload：POST /api/upload/image，FormData 字段 image，进度回传
- * - remove：调 /api/files 批量删除
- */
+function mediaId(id: string): number {
+  const parsed = Number(id);
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new Error('Invalid media ID');
+  return parsed;
+}
+
+async function removeSequentially(ids: string[], index = 0, removed: string[] = []): Promise<string[]> {
+  const id = ids[index];
+  if (id === undefined) return removed;
+  await axios.delete<unknown, AdminMediaDestroyResponse>(`${MEDIA_ENDPOINT}/${mediaId(id)}`);
+  return removeSequentially(ids, index + 1, [...removed, id]);
+}
+
 const mediaService: MediaService = {
   async list(params: MediaListParams): Promise<MediaListResult> {
-    // queryFiles 的 current/pageSize 经请求拦截器转为 page/page_size
-    const { data, meta } = await queryFiles({
-      current: params.page,
-      pageSize: params.pageSize,
-    });
-
-    const list: MediaItem[] = (data ?? []).map((file) => ({
-      id: file.id,
-      name: file.name,
-      url: file.url,
-      path: file.path,
-    }));
-
-    const pagination: MediaPagination = {
-      page: meta.page,
-      pageSize: meta.page_size,
-      total: meta.total,
-      hasMore: meta.has_more,
+    const query: NonNullable<operations['admin.media.index']['parameters']['query']> = {
+      page: params.page,
+      per_page: params.pageSize,
+      search: params.keyword || undefined,
     };
-
-    return { list, pagination };
+    const response = await axios.get<unknown, AdminMediaListResponse>(MEDIA_ENDPOINT, {
+      params: query,
+    });
+    const pagination: MediaPagination = {
+      page: response.meta.page,
+      pageSize: response.meta.page_size,
+      total: response.meta.total,
+      hasMore: response.meta.has_more,
+    };
+    return { list: response.data.map(toMediaItem), pagination };
   },
 
   async upload(options: MediaUploadOptions): Promise<MediaItem> {
     const formData = new FormData();
-    formData.append('image', options.file);
-
-    // 响应拦截器已解包为 HttpResponse 主体（含 data/meta），并自动补 token
-    const res = await axios.post<unknown, HttpResponse<UploadImageResponse>>('/api/upload/image', formData, {
-      onUploadProgress: (e: ProgressEvent) => {
-        if (options.onProgress && e.total) {
-          options.onProgress(Math.round((e.loaded / e.total) * 100));
-        }
+    formData.append('file', options.file);
+    const response = await axios.post<unknown, AdminMediaStoreResponse>(MEDIA_ENDPOINT, formData, {
+      onUploadProgress: (event: ProgressEvent) => {
+        if (event.total) options.onProgress?.(Math.round((event.loaded / event.total) * 100));
       },
       signal: options.signal,
     });
-
-    const payload = res.data ?? {};
-    // 上传响应可能无 id（DESIGN.md §11.1），返回部分填充项；
-    // 调用方（库组件）会在 id 缺失时回退为"上传后刷新列表"策略。
-    return {
-      id: payload.id ?? '',
-      name: payload.name ?? options.file.name,
-      url: payload.url ?? '',
-      path: payload.path,
-      size: payload.size ?? options.file.size,
-      mime: payload.mime ?? options.file.type,
-    };
+    return toMediaItem(response.data.media);
   },
 
   async remove(ids: string[]): Promise<string[]> {
-    await deleteFiles(ids);
-    return ids;
+    return removeSequentially(ids);
   },
 };
 
 export default mediaService;
-export { mediaService };
+export { mediaService, toMediaItem };

@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: admin9-labs/admin9-api-laravel
-          ref: 989a15c0dca4ff390ba2a792a00a6ff1557b0d15
+          ref: 73a8859065444941881c72a1c04cab3c35c2e57f
           path: admin9-api-laravel
 
       - name: Set up pnpm

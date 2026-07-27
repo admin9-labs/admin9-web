@@ -2,15 +2,14 @@
   import { computed, PropType } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { Editor } from '@tiptap/vue-3';
-
-  export interface FileRecord {
-    id: string;
-    name: string;
-    path: string;
-    url: string;
-  }
+  import { AMediaPicker, type MediaItem } from '@admin9-labs/admin9-ui';
+  import usePermission from '@/hooks/permission';
 
   const { t } = useI18n();
+  const { hasPermission } = usePermission();
+  const canViewMedia = computed(() => hasPermission('system.media.view'));
+  const canUploadMedia = computed(() => hasPermission('system.media.create'));
+  const canDeleteMedia = computed(() => hasPermission('system.media.delete'));
 
   const props = defineProps({
     editor: {
@@ -47,6 +46,7 @@
       ],
     },
   });
+  const visibleToolbars = computed(() => props.toolbars.filter((option) => option !== 'insertImage' || canViewMedia.value));
 
   // 颜色
   const textStyleColor = computed(() => {
@@ -73,19 +73,24 @@
     props.editor.chain().focus().setFontSize(size).run();
   };
 
-  const onInsertImage = (images: FileRecord[]) => {
+  const onInsertImage = (images: MediaItem[]) => {
     const chain = props.editor.chain().focus();
 
-    images.forEach((image) => {
-      chain.insertContent([
-        {
-          type: 'image',
-          attrs: {
-            src: image.url,
+    images
+      .filter(
+        (image): image is MediaItem & { url: string } =>
+          (!image.status || image.status === 'ready') && typeof image.url === 'string' && image.url.length > 0
+      )
+      .forEach((image) => {
+        chain.insertContent([
+          {
+            type: 'image',
+            attrs: {
+              src: image.url,
+            },
           },
-        },
-      ]);
-    });
+        ]);
+      });
 
     chain.run();
   };
@@ -228,7 +233,7 @@
 <template>
   <div class="control-group">
     <a-space size="mini" wrap>
-      <template v-for="option in toolbars" :key="option">
+      <template v-for="option in visibleToolbars" :key="option">
         <!-- 间隔符 -->
         <a-divider v-if="option === 'divider'" direction="vertical" />
         <!-- 按钮 -->
@@ -255,7 +260,14 @@
           </template>
           <!-- 插入图片 -->
           <template v-else-if="option === 'insertImage'">
-            <ImageGallery :show-file-list="false" @change="onInsertImage">
+            <AMediaPicker
+              :can-upload="canUploadMedia"
+              :can-delete="canDeleteMedia"
+              :multiple="true"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+              :show-file-list="false"
+              @change="onInsertImage"
+            >
               <template #upload-button>
                 <a-button size="small">
                   <template #icon>
@@ -263,7 +275,7 @@
                   </template>
                 </a-button>
               </template>
-            </ImageGallery>
+            </AMediaPicker>
           </template>
           <template v-else>
             <a-button
