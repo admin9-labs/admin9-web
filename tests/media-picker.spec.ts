@@ -29,6 +29,20 @@ const ModalStub = defineComponent({
     return () => h('div', [slots.default?.(), slots.footer?.()]);
   },
 });
+const PopconfirmStub = defineComponent({
+  setup(_, { attrs, slots }) {
+    const invoke = (event: 'onOk' | 'onCancel') => {
+      const handler = attrs[event];
+      if (typeof handler === 'function') handler();
+    };
+    return () =>
+      h('div', { 'data-testid': 'delete-popconfirm', 'data-ok-loading': String(attrs.okLoading ?? false) }, [
+        slots.default?.(),
+        h('button', { 'data-testid': 'confirm-delete', 'onClick': () => invoke('onOk') }, 'Confirm delete'),
+        h('button', { 'data-testid': 'cancel-delete', 'onClick': () => invoke('onCancel') }, 'Cancel delete'),
+      ]);
+  },
+});
 const ChoiceStub = defineComponent({
   setup(_, { slots }) {
     return () => h('div', slots.checkbox?.() ?? slots.radio?.() ?? slots.default?.());
@@ -112,6 +126,26 @@ async function flush() {
   await nextTick();
 }
 
+function batchDeleteButton() {
+  return Array.from(document.querySelectorAll<HTMLButtonElement>('button')).find((button) =>
+    button.textContent?.includes('Delete 1 selected')
+  );
+}
+
+function confirmDelete(button: HTMLButtonElement | undefined) {
+  button
+    ?.closest('[data-testid="delete-popconfirm"]')
+    ?.querySelector<HTMLButtonElement>('[data-testid="confirm-delete"]')
+    ?.click();
+}
+
+function cancelDelete(button: HTMLButtonElement | undefined) {
+  button
+    ?.closest('[data-testid="delete-popconfirm"]')
+    ?.querySelector<HTMLButtonElement>('[data-testid="cancel-delete"]')
+    ?.click();
+}
+
 function mountPicker(service: MediaService, props: Record<string, unknown> = {}) {
   const app = createApp(AMediaPicker, { multiple: true, service, ...props });
   app.use(
@@ -120,8 +154,9 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
       locale: 'en-US',
       messages: {
         'en-US': {
-          'admin9Ui.mediaPicker.deleteCount': 'Delete ({count})',
+          'admin9Ui.mediaPicker.deleteCount': 'Delete {count} selected',
           'admin9Ui.mediaPicker.delete': 'Delete',
+          'admin9Ui.mediaPicker.deleteConfirm': 'Deleted media cannot be recovered. Continue?',
           'admin9Ui.mediaPicker.deleteFailed': 'Delete failed',
           'admin9Ui.mediaPicker.empty': 'Empty',
           'admin9Ui.mediaPicker.confirm': 'OK',
@@ -137,6 +172,7 @@ function mountPicker(service: MediaService, props: Record<string, unknown> = {})
   );
   app.component('AUpload', UploadStub);
   app.component('AModal', ModalStub);
+  app.component('APopconfirm', PopconfirmStub);
   app.component('ASpace', Transparent);
   app.component('ASpin', SpinStub);
   app.component('ACheckboxGroup', CheckboxGroupStub);
@@ -180,13 +216,43 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     document.querySelector('[data-testid="select-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
-    Array.from(document.querySelectorAll('button'))
-      .find((button) => button.textContent?.includes('Delete (1)'))
-      ?.click();
+    const deleteButton = batchDeleteButton();
+    deleteButton?.click();
+    await flush();
+    confirmDelete(deleteButton);
     await flush();
 
     expect(service.remove).toHaveBeenCalledWith(['7']);
     expect(service.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('requires confirmation before deleting selected media', async () => {
+    const service: MediaService = {
+      list: vi.fn().mockResolvedValue({ list: [media], pagination: { page: 1, pageSize: 24, total: 1, hasMore: false } }),
+      upload: vi.fn(),
+      remove: vi.fn().mockResolvedValue(['7']),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="select-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+
+    const deleteButton = batchDeleteButton();
+    expect(deleteButton?.textContent).toContain('Delete 1 selected');
+    deleteButton?.click();
+    await flush();
+    expect(service.remove).not.toHaveBeenCalled();
+
+    cancelDelete(deleteButton);
+    await flush();
+    expect(service.remove).not.toHaveBeenCalled();
+
+    confirmDelete(deleteButton);
+    await flush();
+    expect(service.remove).toHaveBeenCalledTimes(1);
+    expect(service.remove).toHaveBeenCalledWith(['7']);
   });
 
   it('clears stale selection after a partial delete failure before allowing a new retry', async () => {
@@ -206,17 +272,19 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     document.querySelector('[data-testid="select-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
-    Array.from(document.querySelectorAll('button'))
-      .find((button) => button.textContent?.includes('Delete (1)'))
-      ?.click();
+    const firstDeleteButton = batchDeleteButton();
+    firstDeleteButton?.click();
+    await flush();
+    confirmDelete(firstDeleteButton);
     await flush();
 
-    expect(document.body.textContent).not.toContain('Delete (1)');
+    expect(document.body.textContent).not.toContain('Delete 1 selected');
     document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
-    Array.from(document.querySelectorAll('button'))
-      .find((button) => button.textContent?.includes('Delete (1)'))
-      ?.click();
+    const retryDeleteButton = batchDeleteButton();
+    retryDeleteButton?.click();
+    await flush();
+    confirmDelete(retryDeleteButton);
     await flush();
 
     expect(service.remove).toHaveBeenNthCalledWith(1, ['7']);
@@ -295,11 +363,18 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
 
     document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
-    expect(document.body.textContent).toContain('Delete (1)');
+    expect(document.body.textContent).toContain('Delete 1 selected');
 
-    Array.from(document.querySelectorAll('button'))
-      .find((button) => button.textContent === 'Delete')
-      ?.click();
+    const failedDeleteButton = Array.from(document.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Delete'
+    );
+    failedDeleteButton?.click();
+    await flush();
+    expect(service.remove).not.toHaveBeenCalled();
+    cancelDelete(failedDeleteButton);
+    await flush();
+    expect(service.remove).not.toHaveBeenCalled();
+    confirmDelete(failedDeleteButton);
     await flush();
     expect(service.remove).toHaveBeenCalledWith(['9']);
     expect(service.list).toHaveBeenCalledTimes(2);
@@ -322,7 +397,9 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     const deleteButton = document.querySelector<HTMLButtonElement>('button.a9-media-picker__delete');
     deleteButton?.click();
-    deleteButton?.click();
+    await flush();
+    confirmDelete(deleteButton);
+    confirmDelete(deleteButton);
     await flush();
 
     expect(service.remove).toHaveBeenCalledTimes(1);
@@ -357,13 +434,17 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     document.querySelector('[data-testid="select-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
-    Array.from(document.querySelectorAll('button'))
-      .find((button) => button.textContent?.includes('Delete (1)'))
-      ?.click();
+    const batchDelete = batchDeleteButton();
+    batchDelete?.click();
+    await flush();
+    confirmDelete(batchDelete);
     overlapping.status = 'failed';
     overlapping.url = null;
     await flush();
-    document.querySelector<HTMLButtonElement>('button.a9-media-picker__delete')?.click();
+    const failedDelete = document.querySelector<HTMLButtonElement>('button.a9-media-picker__delete');
+    failedDelete?.click();
+    await flush();
+    confirmDelete(failedDelete);
     await flush();
 
     expect(service.remove).toHaveBeenCalledTimes(1);
@@ -394,6 +475,9 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     deleteButtons[0]?.click();
     deleteButtons[1]?.click();
     await flush();
+    confirmDelete(deleteButtons[0]);
+    confirmDelete(deleteButtons[1]);
+    await flush();
 
     expect(service.remove).toHaveBeenNthCalledWith(1, ['8']);
     expect(service.remove).toHaveBeenNthCalledWith(2, ['9']);
@@ -422,7 +506,7 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     expect(document.querySelector('[data-testid="media-preview"]')).toBeNull();
     document.querySelector('[data-testid="select-all-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flush();
-    expect(document.body.textContent).not.toContain('Delete (1)');
+    expect(document.body.textContent).not.toContain('Delete 1 selected');
   });
 
   it('keeps loading and pagination owned by the newer list request when an older request settles first', async () => {
