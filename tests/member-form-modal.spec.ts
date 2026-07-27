@@ -42,13 +42,34 @@ const ModalStub = defineComponent({
     escToClose: Boolean,
     closable: Boolean,
     cancelButtonProps: { type: Object, default: () => ({}) },
+    onBeforeOk: { type: Function, default: undefined },
     onBeforeCancel: { type: Function, default: undefined },
   },
-  emits: ['beforeOk', 'close', 'update:visible'],
+  emits: ['close', 'update:visible'],
   setup(props, { emit, slots }) {
+    let promiseNumber = 0;
     const close = () => {
+      promiseNumber += 1;
       emit('update:visible', false);
       emit('close');
+    };
+    const handleOk = async () => {
+      const currentPromiseNumber = promiseNumber;
+      const closed = await new Promise<boolean>((resolve) => {
+        if (!props.onBeforeOk) {
+          resolve(true);
+          return;
+        }
+        const done = vi.fn((shouldClose = true) => resolve(shouldClose));
+        saveDoneCallbacks.push(done);
+        const result = props.onBeforeOk(done);
+        if (result instanceof Promise) {
+          result.then((value) => resolve(value ?? true)).catch(() => resolve(false));
+          return;
+        }
+        if (typeof result === 'boolean') resolve(result);
+      });
+      if (currentPromiseNumber === promiseNumber && closed) close();
     };
     return () =>
       h(
@@ -66,11 +87,7 @@ const ModalStub = defineComponent({
           slots.default?.(),
           h('button', {
             'data-testid': 'save-member',
-            'onClick': () => {
-              const done = vi.fn();
-              saveDoneCallbacks.push(done);
-              emit('beforeOk', done);
-            },
+            'onClick': handleOk,
           }),
           h('button', {
             'data-testid': 'close-member',
@@ -144,6 +161,27 @@ async function mountModal() {
   return modalRef.value as InstanceType<typeof MemberFormModal>;
 }
 
+async function mountBeforeOkContract(onBeforeOk: (done: (closed: boolean) => void) => Promise<boolean | void>) {
+  const visible = ref(true);
+  const Root = defineComponent({
+    setup() {
+      return () =>
+        h(ModalStub, {
+          'visible': visible.value,
+          onBeforeOk,
+          'onUpdate:visible': (value: boolean) => {
+            visible.value = value;
+          },
+        });
+    },
+  });
+  const app = createApp(Root);
+  mountedApps.push(app);
+  app.mount('#app');
+  await flush();
+  return visible;
+}
+
 const memberResponse = (id: number, name: string) => ({
   data: { member: { id, name, email: `${name.toLowerCase()}@example.test`, mobile: null } },
 });
@@ -159,6 +197,15 @@ describe('MemberFormModal detail request generation', () => {
     saveDoneCallbacks.length = 0;
     apiMocks.updateMember.mockResolvedValue({});
     apiMocks.createMember.mockResolvedValue({});
+  });
+
+  it('models Arco Promise undefined as permission to close', async () => {
+    const visible = await mountBeforeOkContract(async () => undefined);
+
+    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
+    await flush();
+
+    expect(visible.value).toBe(false);
   });
 
   it('locks every close path while saving and ignores an older success after reopening another member', async () => {
@@ -212,6 +259,7 @@ describe('MemberFormModal detail request generation', () => {
     expect(saveDoneCallbacks[1]).toHaveBeenCalledWith(true);
     expect(successHandler).toHaveBeenCalledWith(2);
     expect(messageMocks.success).toHaveBeenCalledWith('system.member.form.updateSuccess');
+    expect(modalElement?.getAttribute('data-visible')).toBe('false');
     expect(modalElement?.getAttribute('data-loading')).toBe('false');
   });
 
@@ -231,6 +279,7 @@ describe('MemberFormModal detail request generation', () => {
     saveA.reject(new Error('stale failure'));
     await flush();
     expect(saveDoneCallbacks[0]).not.toHaveBeenCalled();
+    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('true');
     expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-loading')).toBe('false');
 
     document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
@@ -239,6 +288,7 @@ describe('MemberFormModal detail request generation', () => {
     saveB.reject(new Error('current failure'));
     await flush();
     expect(saveDoneCallbacks[1]).toHaveBeenCalledWith(false);
+    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('true');
     expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-loading')).toBe('false');
     expect(messageMocks.success).not.toHaveBeenCalled();
     expect(successHandler).not.toHaveBeenCalled();
@@ -257,6 +307,7 @@ describe('MemberFormModal detail request generation', () => {
     createA.resolve({});
     await flush();
     expect(saveDoneCallbacks[0]).not.toHaveBeenCalled();
+    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('true');
     expect(messageMocks.success).not.toHaveBeenCalled();
     expect(successHandler).not.toHaveBeenCalled();
 
@@ -267,6 +318,7 @@ describe('MemberFormModal detail request generation', () => {
     expect(saveDoneCallbacks[1]).toHaveBeenCalledWith(true);
     expect(successHandler).toHaveBeenCalledWith(undefined);
     expect(messageMocks.success).toHaveBeenCalledWith('system.member.form.createSuccess');
+    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('false');
   });
 
   afterEach(() => {

@@ -138,13 +138,13 @@
     const targetMemberId = editingId.value;
     if (detailLoading.value) {
       done(false);
-      return;
+      return false;
     }
     const errors = await formRef.value?.validate();
-    if (!isCurrentSession(requestGeneration, targetMemberId)) return;
+    if (!isCurrentSession(requestGeneration, targetMemberId)) return false;
     if (errors) {
       done(false);
-      return;
+      return false;
     }
     const identity = {
       name: formData.name.trim(),
@@ -161,18 +161,20 @@
     try {
       if (targetMemberId !== undefined) {
         await updateMember(targetMemberId, identity);
-        if (!isCurrentSession(requestGeneration, targetMemberId)) return;
+        if (!isCurrentSession(requestGeneration, targetMemberId)) return false;
         Message.success(t('system.member.form.updateSuccess'));
       } else {
         await createMember(createData);
-        if (!isCurrentSession(requestGeneration, targetMemberId)) return;
+        if (!isCurrentSession(requestGeneration, targetMemberId)) return false;
         Message.success(t('system.member.form.createSuccess'));
       }
       emit('success', targetMemberId);
       done(true);
+      return true;
     } catch {
-      if (!isCurrentSession(requestGeneration, targetMemberId)) return;
+      if (!isCurrentSession(requestGeneration, targetMemberId)) return false;
       done(false);
+      return false;
     } finally {
       if (isCurrentSession(requestGeneration, targetMemberId)) submitLoading.value = false;
     }
