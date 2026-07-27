@@ -11,10 +11,12 @@ const media = { id: '7', name: 'avatar.png', url: '/media/avatar.png', status: '
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((resolvePromise) => {
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise;
+    reject = rejectPromise;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 const Transparent = defineComponent({
@@ -301,6 +303,106 @@ describe('AMediaPicker permissions and partial-delete recovery', () => {
     await flush();
     expect(service.remove).toHaveBeenCalledWith(['9']);
     expect(service.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('sends only one delete when the same failed item is clicked again before completion', async () => {
+    const failed = { id: '9', name: 'failed.png', url: null, status: 'failed' as const };
+    const deletion = deferred<string[]>();
+    const service: MediaService = {
+      list: vi.fn().mockResolvedValue({
+        list: [failed],
+        pagination: { page: 1, pageSize: 24, total: 1, hasMore: false },
+      }),
+      upload: vi.fn(),
+      remove: vi.fn().mockReturnValue(deletion.promise),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    const deleteButton = document.querySelector<HTMLButtonElement>('button.a9-media-picker__delete');
+    deleteButton?.click();
+    deleteButton?.click();
+    await flush();
+
+    expect(service.remove).toHaveBeenCalledTimes(1);
+    expect(service.remove).toHaveBeenCalledWith(['9']);
+    expect(deleteButton?.disabled).toBe(true);
+
+    deletion.resolve(['9']);
+    await deletion.promise;
+    await flush();
+    expect(service.remove).toHaveBeenCalledTimes(1);
+  });
+
+  it('prevents batch and failed-item deletion from owning the same id concurrently', async () => {
+    const overlapping = {
+      id: '7',
+      name: 'overlapping.png',
+      url: '/media/overlapping.png' as string | null,
+      status: 'ready' as 'ready' | 'failed',
+    };
+    const deletion = deferred<string[]>();
+    const service: MediaService = {
+      list: vi.fn().mockResolvedValue({
+        list: [overlapping],
+        pagination: { page: 1, pageSize: 24, total: 1, hasMore: false },
+      }),
+      upload: vi.fn(),
+      remove: vi.fn().mockReturnValue(deletion.promise),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    document.querySelector('[data-testid="select-media"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    Array.from(document.querySelectorAll('button'))
+      .find((button) => button.textContent?.includes('Delete (1)'))
+      ?.click();
+    overlapping.status = 'failed';
+    overlapping.url = null;
+    await flush();
+    document.querySelector<HTMLButtonElement>('button.a9-media-picker__delete')?.click();
+    await flush();
+
+    expect(service.remove).toHaveBeenCalledTimes(1);
+    expect(service.remove).toHaveBeenCalledWith(['7']);
+
+    deletion.resolve(['7']);
+    await deletion.promise;
+    await flush();
+  });
+
+  it('allows deletes for different failed ids to proceed independently', async () => {
+    const failedA = { id: '8', name: 'failed-a.png', url: null, status: 'failed' as const };
+    const failedB = { id: '9', name: 'failed-b.png', url: null, status: 'failed' as const };
+    const deletionA = deferred<string[]>();
+    const deletionB = deferred<string[]>();
+    const service: MediaService = {
+      list: vi
+        .fn()
+        .mockResolvedValue({ list: [failedA, failedB], pagination: { page: 1, pageSize: 24, total: 2, hasMore: false } }),
+      upload: vi.fn(),
+      remove: vi.fn().mockReturnValueOnce(deletionA.promise).mockReturnValueOnce(deletionB.promise),
+    };
+    mountPicker(service);
+
+    document.querySelector('[data-testid="picker-trigger"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flush();
+    const deleteButtons = document.querySelectorAll<HTMLButtonElement>('button.a9-media-picker__delete');
+    deleteButtons[0]?.click();
+    deleteButtons[1]?.click();
+    await flush();
+
+    expect(service.remove).toHaveBeenNthCalledWith(1, ['8']);
+    expect(service.remove).toHaveBeenNthCalledWith(2, ['9']);
+    expect(service.remove).toHaveBeenCalledTimes(2);
+
+    deletionA.resolve(['8']);
+    deletionB.resolve(['9']);
+    await Promise.all([deletionA.promise, deletionB.promise]);
+    await flush();
   });
 
   it('keeps ready media without a URL visible but prevents preview and selection', async () => {

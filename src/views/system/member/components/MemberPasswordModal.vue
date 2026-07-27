@@ -3,8 +3,13 @@
     v-model:visible="visible"
     :title="$t('system.member.password.title')"
     :ok-loading="submitLoading"
+    :mask-closable="!submitLoading"
+    :esc-to-close="!submitLoading"
+    :closable="!submitLoading"
+    :cancel-button-props="{ disabled: submitLoading }"
     unmount-on-close
     @before-ok="onSave"
+    @before-cancel="onBeforeCancel"
     @close="onReset"
   >
     <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
@@ -35,6 +40,7 @@
   const memberId = ref<number>();
   const memberName = ref('');
   const submitLoading = ref(false);
+  let sessionGeneration = 0;
   const formData = reactive({ password: '', password_confirmation: '' });
   const validatePassword = (value: string, callback: (message?: string) => void) => {
     if (!value) {
@@ -59,8 +65,10 @@
     password_confirmation: [{ validator: validateConfirmation }],
   };
   const onReset = () => {
+    sessionGeneration += 1;
     memberId.value = undefined;
     memberName.value = '';
+    submitLoading.value = false;
     formData.password = '';
     formData.password_confirmation = '';
     formRef.value?.resetFields();
@@ -71,21 +79,38 @@
     memberName.value = member.name;
     setVisible(true);
   };
+  const isCurrentSession = (generation: number, targetMemberId: number) =>
+    generation === sessionGeneration && memberId.value === targetMemberId;
+  const onBeforeCancel = () => !submitLoading.value;
   const onSave = async (done: (closed: boolean) => void) => {
-    if ((await formRef.value?.validate()) || memberId.value === undefined) {
+    const requestGeneration = sessionGeneration;
+    const targetMemberId = memberId.value;
+    if (targetMemberId === undefined) {
       done(false);
       return;
     }
+    const errors = await formRef.value?.validate();
+    if (!isCurrentSession(requestGeneration, targetMemberId)) return;
+    if (errors) {
+      done(false);
+      return;
+    }
+    const passwordData = {
+      password: formData.password,
+      password_confirmation: formData.password_confirmation,
+    };
     submitLoading.value = true;
     try {
-      await resetMemberPassword(memberId.value, formData);
+      await resetMemberPassword(targetMemberId, passwordData);
+      if (!isCurrentSession(requestGeneration, targetMemberId)) return;
       Message.success(t('system.member.password.success'));
       emit('success');
       done(true);
     } catch {
+      if (!isCurrentSession(requestGeneration, targetMemberId)) return;
       done(false);
     } finally {
-      submitLoading.value = false;
+      if (isCurrentSession(requestGeneration, targetMemberId)) submitLoading.value = false;
     }
   };
   defineExpose({ onEdit });
