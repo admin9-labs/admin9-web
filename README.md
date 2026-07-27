@@ -119,7 +119,7 @@ pnpm preview
 - 分页参数自动转换：`current -> page`、`pageSize -> page_size`
 - 统一响应体包含：`success`、`code`、`message`、`data`、`request_id`
 - OpenAPI 唯一权威源为 sibling `../admin9-api-laravel/docs/api.json`，当前固定提交为
-  `989a15c0dca4ff390ba2a792a00a6ff1557b0d15`
+  `73a8859065444941881c72a1c04cab3c35c2e57f`
 
 ## 开源协作
 
