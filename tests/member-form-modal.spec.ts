@@ -16,7 +16,9 @@ vi.mock('vue-i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }));
 
 const mountedApps: App[] = [];
 const saveDoneCallbacks: ReturnType<typeof vi.fn>[] = [];
+const saveCompletionPromises: Promise<void>[] = [];
 const successHandler = vi.fn();
+let modalInstanceSerial = 0;
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -47,9 +49,14 @@ const ModalStub = defineComponent({
   },
   emits: ['close', 'update:visible'],
   setup(props, { emit, slots }) {
+    const internalOkLoading = ref(false);
+    modalInstanceSerial += 1;
+    const instanceId = modalInstanceSerial;
     let promiseNumber = 0;
+    const isOkLoading = () => props.okLoading || internalOkLoading.value;
     const close = () => {
       promiseNumber += 1;
+      internalOkLoading.value = false;
       emit('update:visible', false);
       emit('close');
     };
@@ -63,21 +70,29 @@ const ModalStub = defineComponent({
         const done = vi.fn((shouldClose = true) => resolve(shouldClose));
         saveDoneCallbacks.push(done);
         const result = props.onBeforeOk(done);
+        if (result instanceof Promise || typeof result !== 'boolean') internalOkLoading.value = true;
         if (result instanceof Promise) {
           result.then((value) => resolve(value ?? true)).catch(() => resolve(false));
           return;
         }
         if (typeof result === 'boolean') resolve(result);
       });
-      if (currentPromiseNumber === promiseNumber && closed) close();
+      if (currentPromiseNumber !== promiseNumber) return;
+      if (closed) close();
+      else internalOkLoading.value = false;
+    };
+    const triggerOk = () => {
+      if (isOkLoading()) return;
+      saveCompletionPromises.push(handleOk());
     };
     return () =>
       h(
         'section',
         {
           'data-testid': 'member-modal',
+          'data-instance': String(instanceId),
           'data-visible': String(props.visible),
-          'data-loading': String(props.okLoading),
+          'data-loading': String(isOkLoading()),
           'data-mask-closable': String(props.maskClosable),
           'data-esc-to-close': String(props.escToClose),
           'data-closable': String(props.closable),
@@ -87,7 +102,7 @@ const ModalStub = defineComponent({
           slots.default?.(),
           h('button', {
             'data-testid': 'save-member',
-            'onClick': handleOk,
+            'onClick': triggerOk,
           }),
           h('button', {
             'data-testid': 'close-member',
@@ -137,6 +152,14 @@ async function flush() {
   await nextTick();
   await Promise.resolve();
   await nextTick();
+}
+
+async function startSave() {
+  const completionIndex = saveCompletionPromises.length;
+  document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
+  await flush();
+  expect(saveCompletionPromises).toHaveLength(completionIndex + 1);
+  return { completion: saveCompletionPromises[completionIndex] };
 }
 
 async function mountModal() {
@@ -195,6 +218,8 @@ describe('MemberFormModal detail request generation', () => {
     document.body.innerHTML = '<div id="app"></div>';
     vi.clearAllMocks();
     saveDoneCallbacks.length = 0;
+    saveCompletionPromises.length = 0;
+    modalInstanceSerial = 0;
     apiMocks.updateMember.mockResolvedValue({});
     apiMocks.createMember.mockResolvedValue({});
   });
@@ -202,7 +227,8 @@ describe('MemberFormModal detail request generation', () => {
   it('models Arco Promise undefined as permission to close', async () => {
     const visible = await mountBeforeOkContract(async () => undefined);
 
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
+    const { completion } = await startSave();
+    await completion;
     await flush();
 
     expect(visible.value).toBe(false);
@@ -218,9 +244,9 @@ describe('MemberFormModal detail request generation', () => {
     const modal = await mountModal();
 
     await modal.onEdit(1);
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
-    await flush();
     const modalElement = document.querySelector('[data-testid="member-modal"]');
+    const instanceA = modalElement?.getAttribute('data-instance');
+    const { completion: saveACompletion } = await startSave();
     expect(modalElement?.getAttribute('data-loading')).toBe('true');
     expect(modalElement?.getAttribute('data-mask-closable')).toBe('false');
     expect(modalElement?.getAttribute('data-esc-to-close')).toBe('false');
@@ -234,17 +260,23 @@ describe('MemberFormModal detail request generation', () => {
     expect(modalElement?.getAttribute('data-visible')).toBe('true');
 
     await modal.onEdit(2);
+    const modalB = document.querySelector('[data-testid="member-modal"]');
+    expect(modalB?.getAttribute('data-instance')).not.toBe(instanceA);
+    expect(modalB?.getAttribute('data-loading')).toBe('false');
+
+    const { completion: saveBCompletion } = await startSave();
+    expect(modalB?.getAttribute('data-loading')).toBe('true');
     saveA.resolve({});
+    await saveACompletion;
     await flush();
     expect(saveDoneCallbacks[0]).not.toHaveBeenCalled();
     expect(messageMocks.success).not.toHaveBeenCalled();
     expect(successHandler).not.toHaveBeenCalled();
-    expect(modalElement?.getAttribute('data-visible')).toBe('true');
-    expect(modalElement?.getAttribute('data-loading')).toBe('false');
+    expect(modalB?.getAttribute('data-visible')).toBe('true');
+    expect(modalB?.getAttribute('data-loading')).toBe('true');
 
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
-    await flush();
     saveB.resolve({});
+    await saveBCompletion;
     await flush();
     expect(apiMocks.updateMember).toHaveBeenNthCalledWith(1, 1, {
       name: 'Alpha',
@@ -259,8 +291,8 @@ describe('MemberFormModal detail request generation', () => {
     expect(saveDoneCallbacks[1]).toHaveBeenCalledWith(true);
     expect(successHandler).toHaveBeenCalledWith(2);
     expect(messageMocks.success).toHaveBeenCalledWith('system.member.form.updateSuccess');
-    expect(modalElement?.getAttribute('data-visible')).toBe('false');
-    expect(modalElement?.getAttribute('data-loading')).toBe('false');
+    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('false');
+    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-loading')).toBe('false');
   });
 
   it('keeps an older rejection from settling the current session and lets the current failure settle itself', async () => {
@@ -273,19 +305,21 @@ describe('MemberFormModal detail request generation', () => {
     const modal = await mountModal();
 
     await modal.onEdit(1);
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
-    await flush();
+    const { completion: saveACompletion } = await startSave();
     await modal.onEdit(2);
+    const modalB = document.querySelector('[data-testid="member-modal"]');
+    expect(modalB?.getAttribute('data-loading')).toBe('false');
+    const { completion: saveBCompletion } = await startSave();
+    expect(modalB?.getAttribute('data-loading')).toBe('true');
     saveA.reject(new Error('stale failure'));
+    await saveACompletion;
     await flush();
     expect(saveDoneCallbacks[0]).not.toHaveBeenCalled();
-    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('true');
-    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-loading')).toBe('false');
+    expect(modalB?.getAttribute('data-visible')).toBe('true');
+    expect(modalB?.getAttribute('data-loading')).toBe('true');
 
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
-    await flush();
-    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-loading')).toBe('true');
     saveB.reject(new Error('current failure'));
+    await saveBCompletion;
     await flush();
     expect(saveDoneCallbacks[1]).toHaveBeenCalledWith(false);
     expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('true');
@@ -301,19 +335,28 @@ describe('MemberFormModal detail request generation', () => {
     const modal = await mountModal();
 
     modal.onCreate();
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
-    await flush();
+    const instanceA = document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-instance');
+    const { completion: saveACompletion } = await startSave();
     modal.onCreate();
+    await flush();
+    const modalB = document.querySelector('[data-testid="member-modal"]');
+    expect(modalB?.getAttribute('data-instance')).not.toBe(instanceA);
+    expect(modalB?.getAttribute('data-loading')).toBe('false');
+
+    const { completion: saveBCompletion } = await startSave();
+    expect(apiMocks.createMember).toHaveBeenCalledTimes(2);
+    expect(modalB?.getAttribute('data-loading')).toBe('true');
     createA.resolve({});
+    await saveACompletion;
     await flush();
     expect(saveDoneCallbacks[0]).not.toHaveBeenCalled();
-    expect(document.querySelector('[data-testid="member-modal"]')?.getAttribute('data-visible')).toBe('true');
+    expect(modalB?.getAttribute('data-visible')).toBe('true');
+    expect(modalB?.getAttribute('data-loading')).toBe('true');
     expect(messageMocks.success).not.toHaveBeenCalled();
     expect(successHandler).not.toHaveBeenCalled();
 
-    document.querySelector<HTMLButtonElement>('[data-testid="save-member"]')?.click();
-    await flush();
     createB.resolve({});
+    await saveBCompletion;
     await flush();
     expect(saveDoneCallbacks[1]).toHaveBeenCalledWith(true);
     expect(successHandler).toHaveBeenCalledWith(undefined);
