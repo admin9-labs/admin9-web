@@ -1,5 +1,6 @@
 <template>
   <a-modal
+    :key="sessionGeneration"
     v-model:visible="visible"
     :title="$t(isEdit ? 'system.member.form.edit' : 'system.member.form.create')"
     :ok-loading="submitLoading"
@@ -53,7 +54,7 @@
   const editingId = ref<number>();
   const detailLoading = ref(false);
   const submitLoading = ref(false);
-  let sessionGeneration = 0;
+  const sessionGeneration = ref(0);
   const isEdit = computed(() => editingId.value !== undefined);
 
   const getDefaultForm = () => ({
@@ -100,7 +101,7 @@
   };
 
   const onReset = () => {
-    sessionGeneration += 1;
+    sessionGeneration.value += 1;
     editingId.value = undefined;
     detailLoading.value = false;
     submitLoading.value = false;
@@ -113,28 +114,28 @@
   };
   const onEdit = async (memberId: number) => {
     onReset();
-    const requestGeneration = sessionGeneration;
+    const requestGeneration = sessionGeneration.value;
     editingId.value = memberId;
     setVisible(true);
     detailLoading.value = true;
     try {
       const res = await queryMemberDetail(memberId);
-      if (requestGeneration !== sessionGeneration || editingId.value !== memberId) return;
+      if (requestGeneration !== sessionGeneration.value || editingId.value !== memberId) return;
       const { member } = res.data;
       formData.name = member.name;
       formData.email = member.email ?? '';
       formData.mobile = member.mobile ?? '';
     } catch {
-      if (requestGeneration === sessionGeneration && editingId.value === memberId) setVisible(false);
+      if (requestGeneration === sessionGeneration.value && editingId.value === memberId) setVisible(false);
     } finally {
-      if (requestGeneration === sessionGeneration && editingId.value === memberId) detailLoading.value = false;
+      if (requestGeneration === sessionGeneration.value && editingId.value === memberId) detailLoading.value = false;
     }
   };
   const isCurrentSession = (generation: number, targetMemberId: number | undefined) =>
-    generation === sessionGeneration && editingId.value === targetMemberId;
+    generation === sessionGeneration.value && editingId.value === targetMemberId;
   const onBeforeCancel = () => !submitLoading.value;
   const onSave = async (done: (closed: boolean) => void) => {
-    const requestGeneration = sessionGeneration;
+    const requestGeneration = sessionGeneration.value;
     const targetMemberId = editingId.value;
     if (detailLoading.value) {
       done(false);
