@@ -4,8 +4,12 @@
     :title="$t(isEdit ? 'system.member.form.edit' : 'system.member.form.create')"
     :ok-loading="submitLoading"
     :mask-closable="!submitLoading"
+    :esc-to-close="!submitLoading"
+    :closable="!submitLoading"
+    :cancel-button-props="{ disabled: submitLoading }"
     unmount-on-close
     @before-ok="onSave"
+    @before-cancel="onBeforeCancel"
     @close="onReset"
   >
     <a-spin :loading="detailLoading" class="form-spin">
@@ -49,7 +53,7 @@
   const editingId = ref<number>();
   const detailLoading = ref(false);
   const submitLoading = ref(false);
-  let detailRequestGeneration = 0;
+  let sessionGeneration = 0;
   const isEdit = computed(() => editingId.value !== undefined);
 
   const getDefaultForm = () => ({
@@ -96,9 +100,10 @@
   };
 
   const onReset = () => {
-    detailRequestGeneration += 1;
+    sessionGeneration += 1;
     editingId.value = undefined;
     detailLoading.value = false;
+    submitLoading.value = false;
     Object.assign(formData, getDefaultForm());
     formRef.value?.resetFields();
   };
@@ -108,53 +113,68 @@
   };
   const onEdit = async (memberId: number) => {
     onReset();
-    const requestGeneration = detailRequestGeneration;
+    const requestGeneration = sessionGeneration;
     editingId.value = memberId;
     setVisible(true);
     detailLoading.value = true;
     try {
       const res = await queryMemberDetail(memberId);
-      if (requestGeneration !== detailRequestGeneration || editingId.value !== memberId) return;
+      if (requestGeneration !== sessionGeneration || editingId.value !== memberId) return;
       const { member } = res.data;
       formData.name = member.name;
       formData.email = member.email ?? '';
       formData.mobile = member.mobile ?? '';
     } catch {
-      if (requestGeneration === detailRequestGeneration && editingId.value === memberId) setVisible(false);
+      if (requestGeneration === sessionGeneration && editingId.value === memberId) setVisible(false);
     } finally {
-      if (requestGeneration === detailRequestGeneration && editingId.value === memberId) detailLoading.value = false;
+      if (requestGeneration === sessionGeneration && editingId.value === memberId) detailLoading.value = false;
     }
   };
+  const isCurrentSession = (generation: number, targetMemberId: number | undefined) =>
+    generation === sessionGeneration && editingId.value === targetMemberId;
+  const onBeforeCancel = () => !submitLoading.value;
   const onSave = async (done: (closed: boolean) => void) => {
-    if (detailLoading.value || (await formRef.value?.validate())) {
+    const requestGeneration = sessionGeneration;
+    const targetMemberId = editingId.value;
+    if (detailLoading.value) {
       done(false);
       return;
     }
+    const errors = await formRef.value?.validate();
+    if (!isCurrentSession(requestGeneration, targetMemberId)) return;
+    if (errors) {
+      done(false);
+      return;
+    }
+    const identity = {
+      name: formData.name.trim(),
+      email: normalizeIdentifier(formData.email),
+      mobile: normalizeIdentifier(formData.mobile),
+    };
+    const createData = {
+      ...identity,
+      password: formData.password,
+      password_confirmation: formData.password_confirmation,
+      is_active: formData.is_active,
+    } as MemberCreateData;
     submitLoading.value = true;
     try {
-      const identity = {
-        name: formData.name.trim(),
-        email: normalizeIdentifier(formData.email),
-        mobile: normalizeIdentifier(formData.mobile),
-      };
-      if (isEdit.value) {
-        await updateMember(editingId.value as number, identity);
+      if (targetMemberId !== undefined) {
+        await updateMember(targetMemberId, identity);
+        if (!isCurrentSession(requestGeneration, targetMemberId)) return;
         Message.success(t('system.member.form.updateSuccess'));
       } else {
-        await createMember({
-          ...identity,
-          password: formData.password,
-          password_confirmation: formData.password_confirmation,
-          is_active: formData.is_active,
-        } as MemberCreateData);
+        await createMember(createData);
+        if (!isCurrentSession(requestGeneration, targetMemberId)) return;
         Message.success(t('system.member.form.createSuccess'));
       }
-      emit('success', editingId.value);
+      emit('success', targetMemberId);
       done(true);
     } catch {
+      if (!isCurrentSession(requestGeneration, targetMemberId)) return;
       done(false);
     } finally {
-      submitLoading.value = false;
+      if (isCurrentSession(requestGeneration, targetMemberId)) submitLoading.value = false;
     }
   };
   defineExpose({ onCreate, onEdit });
