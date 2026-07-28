@@ -16,7 +16,7 @@ Admin9 Pro 是一个基于 Vue 3、TypeScript、Vite、Arco Design 的企业级�
 ## 技术栈
 
 - 前端框架：Vue 3
-- 构建工具：Vite 3
+- 构建工具：Vite 6
 - 语言：TypeScript
 - UI：Arco Design Vue
 - 路由：Vue Router 4
