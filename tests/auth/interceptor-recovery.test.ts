@@ -124,6 +124,44 @@ describe('authentication interceptor recovery', () => {
     expect(arcoSpies.modalError).not.toHaveBeenCalled();
   });
 
+  it('coalesces concurrent unauthorized requests into one refresh and one replay each', async () => {
+    beginSession();
+    const protectedAuthorizations: unknown[] = [];
+    let refreshRequests = 0;
+
+    axios.defaults.adapter = vi.fn(async (config) => {
+      const path = config.url ?? '';
+      if (path === '/api/admin/auth/refresh') {
+        refreshRequests += 1;
+        return response(config, {
+          success: true,
+          code: 0,
+          data: { ...identity, access_token: 'fresh-access-token' },
+          message: 'OK',
+        });
+      }
+      if (path === '/api/admin/protected') {
+        const authorization = config.headers?.Authorization;
+        protectedAuthorizations.push(authorization);
+        if (authorization === 'Bearer expired-access-token') throw unauthorized(config);
+        return response(config, { success: true, code: 0, data: { authorized: true }, message: 'OK' });
+      }
+      throw new Error(`Unexpected request: ${path}`);
+    });
+
+    await Promise.all([axios.get('/api/admin/protected'), axios.get('/api/admin/protected')]);
+
+    expect(refreshRequests).toBe(1);
+    expect(protectedAuthorizations).toEqual([
+      'Bearer expired-access-token',
+      'Bearer expired-access-token',
+      'Bearer fresh-access-token',
+      'Bearer fresh-access-token',
+    ]);
+    expect(getSessionSnapshot().token).toBe('fresh-access-token');
+    expect(arcoSpies.modalError).not.toHaveBeenCalled();
+  });
+
   it('does not recurse when refresh itself returns 401', async () => {
     beginSession();
     const requests: string[] = [];
