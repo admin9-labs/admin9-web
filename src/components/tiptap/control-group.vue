@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, PropType } from 'vue';
+  import { computed, PropType, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import type { Editor } from '@tiptap/vue-3';
   import { AMediaPicker, type MediaItem } from '@admin9-labs/admin9-ui';
@@ -49,17 +49,20 @@
   const visibleToolbars = computed(() => props.toolbars.filter((option) => option !== 'insertImage' || canViewMedia.value));
 
   // 颜色
-  const textStyleColor = computed(() => {
-    if (props.editor.getAttributes('textStyle').color) {
-      return props.editor.getAttributes('textStyle').color;
-    }
-    return '#000000';
-  });
+  const getTextStyleColor = () => props.editor.getAttributes('textStyle').color || '#000000';
+  const textStyleColor = ref(getTextStyleColor());
+
+  const updateTextStyleColor = (value: string) => {
+    textStyleColor.value = value;
+  };
 
   const setColor = (visible: boolean, value: string) => {
-    if (!visible) {
-      props.editor.chain().focus().setColor(value).run();
+    if (visible) {
+      textStyleColor.value = getTextStyleColor();
+      return;
     }
+
+    props.editor.chain().focus().setColor(value).run();
   };
 
   // 字号
@@ -256,7 +259,13 @@
           </template>
           <!-- 颜色 -->
           <template v-else-if="option === 'color'">
-            <a-color-picker :model-value="textStyleColor" show-history show-preset @popup-visible-change="setColor" />
+            <a-color-picker
+              :model-value="textStyleColor"
+              show-history
+              show-preset
+              @popup-visible-change="setColor"
+              @update:model-value="updateTextStyleColor"
+            />
           </template>
           <!-- 插入图片 -->
           <template v-else-if="option === 'insertImage'">
