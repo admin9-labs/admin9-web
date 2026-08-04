@@ -29,14 +29,18 @@ Admin9 Pro 是一个基于 Vue 3、TypeScript、Vite、Arco Design 的企业级�
 
 ### 1. 环境要求
 
-- Node.js 22.23.1
-- pnpm 10.10.0
+- Node.js >= 22（推荐使用 22.23.1 LTS）
+- npm >= 11 < 12（推荐使用 11.12.1）
 
 ### 2. 安装依赖
 
 ```bash
-pnpm install --frozen-lockfile
+npm ci
 ```
+
+项目通过 `.npmrc` 的 `install-strategy=shallow` 隔离根应用与 workspace 的构建工具链，避免
+`admin9-ui` 的 TypeScript 5 工具被根应用的 TypeScript 4.9 提升覆盖。该布局会增加重复依赖。
+原 pnpm `allowBuilds` 没有 npm 的直接等价配置，`npm ci` 会按 npm 默认行为执行依赖生命周期脚本。
 
 ### 3. 配置环境变量
 
@@ -56,14 +60,14 @@ composer dev
 ### 5. 启动开发环境
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 ### 6. 生产构建与预览
 
 ```bash
-pnpm build
-pnpm preview
+npm run build
+npm run preview
 ```
 
 ## 环境变量
@@ -77,19 +81,19 @@ pnpm preview
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm dev` | 启动开发服务器 |
-| `pnpm build` | Type Check + 打包 |
-| `pnpm build:ui` | 构建内部 `admin9-ui` 包 |
-| `pnpm preview` | 预览生产构建 |
-| `pnpm type:check` | TypeScript 类型检查 |
-| `pnpm test` | 运行 Vitest 测试 |
-| `pnpm lint` | 非修复 ESLint + Stylelint 检查 |
-| `pnpm lint:fix` | 自动修复 ESLint 问题 |
-| `pnpm format` | Prettier + ESLint 格式化 |
-| `pnpm report` | 构建并输出包体积分析 |
-| `pnpm i18n:check` | 检查 i18n Key 完整性 |
-| `pnpm openapi:generate` | 从固定 Laravel 合同生成 API 类型 |
-| `pnpm openapi:check` | 检查生成类型是否漂移 |
+| `npm run dev` | 启动开发服务器 |
+| `npm run build` | Type Check + 打包 |
+| `npm run build:ui` | 构建内部 `admin9-ui` 包 |
+| `npm run preview` | 预览生产构建 |
+| `npm run type:check` | TypeScript 类型检查 |
+| `npm test` | 运行 Vitest 测试 |
+| `npm run lint` | 非修复 ESLint + Stylelint 检查 |
+| `npm run lint:fix` | 自动修复 ESLint 问题 |
+| `npm run format` | Prettier + ESLint 格式化 |
+| `npm run report` | 构建并输出包体积分析 |
+| `npm run i18n:check` | 检查 i18n Key 完整性 |
+| `npm run openapi:generate` | 从固定 Laravel 合同生成 API 类型 |
+| `npm run openapi:check` | 检查生成类型是否漂移 |
 
 ## 认证说明
 

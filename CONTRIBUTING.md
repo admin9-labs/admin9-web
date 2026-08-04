@@ -11,8 +11,8 @@
 你可以运行：
 
 ```bash
-pnpm type:check
-pnpm build
+npm run type:check
+npm run build
 ```
 
 ## 提交规范

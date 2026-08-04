@@ -21,7 +21,7 @@
   import { ref, reactive } from 'vue';
   import { useRouter } from 'vue-router';
   import { useI18n } from 'vue-i18n';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, type FieldRule } from '@arco-design/web-vue';
   import useLoading from '@/hooks/loading';
   import { useUserStore } from '@/store';
   import AgreementNotice from './AgreementNotice.vue';
@@ -37,7 +37,7 @@
     password: '',
   });
 
-  const rules = {
+  const rules: Record<string, FieldRule<string>[]> = {
     email: [
       { required: true, message: t('auth.login.email.required') },
       { type: 'email', message: t('auth.login.email.invalid') },

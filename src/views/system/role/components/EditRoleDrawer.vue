@@ -20,11 +20,7 @@
       <a-form-item :label="$t('system.role.editModal.permissions')" field="permissions">
         <div class="permission-catalog">
           <div v-if="permissionGroups.length > 0" class="permission-toolbar">
-            <a-checkbox
-              :model-value="isAllChecked"
-              :indeterminate="isAllIndeterminate"
-              @change="(checked: boolean) => onSelectAll(checked)"
-            >
+            <a-checkbox :model-value="isAllChecked" :indeterminate="isAllIndeterminate" @change="handleSelectAllChange">
               {{ $t('system.role.editModal.selectAll') }}
             </a-checkbox>
             <a-link :hoverable="false" @click="toggleAllGroups">
@@ -39,7 +35,7 @@
                 :model-value="isGroupChecked(group)"
                 :indeterminate="isGroupIndeterminate(group)"
                 @click.stop
-                @change="(checked: boolean) => onGroupChange(group, checked)"
+                @change="(checked) => handleGroupChange(group, checked)"
               >
                 {{ group.label }}
               </a-checkbox>
@@ -52,7 +48,7 @@
                 :key="permission.name"
                 :model-value="formData.permissions.includes(permission.name)"
                 class="permission-item"
-                @change="(checked: boolean) => onPermissionChange(permission.name, checked)"
+                @change="(checked) => handlePermissionChange(permission.name, checked)"
               >
                 <span class="permission-item-content">
                   <span class="permission-item-title">
@@ -89,6 +85,8 @@
     label: string;
     permissions: PermissionRecord[];
   }
+
+  type CheckboxValue = boolean | (string | number | boolean)[];
 
   const emit = defineEmits<{ (e: 'success'): void }>();
 
@@ -190,6 +188,18 @@
       selected.delete(name);
     }
     formData.permissions = Array.from(selected);
+  };
+
+  const handleSelectAllChange = (value: CheckboxValue) => {
+    if (typeof value === 'boolean') onSelectAll(value);
+  };
+
+  const handleGroupChange = (group: PermissionGroup, value: CheckboxValue) => {
+    if (typeof value === 'boolean') onGroupChange(group, value);
+  };
+
+  const handlePermissionChange = (name: string, value: CheckboxValue) => {
+    if (typeof value === 'boolean') onPermissionChange(name, value);
   };
 
   const onReset = () => {

@@ -1,8 +1,0 @@
-packages:
-  - 'packages/*'
-  - '.'
-allowBuilds:
-  esbuild: true
-  less: true
-  unrs-resolver: true
-  vue-demi: true

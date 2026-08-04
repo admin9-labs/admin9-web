@@ -60,7 +60,7 @@ export default function assertApiContractCheckout(contract: ApiContractCheckout)
 
 function main() {
   if (command !== 'generate' && command !== 'check') {
-    throw new Error('Usage: pnpm openapi:generate|openapi:check');
+    throw new Error('Usage: npm run openapi:generate|openapi:check');
   }
 
   assertApiContractCheckout({ expectedSourceCommit, sourcePath, sourceRepository });
@@ -102,7 +102,7 @@ function main() {
     } else {
       const committed = readFileSync(outputPath, 'utf8').replace(/\r\n/g, '\n');
       if (committed !== generated) {
-        throw new Error('Generated Admin API types are stale. Run pnpm openapi:generate.');
+        throw new Error('Generated Admin API types are stale. Run npm run openapi:generate.');
       }
       process.stdout.write('Admin API generated types are current.\n');
     }

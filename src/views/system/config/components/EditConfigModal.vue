@@ -55,12 +55,13 @@
         />
         <a-input-number
           v-else-if="formData.type === 'integer'"
-          v-model="formData.valueInteger"
+          :model-value="formData.valueInteger ?? undefined"
           :disabled="formData.valueIsNull"
           :precision="0"
           :placeholder="$t('system.config.placeholders.integer')"
           allow-clear
           style="width: 100%"
+          @update:model-value="handleIntegerChange"
         />
         <a-switch
           v-else-if="formData.type === 'boolean'"
@@ -240,8 +241,14 @@
     clearValueValidation();
   };
 
-  const handleTypeChange = (value: string | number | boolean) => {
-    resetValueForType(value as SystemConfigType);
+  const isSystemConfigType = (value: unknown): value is SystemConfigType => SYSTEM_CONFIG_TYPES.some((type) => type === value);
+
+  const handleTypeChange = (value: unknown) => {
+    if (isSystemConfigType(value)) resetValueForType(value);
+  };
+
+  const handleIntegerChange = (value: number | undefined) => {
+    formData.valueInteger = value ?? null;
   };
 
   const resetForm = () => {
