@@ -103,7 +103,7 @@
     "less": "^4.5.1",
     "lint-staged": "^13.3.0",
     "openapi-typescript": "6.7.6",
-    "postcss": "8.5.18",
+    "postcss": "8.5.23",
     "postcss-html": "^1.8.1",
     "postcss-less": "^6.0.0",
     "prettier": "^2.8.8",
