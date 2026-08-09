@@ -8,18 +8,7 @@
         <div class="auth-title font-brand">欢迎使用 {{ appStore?.app_name }}</div>
         <!-- 登录 -->
         <template v-if="$route.name === 'login'">
-          <Login v-model:login-type="loginType" />
-          <div class="text-center text-sm">
-            <a-divider> 其他登录方式 </a-divider>
-            <a-space size="large" class="mt-4">
-              <icon-wechat size="32px" style="color: #1aad19" />
-              <icon-google size="28px" style="color: #4285f4" />
-              <icon-github size="26px" />
-            </a-space>
-            <div v-if="loginType === 'password'" class="mt-10">
-              没有账号？ <a-link class="text-sm" @click="onRegister">现在就注册</a-link>
-            </div>
-          </div>
+          <Login />
         </template>
 
         <!-- 注册 -->
@@ -58,35 +47,27 @@
     },
   });
 
-  // 登录方式
-  const loginType = ref<'password' | 'phone' | 'mail'>('password');
-
   // 注册方式
   const registerType = ref<'password' | 'phone'>('phone');
 
   const onLogin = () => {
-    loginType.value = 'phone';
     router.push({ name: 'login' });
-  };
-
-  const onRegister = () => {
-    registerType.value = 'phone';
-    router.push({ name: 'register' });
   };
 </script>
 
 <style lang="less" scoped>
   .auth-container {
-    background-image: url(assets/images/login-bg.png);
-    background-position: 50%;
-    background-repeat: no-repeat;
-    background-size: cover;
     display: flex;
     height: 100vh;
+    background-image: url('assets/images/login-bg.png');
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-size: cover;
 
     .auth-title {
       @apply font-bold;
       @apply text-left;
+
       color: var(--color-text-1);
     }
 
@@ -95,11 +76,12 @@
 
       &-inner {
         @apply w-full p-6 lg:p-10;
-        background: var(--color-bg-white);
-        border-radius: 12px;
+
         max-width: 500px;
         height: 620px;
         overflow: hidden;
+        background: var(--color-bg-white);
+        border-radius: 12px;
       }
     }
 
