@@ -77,3 +77,67 @@ test('server menu leaves retain the route shape expected by the menu renderer', 
   );
   assert.equal('children' in filtered[0].children[0], false);
 });
+
+test('empty server menu directories are filtered out', () => {
+  const routes = [
+    {
+      path: '/system',
+      name: 'system',
+      meta: { requiresAuth: true },
+      children: [],
+    },
+  ] as unknown as RouteRecordNormalized[];
+  const backendMenus = [menu({ code: 'system', type: 'directory' })];
+
+  assert.deepEqual(filterLocalAdminMenus(routes, backendMenus), []);
+});
+
+test('server menu order and access filtering are preserved', () => {
+  const routes = [
+    {
+      path: '/system',
+      name: 'system',
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'roles',
+          name: 'SystemRole',
+          meta: { requiresAuth: true, permissions: ['system.role.view'] },
+        },
+        {
+          path: 'permissions',
+          name: 'SystemPermission',
+          meta: { requiresAuth: true, permissions: ['system.permission.view'] },
+        },
+        {
+          path: 'users',
+          name: 'SystemUser',
+          meta: { requiresAuth: true, permissions: ['system.user.view'] },
+        },
+        {
+          path: 'logs',
+          name: 'SystemLog',
+          meta: { requiresAuth: true, permissions: ['system.log.view'] },
+        },
+      ],
+    },
+  ] as unknown as RouteRecordNormalized[];
+  const backendMenus = [
+    menu({
+      code: 'system',
+      type: 'directory',
+      children: [
+        menu({ code: 'system.permissions', type: 'page' }),
+        menu({ code: 'system.roles', type: 'page' }),
+        menu({ code: 'system.users', type: 'page', is_visible: false }),
+      ],
+    }),
+  ];
+
+  const filtered = filterLocalAdminMenus(routes, backendMenus);
+
+  assert.deepEqual(
+    filtered[0].children.map((route) => route.name),
+    ['SystemPermission', 'SystemRole']
+  );
+});
