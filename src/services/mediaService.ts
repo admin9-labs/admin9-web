@@ -1,16 +1,7 @@
-import axios from 'axios';
 import type { MediaItem, MediaListParams, MediaListResult, MediaService, MediaUploadOptions } from '@admin9-labs/admin9-ui';
-import type { operations } from '@/api/generated/admin-api';
-import type {
-  AdminMedia,
-  AdminMediaDestroyResponse,
-  AdminMediaListResponse,
-  AdminMediaStoreResponse,
-} from '@/api/generated/contracts';
+import { deleteMedia, queryMediaList, uploadMedia, type MediaRecord } from '@/api/system/media';
 
-const MEDIA_ENDPOINT = '/api/admin/media';
-
-export function toMediaItem(media: AdminMedia): MediaItem {
+export function toMediaItem(media: MediaRecord): MediaItem {
   return {
     id: String(media.id),
     name: media.name,
@@ -38,12 +29,11 @@ const mediaService: MediaService = {
     if (params.mediaType !== 'image' || (params.groupId !== undefined && params.groupId !== null)) {
       return { list: [], pagination: { page: params.page, pageSize: params.pageSize, total: 0, hasMore: false } };
     }
-    const query: NonNullable<operations['admin.media.index']['parameters']['query']> = {
+    const response = await queryMediaList({
       page: params.page,
       per_page: params.pageSize,
       search: params.keyword || undefined,
-    };
-    const response = await axios.get<unknown, AdminMediaListResponse>(MEDIA_ENDPOINT, { params: query });
+    });
     return {
       list: response.data.map(toMediaItem),
       pagination: {
@@ -56,18 +46,15 @@ const mediaService: MediaService = {
   },
   async upload(options: MediaUploadOptions) {
     if (options.mediaType !== 'image') throw new Error('The current backend only accepts image media');
-    const formData = new FormData();
-    formData.append('file', options.file);
-    const response = await axios.post<unknown, AdminMediaStoreResponse>(MEDIA_ENDPOINT, formData, {
-      onUploadProgress: (event: ProgressEvent) => {
-        if (event.total) options.onProgress?.(Math.round((event.loaded / event.total) * 100));
-      },
+    const response = await uploadMedia({
+      file: options.file,
+      onProgress: options.onProgress,
       signal: options.signal,
     });
     return toMediaItem(response.data.media);
   },
   async remove(ids: string[]) {
-    await Promise.all(ids.map((id) => axios.delete<unknown, AdminMediaDestroyResponse>(`${MEDIA_ENDPOINT}/${mediaId(id)}`)));
+    await Promise.all(ids.map((id) => deleteMedia(mediaId(id))));
     return ids;
   },
 };

@@ -14,6 +14,7 @@
     "test:auth-session": "tsx --test scripts/auth-session.test.ts",
     "test:admin-menu": "tsx --test scripts/admin-menu.test.ts",
     "test:admin-editor": "tsx --test scripts/admin-editor.test.ts",
+    "test:api-contract": "tsx --test scripts/admin-api-contract.test.ts",
     "test:unit": "pnpm test:auth-session && pnpm test:admin-menu && pnpm test:admin-editor",
     "openapi:generate": "tsx scripts/openapi-contract.ts generate",
     "openapi:check": "tsx scripts/openapi-contract.ts check",

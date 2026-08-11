@@ -1,50 +1,40 @@
 import axios from 'axios';
-import type {
-  AdminChangePasswordRequest,
-  AdminChangePasswordResponse,
-  AdminIdentityResponse,
-  AdminLoginRequest,
-  AdminLoginResponse,
-  AdminLogoutResponse,
-  AdminMenu,
-  AdminMenuTreeResponse,
-  AdminRefreshResponse,
-} from '@/api/generated/contracts';
+import type { components, operations } from '@/api/generated/admin-api';
+import type { ApiOperationResponse } from '@/api/openapi';
 
-export type LoginData = AdminLoginRequest;
-export type LoginRes = AdminLoginResponse['data'];
-export type AuthIdentityRes = AdminIdentityResponse['data'];
-export type { AdminMenu };
+export type LoginData = operations['admin.auth.login']['requestBody']['content']['application/json'];
+export type LoginRes = ApiOperationResponse<'admin.auth.login', 200>['data'];
+export type AuthIdentityRes = ApiOperationResponse<'admin.auth.me', 200>['data'];
+export type AdminMenu = components['schemas']['MenuResource'];
 
-const ADMIN_AUTH_ENDPOINTS = {
-  login: '/api/admin/auth/login',
-  refresh: '/api/admin/auth/refresh',
-  logout: '/api/admin/auth/logout',
-  me: '/api/admin/auth/me',
-  password: '/api/admin/auth/password',
-  menus: '/api/admin/menus/tree',
-} as const;
+type LoginResponse = ApiOperationResponse<'admin.auth.login', 200>;
+type RefreshResponse = ApiOperationResponse<'admin.auth.refresh', 200>;
+type LogoutResponse = ApiOperationResponse<'admin.auth.logout', 200>;
+type IdentityResponse = ApiOperationResponse<'admin.auth.me', 200>;
+type MenuTreeResponse = ApiOperationResponse<'admin.menus.tree', 200>;
+type ChangePasswordData = operations['admin.auth.password.update']['requestBody']['content']['application/json'];
+type ChangePasswordResponse = ApiOperationResponse<'admin.auth.password.update', 200>;
 
-export function login(data: LoginData): Promise<AdminLoginResponse> {
-  return axios.post<unknown, AdminLoginResponse>(ADMIN_AUTH_ENDPOINTS.login, data);
+export function login(data: LoginData): Promise<LoginResponse> {
+  return axios.post<unknown, LoginResponse>('/api/admin/auth/login', data);
 }
 
-export function refreshToken(): Promise<AdminRefreshResponse> {
-  return axios.post<unknown, AdminRefreshResponse>(ADMIN_AUTH_ENDPOINTS.refresh);
+export function refreshToken(): Promise<RefreshResponse> {
+  return axios.post<unknown, RefreshResponse>('/api/admin/auth/refresh');
 }
 
-export function logout(): Promise<AdminLogoutResponse> {
-  return axios.post<unknown, AdminLogoutResponse>(ADMIN_AUTH_ENDPOINTS.logout);
+export function logout(): Promise<LogoutResponse> {
+  return axios.post<unknown, LogoutResponse>('/api/admin/auth/logout');
 }
 
-export function getUserInfo(): Promise<AdminIdentityResponse> {
-  return axios.get<unknown, AdminIdentityResponse>(ADMIN_AUTH_ENDPOINTS.me);
+export function getUserInfo(): Promise<IdentityResponse> {
+  return axios.get<unknown, IdentityResponse>('/api/admin/auth/me');
 }
 
-export function getMenuList(): Promise<AdminMenuTreeResponse> {
-  return axios.get<unknown, AdminMenuTreeResponse>(ADMIN_AUTH_ENDPOINTS.menus);
+export function getMenuList(): Promise<MenuTreeResponse> {
+  return axios.get<unknown, MenuTreeResponse>('/api/admin/menus/tree');
 }
 
-export function changePassword(data: AdminChangePasswordRequest): Promise<AdminChangePasswordResponse> {
-  return axios.put<unknown, AdminChangePasswordResponse>(ADMIN_AUTH_ENDPOINTS.password, data);
+export function changePassword(data: ChangePasswordData): Promise<ChangePasswordResponse> {
+  return axios.put<unknown, ChangePasswordResponse>('/api/admin/auth/password', data);
 }

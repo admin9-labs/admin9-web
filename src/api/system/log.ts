@@ -1,21 +1,19 @@
 import axios from 'axios';
-import type { AdminActivityLogListResponse, AdminLoginLogListResponse } from '@/api/generated/contracts';
+import type { components } from '@/api/generated/admin-api';
+import type { ApiOperationResponse } from '@/api/openapi';
 
-export type LogProperties = Record<string, unknown> | unknown[];
-export type LogDateRange = [string, string];
+type GeneratedActivityLogRecord = components['schemas']['ActivityLogResource'];
+type GeneratedLoginLogRecord = components['schemas']['LoginLogResource'];
 
-export interface ActivityLogRecord {
-  id: number;
-  log_name: string | null;
-  event: string | null;
-  description: string;
-  subject_type: string | null;
-  subject_id: number | null;
-  causer_type: string | null;
-  causer_id: number | null;
+// Empty PHP arrays may be serialized as JSON arrays even though OpenAPI describes objects.
+export type LogProperties = GeneratedActivityLogRecord['properties'] | GeneratedLoginLogRecord['context'] | unknown[];
+export interface ActivityLogRecord extends Omit<GeneratedActivityLogRecord, 'properties'> {
   properties: LogProperties;
-  created_at: string | null;
 }
+export interface LoginLogRecord extends Omit<GeneratedLoginLogRecord, 'context'> {
+  context: LogProperties;
+}
+export type LogDateRange = [string, string];
 
 export interface ActivityLogListParams {
   log_name?: string;
@@ -24,25 +22,9 @@ export interface ActivityLogListParams {
   subject_id?: string;
   causer_id?: string;
   created_at?: LogDateRange;
-  sort?: string;
+  sorts?: string;
   current?: number;
   pageSize?: number;
-}
-
-export interface LoginLogRecord {
-  id: number;
-  guard: string;
-  account: string | null;
-  subject_type: string | null;
-  subject_id: number | null;
-  event: string;
-  successful: boolean;
-  failure_reason: string | null;
-  ip_address: string | null;
-  user_agent: string | null;
-  request_id: string | null;
-  context: LogProperties;
-  created_at: string | null;
 }
 
 export interface LoginLogListParams {
@@ -53,10 +35,17 @@ export interface LoginLogListParams {
   subject_id?: string;
   ip_address?: string;
   created_at?: LogDateRange;
-  sort?: string;
+  sorts?: string;
   current?: number;
   pageSize?: number;
 }
+
+type ActivityLogListResponse = Omit<ApiOperationResponse<'admin.activity-logs.index', 200>, 'data'> & {
+  data: ActivityLogRecord[];
+};
+type LoginLogListResponse = Omit<ApiOperationResponse<'admin.login-logs.index', 200>, 'data'> & {
+  data: LoginLogRecord[];
+};
 
 function serializeLogParams(params: Record<string, unknown>) {
   const searchParams = new URLSearchParams();
@@ -82,14 +71,14 @@ function serializeLogParams(params: Record<string, unknown>) {
 }
 
 export function queryActivityLogList(params?: ActivityLogListParams) {
-  return axios.get<unknown, AdminActivityLogListResponse>('/api/admin/activity-logs', {
+  return axios.get<unknown, ActivityLogListResponse>('/api/admin/activity-logs', {
     params,
     paramsSerializer: serializeLogParams,
   });
 }
 
 export function queryLoginLogList(params?: LoginLogListParams) {
-  return axios.get<unknown, AdminLoginLogListResponse>('/api/admin/login-logs', {
+  return axios.get<unknown, LoginLogListResponse>('/api/admin/login-logs', {
     params,
     paramsSerializer: serializeLogParams,
   });

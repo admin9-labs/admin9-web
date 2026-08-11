@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message } from '@arco-design/web-vue';
-import type { AdminRefreshResponse } from '@/api/generated/contracts';
+import type { ApiOperationResponse } from '@/api/openapi';
 import { clearToken, getSessionSnapshot, replaceToken } from '@/utils/auth';
 import { sessionRetryDecision, type AuthSessionSnapshot } from '@/utils/auth-session';
 
@@ -35,7 +35,6 @@ interface RefreshFlight {
   promise: Promise<string>;
 }
 
-const REFRESH_PATH = '/api/admin/auth/refresh';
 let refreshFlight: RefreshFlight | null = null;
 
 function requestPath(config?: AxiosRequestConfig) {
@@ -62,7 +61,7 @@ async function refreshAccessToken(expected: AuthSessionSnapshot) {
   if (refreshFlight?.key === key) return refreshFlight.promise;
 
   const promise = axios
-    .post<unknown, AdminRefreshResponse>(REFRESH_PATH, undefined, {
+    .post<unknown, ApiOperationResponse<'admin.auth.refresh', 200>>('/api/admin/auth/refresh', undefined, {
       headers: { Authorization: `Bearer ${expected.token}` },
       admin9SessionGeneration: expected.generation,
       admin9RequestToken: expected.token,

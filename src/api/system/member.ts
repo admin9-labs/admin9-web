@@ -1,18 +1,8 @@
 import axios from 'axios';
 import type { components, operations } from '@/api/generated/admin-api';
-import type {
-  AdminEmptyResponse,
-  AdminMember,
-  AdminMemberCreateResponse,
-  AdminMemberListResponse,
-  AdminMemberPasswordResponse,
-  AdminMemberResponse,
-  AdminMemberSessionResponse,
-  AdminMemberStatusResponse,
-  AdminMemberUpdateResponse,
-} from '@/api/generated/contracts';
+import type { ApiOperationResponse } from '@/api/openapi';
 
-export type MemberRecord = AdminMember;
+export type MemberRecord = components['schemas']['App.Http.Resources.Admin.MemberResource'];
 export type MemberCreateData = components['schemas']['StoreMemberRequest'];
 export type MemberUpdateData = components['schemas']['UpdateMemberRequest'];
 export type MemberStatusData = components['schemas']['UpdateMemberStatusRequest'];
@@ -20,34 +10,38 @@ export type MemberPasswordData = components['schemas']['ResetMemberPasswordReque
 
 export type MemberListParams = NonNullable<operations['admin.members.index']['parameters']['query']>;
 
-const memberEndpoint = (memberId?: number) => `/api/admin/members${memberId === undefined ? '' : `/${memberId}`}`;
+type MemberListResponse = ApiOperationResponse<'admin.members.index', 200>;
+type MemberCreateResponse = ApiOperationResponse<'admin.members.store', 200>;
+type MemberDetailResponse = ApiOperationResponse<'admin.members.show', 200>;
+type MemberUpdateResponse = ApiOperationResponse<'admin.members.update', 200>;
+type MemberStatusResponse = ApiOperationResponse<'admin.members.update-status', 200>;
+type MemberPasswordResponse = ApiOperationResponse<'admin.members.reset-password', 200>;
+type MemberSessionResponse = ApiOperationResponse<'admin.members.invalidate-sessions', 200>;
 
-export function queryMemberList(params?: MemberListParams): Promise<AdminMemberListResponse> {
-  return axios.get<unknown, AdminMemberListResponse>(memberEndpoint(), { params });
+export function queryMemberList(params?: MemberListParams): Promise<MemberListResponse> {
+  return axios.get<unknown, MemberListResponse>('/api/admin/members', { params });
 }
 
-export function createMember(data: MemberCreateData): Promise<AdminMemberCreateResponse> {
-  return axios.post<unknown, AdminMemberCreateResponse>(memberEndpoint(), data);
+export function createMember(data: MemberCreateData): Promise<MemberCreateResponse> {
+  return axios.post<unknown, MemberCreateResponse>('/api/admin/members', data);
 }
 
-export function queryMemberDetail(memberId: number): Promise<AdminMemberResponse> {
-  return axios.get<unknown, AdminMemberResponse>(memberEndpoint(memberId));
+export function queryMemberDetail(memberId: number): Promise<MemberDetailResponse> {
+  return axios.get<unknown, MemberDetailResponse>(`/api/admin/members/${memberId}`);
 }
 
-export function updateMember(memberId: number, data: MemberUpdateData): Promise<AdminMemberUpdateResponse> {
-  return axios.put<unknown, AdminMemberUpdateResponse>(memberEndpoint(memberId), data);
+export function updateMember(memberId: number, data: MemberUpdateData): Promise<MemberUpdateResponse> {
+  return axios.put<unknown, MemberUpdateResponse>(`/api/admin/members/${memberId}`, data);
 }
 
-export function updateMemberStatus(memberId: number, data: MemberStatusData): Promise<AdminMemberStatusResponse> {
-  return axios.put<unknown, AdminMemberStatusResponse>(`${memberEndpoint(memberId)}/status`, data);
+export function updateMemberStatus(memberId: number, data: MemberStatusData): Promise<MemberStatusResponse> {
+  return axios.put<unknown, MemberStatusResponse>(`/api/admin/members/${memberId}/status`, data);
 }
 
-export function resetMemberPassword(memberId: number, data: MemberPasswordData): Promise<AdminMemberPasswordResponse> {
-  return axios.put<unknown, AdminMemberPasswordResponse>(`${memberEndpoint(memberId)}/password`, data);
+export function resetMemberPassword(memberId: number, data: MemberPasswordData): Promise<MemberPasswordResponse> {
+  return axios.put<unknown, MemberPasswordResponse>(`/api/admin/members/${memberId}/password`, data);
 }
 
-export function invalidateMemberSessions(memberId: number): Promise<AdminMemberSessionResponse> {
-  return axios.post<unknown, AdminMemberSessionResponse>(`${memberEndpoint(memberId)}/invalidate-sessions`);
+export function invalidateMemberSessions(memberId: number): Promise<MemberSessionResponse> {
+  return axios.post<unknown, MemberSessionResponse>(`/api/admin/members/${memberId}/invalidate-sessions`);
 }
-
-export type MemberEmptyResponse = AdminEmptyResponse;

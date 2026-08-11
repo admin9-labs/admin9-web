@@ -1,6 +1,8 @@
 import axios from 'axios';
+import type { components } from '@/api/generated/admin-api';
 import type { PermissionRecord } from './permission';
 
+// OpenAPI declares RoleResource.id as string, but runtime responses and role path parameters use integers.
 export interface RoleRecord {
   id: number;
   name: string;
@@ -10,19 +12,9 @@ export interface RoleRecord {
   updated_at: string | null;
 }
 
-export interface RoleCreateData {
-  name: string;
-  permissions?: string[];
-}
-
-export interface RoleUpdateData {
-  name: string;
-  permissions?: string[];
-}
-
-export interface RolePermissionsData {
-  permissions: string[];
-}
+export type RoleCreateData = components['schemas']['StoreRoleRequest'];
+export type RoleUpdateData = components['schemas']['UpdateRoleRequest'];
+export type RolePermissionsData = components['schemas']['SyncRolePermissionsRequest'];
 
 interface RoleResponseData {
   role: RoleRecord;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { components, operations } from '@/api/generated/admin-api';
-import type { AdminOperationResponse } from '@/api/generated/contracts';
+import type { ApiOperationResponse } from '@/api/openapi';
 
 export const SYSTEM_CONFIG_TYPES = ['string', 'text', 'integer', 'boolean', 'json'] as const;
 
@@ -16,10 +16,11 @@ export interface SystemConfigRecord extends Omit<GeneratedSystemConfig, 'type'> 
 }
 
 export interface SystemConfigListParams
-  extends Omit<GeneratedSystemConfigParams, 'type' | 'is_public' | 'is_active' | 'page' | 'page_size'> {
+  extends Omit<GeneratedSystemConfigParams, 'type' | 'is_public' | 'is_active' | 'sort' | 'page' | 'page_size'> {
   type?: SystemConfigType;
   is_public?: boolean;
   is_active?: boolean;
+  sorts?: string;
   current?: number;
   pageSize?: number;
 }
@@ -40,21 +41,19 @@ export type SystemConfigRequestData = Omit<SystemConfigWriteData, 'value'> & {
   value: string | null;
 };
 
-type SystemConfigListResponse = Omit<AdminOperationResponse<'admin.system-configs.index', 200>, 'data'> & {
+type SystemConfigListResponse = Omit<ApiOperationResponse<'admin.system-configs.index', 200>, 'data'> & {
   data: SystemConfigRecord[];
 };
-type SystemConfigResponse = Omit<AdminOperationResponse<'admin.system-configs.show', 200>, 'data'> & {
+type SystemConfigResponse = Omit<ApiOperationResponse<'admin.system-configs.show', 200>, 'data'> & {
   data: { system_config: SystemConfigRecord };
 };
-type SystemConfigCreateResponse = Omit<AdminOperationResponse<'admin.system-configs.store', 200>, 'data'> & {
+type SystemConfigCreateResponse = Omit<ApiOperationResponse<'admin.system-configs.store', 200>, 'data'> & {
   data: { system_config: SystemConfigRecord };
 };
-type SystemConfigUpdateResponse = Omit<AdminOperationResponse<'admin.system-configs.update', 200>, 'data'> & {
+type SystemConfigUpdateResponse = Omit<ApiOperationResponse<'admin.system-configs.update', 200>, 'data'> & {
   data: { system_config: SystemConfigRecord };
 };
-type SystemConfigDeleteResponse = AdminOperationResponse<'admin.system-configs.destroy', 200>;
-
-const SYSTEM_CONFIG_URL = '/api/admin/system-configs';
+type SystemConfigDeleteResponse = ApiOperationResponse<'admin.system-configs.destroy', 200>;
 
 export function serializeSystemConfigValue(value: SystemConfigValue, type: SystemConfigType): string | null {
   if (value === null) return null;
@@ -86,21 +85,21 @@ export function serializeSystemConfigPayload(data: SystemConfigWriteData): Syste
 }
 
 export function querySystemConfigList(params?: SystemConfigListParams) {
-  return axios.get<unknown, SystemConfigListResponse>(SYSTEM_CONFIG_URL, { params });
+  return axios.get<unknown, SystemConfigListResponse>('/api/admin/system-configs', { params });
 }
 
 export function querySystemConfigDetail(id: number) {
-  return axios.get<unknown, SystemConfigResponse>(`${SYSTEM_CONFIG_URL}/${id}`);
+  return axios.get<unknown, SystemConfigResponse>(`/api/admin/system-configs/${id}`);
 }
 
 export function createSystemConfig(data: SystemConfigWriteData) {
-  return axios.post<unknown, SystemConfigCreateResponse>(SYSTEM_CONFIG_URL, serializeSystemConfigPayload(data));
+  return axios.post<unknown, SystemConfigCreateResponse>('/api/admin/system-configs', serializeSystemConfigPayload(data));
 }
 
 export function updateSystemConfig(id: number, data: SystemConfigWriteData) {
-  return axios.put<unknown, SystemConfigUpdateResponse>(`${SYSTEM_CONFIG_URL}/${id}`, serializeSystemConfigPayload(data));
+  return axios.put<unknown, SystemConfigUpdateResponse>(`/api/admin/system-configs/${id}`, serializeSystemConfigPayload(data));
 }
 
 export function deleteSystemConfig(id: number) {
-  return axios.delete<unknown, SystemConfigDeleteResponse>(`${SYSTEM_CONFIG_URL}/${id}`);
+  return axios.delete<unknown, SystemConfigDeleteResponse>(`/api/admin/system-configs/${id}`);
 }
