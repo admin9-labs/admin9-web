@@ -71,14 +71,14 @@ function serializeLogParams(params: Record<string, unknown>) {
 }
 
 export function queryActivityLogList(params?: ActivityLogListParams) {
-  return axios.get<unknown, ActivityLogListResponse>('/api/admin/activity-logs', {
+  return axios.get<unknown, ActivityLogListResponse>('/admin/activity-logs', {
     params,
     paramsSerializer: serializeLogParams,
   });
 }
 
 export function queryLoginLogList(params?: LoginLogListParams) {
-  return axios.get<unknown, LoginLogListResponse>('/api/admin/login-logs', {
+  return axios.get<unknown, LoginLogListResponse>('/admin/login-logs', {
     params,
     paramsSerializer: serializeLogParams,
   });

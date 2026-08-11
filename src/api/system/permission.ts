@@ -12,21 +12,21 @@ type PermissionUpdateResponse = ApiOperationResponse<'admin.permissions.update',
 type PermissionDeleteResponse = ApiOperationResponse<'admin.permissions.destroy', 200>;
 
 export function queryPermissionList() {
-  return axios.get<unknown, PermissionListResponse>('/api/admin/permissions');
+  return axios.get<unknown, PermissionListResponse>('/admin/permissions');
 }
 
 export function queryPermissionDetail(permissionId: number) {
-  return axios.get<unknown, PermissionDetailResponse>(`/api/admin/permissions/${permissionId}`);
+  return axios.get<unknown, PermissionDetailResponse>(`/admin/permissions/${permissionId}`);
 }
 
 export function createPermission(data: PermissionCreateData) {
-  return axios.post<unknown, PermissionCreateResponse>('/api/admin/permissions', data);
+  return axios.post<unknown, PermissionCreateResponse>('/admin/permissions', data);
 }
 
 export function updatePermission(permissionId: number, data: PermissionUpdateData) {
-  return axios.put<unknown, PermissionUpdateResponse>(`/api/admin/permissions/${permissionId}`, data);
+  return axios.put<unknown, PermissionUpdateResponse>(`/admin/permissions/${permissionId}`, data);
 }
 
 export function deletePermission(permissionId: number) {
-  return axios.delete<unknown, PermissionDeleteResponse>(`/api/admin/permissions/${permissionId}`);
+  return axios.delete<unknown, PermissionDeleteResponse>(`/admin/permissions/${permissionId}`);
 }

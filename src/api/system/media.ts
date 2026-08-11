@@ -16,14 +16,14 @@ interface MediaUploadData extends Omit<MediaUploadRequest, 'file'> {
 }
 
 export function queryMediaList(params: MediaListParams): Promise<MediaListResponse> {
-  return axios.get<unknown, MediaListResponse>('/api/admin/media', { params });
+  return axios.get<unknown, MediaListResponse>('/admin/media', { params });
 }
 
 export function uploadMedia(data: MediaUploadData): Promise<MediaUploadResponse> {
   const formData = new FormData();
   formData.append('file', data.file);
 
-  return axios.post<unknown, MediaUploadResponse>('/api/admin/media', formData, {
+  return axios.post<unknown, MediaUploadResponse>('/admin/media', formData, {
     onUploadProgress: (event: ProgressEvent) => {
       if (event.total) data.onProgress?.(Math.round((event.loaded / event.total) * 100));
     },
@@ -32,5 +32,5 @@ export function uploadMedia(data: MediaUploadData): Promise<MediaUploadResponse>
 }
 
 export function deleteMedia(mediaId: MediaId): Promise<MediaDeleteResponse> {
-  return axios.delete<unknown, MediaDeleteResponse>(`/api/admin/media/${mediaId}`);
+  return axios.delete<unknown, MediaDeleteResponse>(`/admin/media/${mediaId}`);
 }

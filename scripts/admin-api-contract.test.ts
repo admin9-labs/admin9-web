@@ -32,14 +32,14 @@ type AxiosCall = {
 };
 
 function splitLiteralPath(value: string): string[] | undefined {
-  if (!value.startsWith('/api/admin/') || value.includes('?') || value.includes('#')) return undefined;
+  if (!value.startsWith('/admin/') || value.includes('?') || value.includes('#')) return undefined;
   return value.split('/').slice(1);
 }
 
 function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[]; error?: string } {
   if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
     const segments = splitLiteralPath(expression.text);
-    return segments ? { segments } : { error: 'URL must be a direct /api/admin/* path without a query string or fragment' };
+    return segments ? { segments } : { error: 'URL must be a direct /admin/* path without a query string or fragment' };
   }
 
   if (!ts.isTemplateExpression(expression)) {
@@ -53,7 +53,7 @@ function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[];
 
   const rawSegments = splitLiteralPath(value);
   if (!rawSegments) {
-    return { error: 'URL must be a direct /api/admin/* path without a query string or fragment' };
+    return { error: 'URL must be a direct /admin/* path without a query string or fragment' };
   }
 
   if (rawSegments.some((segment) => segment.includes('\0') && !/^\0\d+\0$/.test(segment))) {
@@ -95,7 +95,9 @@ function collectAxiosCalls(filePath: string): AxiosCall[] {
 }
 
 function openApiPathMatches(openapiPathname: string, frontendSegments: RouteSegment[]): boolean {
-  const openapiSegments = openapiPathname.split('/').slice(1);
+  const contractSegments = openapiPathname.split('/').slice(1);
+  const openapiSegments =
+    contractSegments[0] === 'api' && contractSegments[1] === 'admin' ? contractSegments.slice(1) : contractSegments;
   if (openapiSegments.length !== frontendSegments.length) return false;
 
   return frontendSegments.every((segment, index) => {
@@ -118,21 +120,21 @@ function findMatchingOpenApiPath(
 test('the AST parser rejects hidden and partially dynamic URLs', () => {
   assert.match(parseAxiosPath(ts.factory.createIdentifier('USER_ENDPOINT')).error ?? '', /written directly/);
 
-  const partialSegment = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/api/admin/users/user-'), [
+  const partialSegment = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/admin/users/user-'), [
     ts.factory.createTemplateSpan(ts.factory.createIdentifier('userId'), ts.factory.createTemplateTail('')),
   ]);
   assert.match(parseAxiosPath(partialSegment).error ?? '', /complete URL path segment/);
 });
 
 test('template path segments match OpenAPI parameters and methods exactly', () => {
-  const templatePath = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/api/admin/users/'), [
+  const templatePath = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/admin/users/'), [
     ts.factory.createTemplateSpan(ts.factory.createIdentifier('userId'), ts.factory.createTemplateTail('/roles')),
   ]);
   const parsed = parseAxiosPath(templatePath);
   assert.ok(parsed.segments);
 
-  const paths = { '/api/admin/users/{user}/roles': { put: {} } };
-  assert.equal(findMatchingOpenApiPath(paths, 'put', parsed.segments), '/api/admin/users/{user}/roles');
+  const paths = { '/admin/users/{user}/roles': { put: {} } };
+  assert.equal(findMatchingOpenApiPath(paths, 'put', parsed.segments), '/admin/users/{user}/roles');
   assert.equal(findMatchingOpenApiPath(paths, 'post', parsed.segments), undefined);
 });
 

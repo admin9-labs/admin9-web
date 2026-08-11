@@ -85,21 +85,21 @@ export function serializeSystemConfigPayload(data: SystemConfigWriteData): Syste
 }
 
 export function querySystemConfigList(params?: SystemConfigListParams) {
-  return axios.get<unknown, SystemConfigListResponse>('/api/admin/system-configs', { params });
+  return axios.get<unknown, SystemConfigListResponse>('/admin/system-configs', { params });
 }
 
 export function querySystemConfigDetail(id: number) {
-  return axios.get<unknown, SystemConfigResponse>(`/api/admin/system-configs/${id}`);
+  return axios.get<unknown, SystemConfigResponse>(`/admin/system-configs/${id}`);
 }
 
 export function createSystemConfig(data: SystemConfigWriteData) {
-  return axios.post<unknown, SystemConfigCreateResponse>('/api/admin/system-configs', serializeSystemConfigPayload(data));
+  return axios.post<unknown, SystemConfigCreateResponse>('/admin/system-configs', serializeSystemConfigPayload(data));
 }
 
 export function updateSystemConfig(id: number, data: SystemConfigWriteData) {
-  return axios.put<unknown, SystemConfigUpdateResponse>(`/api/admin/system-configs/${id}`, serializeSystemConfigPayload(data));
+  return axios.put<unknown, SystemConfigUpdateResponse>(`/admin/system-configs/${id}`, serializeSystemConfigPayload(data));
 }
 
 export function deleteSystemConfig(id: number) {
-  return axios.delete<unknown, SystemConfigDeleteResponse>(`/api/admin/system-configs/${id}`);
+  return axios.delete<unknown, SystemConfigDeleteResponse>(`/admin/system-configs/${id}`);
 }

@@ -19,29 +19,29 @@ type MemberPasswordResponse = ApiOperationResponse<'admin.members.reset-password
 type MemberSessionResponse = ApiOperationResponse<'admin.members.invalidate-sessions', 200>;
 
 export function queryMemberList(params?: MemberListParams): Promise<MemberListResponse> {
-  return axios.get<unknown, MemberListResponse>('/api/admin/members', { params });
+  return axios.get<unknown, MemberListResponse>('/admin/members', { params });
 }
 
 export function createMember(data: MemberCreateData): Promise<MemberCreateResponse> {
-  return axios.post<unknown, MemberCreateResponse>('/api/admin/members', data);
+  return axios.post<unknown, MemberCreateResponse>('/admin/members', data);
 }
 
 export function queryMemberDetail(memberId: number): Promise<MemberDetailResponse> {
-  return axios.get<unknown, MemberDetailResponse>(`/api/admin/members/${memberId}`);
+  return axios.get<unknown, MemberDetailResponse>(`/admin/members/${memberId}`);
 }
 
 export function updateMember(memberId: number, data: MemberUpdateData): Promise<MemberUpdateResponse> {
-  return axios.put<unknown, MemberUpdateResponse>(`/api/admin/members/${memberId}`, data);
+  return axios.put<unknown, MemberUpdateResponse>(`/admin/members/${memberId}`, data);
 }
 
 export function updateMemberStatus(memberId: number, data: MemberStatusData): Promise<MemberStatusResponse> {
-  return axios.put<unknown, MemberStatusResponse>(`/api/admin/members/${memberId}/status`, data);
+  return axios.put<unknown, MemberStatusResponse>(`/admin/members/${memberId}/status`, data);
 }
 
 export function resetMemberPassword(memberId: number, data: MemberPasswordData): Promise<MemberPasswordResponse> {
-  return axios.put<unknown, MemberPasswordResponse>(`/api/admin/members/${memberId}/password`, data);
+  return axios.put<unknown, MemberPasswordResponse>(`/admin/members/${memberId}/password`, data);
 }
 
 export function invalidateMemberSessions(memberId: number): Promise<MemberSessionResponse> {
-  return axios.post<unknown, MemberSessionResponse>(`/api/admin/members/${memberId}/invalidate-sessions`);
+  return axios.post<unknown, MemberSessionResponse>(`/admin/members/${memberId}/invalidate-sessions`);
 }

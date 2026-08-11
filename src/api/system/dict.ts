@@ -44,41 +44,41 @@ type DictItemUpdateResponse = ApiOperationResponse<'admin.dictionary-items.updat
 type DictItemDeleteResponse = ApiOperationResponse<'admin.dictionary-items.destroy', 200>;
 
 export function queryDictTypeList(params?: DictTypeListParams) {
-  return axios.get<unknown, DictTypeListResponse>('/api/admin/dictionary-types', { params });
+  return axios.get<unknown, DictTypeListResponse>('/admin/dictionary-types', { params });
 }
 
 export function queryDictTypeDetail(id: number) {
-  return axios.get<unknown, DictTypeDetailResponse>(`/api/admin/dictionary-types/${id}`);
+  return axios.get<unknown, DictTypeDetailResponse>(`/admin/dictionary-types/${id}`);
 }
 
 export function createDictType(data: DictTypeCreateData) {
-  return axios.post<unknown, DictTypeCreateResponse>('/api/admin/dictionary-types', data);
+  return axios.post<unknown, DictTypeCreateResponse>('/admin/dictionary-types', data);
 }
 
 export function updateDictType(id: number, data: DictTypeUpdateData) {
-  return axios.put<unknown, DictTypeUpdateResponse>(`/api/admin/dictionary-types/${id}`, data);
+  return axios.put<unknown, DictTypeUpdateResponse>(`/admin/dictionary-types/${id}`, data);
 }
 
 export function deleteDictType(id: number) {
-  return axios.delete<unknown, DictTypeDeleteResponse>(`/api/admin/dictionary-types/${id}`);
+  return axios.delete<unknown, DictTypeDeleteResponse>(`/admin/dictionary-types/${id}`);
 }
 
 export function queryDictItemList(params?: DictItemListParams) {
-  return axios.get<unknown, DictItemListResponse>('/api/admin/dictionary-items', { params });
+  return axios.get<unknown, DictItemListResponse>('/admin/dictionary-items', { params });
 }
 
 export function queryDictItemDetail(id: number) {
-  return axios.get<unknown, DictItemDetailResponse>(`/api/admin/dictionary-items/${id}`);
+  return axios.get<unknown, DictItemDetailResponse>(`/admin/dictionary-items/${id}`);
 }
 
 export function createDictItem(data: DictItemCreateData) {
-  return axios.post<unknown, DictItemCreateResponse>('/api/admin/dictionary-items', data);
+  return axios.post<unknown, DictItemCreateResponse>('/admin/dictionary-items', data);
 }
 
 export function updateDictItem(id: number, data: DictItemUpdateData) {
-  return axios.put<unknown, DictItemUpdateResponse>(`/api/admin/dictionary-items/${id}`, data);
+  return axios.put<unknown, DictItemUpdateResponse>(`/admin/dictionary-items/${id}`, data);
 }
 
 export function deleteDictItem(id: number) {
-  return axios.delete<unknown, DictItemDeleteResponse>(`/api/admin/dictionary-items/${id}`);
+  return axios.delete<unknown, DictItemDeleteResponse>(`/admin/dictionary-items/${id}`);
 }

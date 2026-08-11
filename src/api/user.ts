@@ -16,25 +16,25 @@ type ChangePasswordData = operations['admin.auth.password.update']['requestBody'
 type ChangePasswordResponse = ApiOperationResponse<'admin.auth.password.update', 200>;
 
 export function login(data: LoginData): Promise<LoginResponse> {
-  return axios.post<unknown, LoginResponse>('/api/admin/auth/login', data);
+  return axios.post<unknown, LoginResponse>('/admin/auth/login', data);
 }
 
 export function refreshToken(): Promise<RefreshResponse> {
-  return axios.post<unknown, RefreshResponse>('/api/admin/auth/refresh');
+  return axios.post<unknown, RefreshResponse>('/admin/auth/refresh');
 }
 
 export function logout(): Promise<LogoutResponse> {
-  return axios.post<unknown, LogoutResponse>('/api/admin/auth/logout');
+  return axios.post<unknown, LogoutResponse>('/admin/auth/logout');
 }
 
 export function getUserInfo(): Promise<IdentityResponse> {
-  return axios.get<unknown, IdentityResponse>('/api/admin/auth/me');
+  return axios.get<unknown, IdentityResponse>('/admin/auth/me');
 }
 
 export function getMenuList(): Promise<MenuTreeResponse> {
-  return axios.get<unknown, MenuTreeResponse>('/api/admin/menus/tree');
+  return axios.get<unknown, MenuTreeResponse>('/admin/menus/tree');
 }
 
 export function changePassword(data: ChangePasswordData): Promise<ChangePasswordResponse> {
-  return axios.put<unknown, ChangePasswordResponse>('/api/admin/auth/password', data);
+  return axios.put<unknown, ChangePasswordResponse>('/admin/auth/password', data);
 }

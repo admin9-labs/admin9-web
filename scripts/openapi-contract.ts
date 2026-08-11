@@ -11,19 +11,32 @@ const sourcePath = path.resolve(workspaceRoot, process.env.ADMIN9_OPENAPI_PATH ?
 const outputPath = path.join(workspaceRoot, 'src/api/generated/admin-api.ts');
 const command = process.argv[2];
 
-function assertExpectedContract() {
-  const schema = JSON.parse(readFileSync(sourcePath, 'utf8')) as {
-    info?: { title?: string };
-    paths?: Record<string, unknown>;
-  };
+type OpenApiSchema = {
+  info?: { title?: string };
+  paths?: Record<string, unknown>;
+};
+
+function normalizeAdminPaths(schema: OpenApiSchema): OpenApiSchema {
+  const paths = Object.fromEntries(
+    Object.entries(schema.paths ?? {}).map(([pathname, operations]) => {
+      const segments = pathname.split('/');
+      const publicPath = segments[1] === 'api' && segments[2] === 'admin' ? pathname.slice(4) : pathname;
+      return [publicPath, operations];
+    })
+  );
+
+  return { ...schema, paths };
+}
+
+function assertExpectedContract(schema: OpenApiSchema) {
   const requiredPaths = [
-    '/api/admin/auth/login',
-    '/api/admin/auth/refresh',
-    '/api/admin/auth/password',
-    '/api/admin/menus/tree',
-    '/api/admin/users',
-    '/api/admin/members',
-    '/api/admin/media',
+    '/admin/auth/login',
+    '/admin/auth/refresh',
+    '/admin/auth/password',
+    '/admin/menus/tree',
+    '/admin/users',
+    '/admin/members',
+    '/admin/media',
   ];
 
   if (schema.info?.title !== 'Admin9 API Laravel' || requiredPaths.some((endpoint) => !schema.paths?.[endpoint])) {
@@ -31,9 +44,9 @@ function assertExpectedContract() {
   }
 }
 
-function generateTypes(targetPath: string) {
+function generateTypes(contractPath: string, targetPath: string) {
   const cliPath = require.resolve('openapi-typescript/bin/cli.js');
-  const result = spawnSync(process.execPath, [cliPath, sourcePath, '--output', targetPath, '--alphabetize'], {
+  const result = spawnSync(process.execPath, [cliPath, contractPath, '--output', targetPath, '--alphabetize'], {
     cwd: workspaceRoot,
     encoding: 'utf8',
   });
@@ -48,12 +61,15 @@ function main() {
     throw new Error('Usage: pnpm openapi:generate|pnpm openapi:check');
   }
 
-  assertExpectedContract();
   const tempDirectory = mkdtempSync(path.join(tmpdir(), 'admin9-openapi-'));
+  const normalizedSourcePath = path.join(tempDirectory, 'api.json');
   const tempOutput = path.join(tempDirectory, 'admin-api.ts');
 
   try {
-    generateTypes(tempOutput);
+    const schema = normalizeAdminPaths(JSON.parse(readFileSync(sourcePath, 'utf8')) as OpenApiSchema);
+    assertExpectedContract(schema);
+    writeFileSync(normalizedSourcePath, `${JSON.stringify(schema)}\n`, 'utf8');
+    generateTypes(normalizedSourcePath, tempOutput);
     const generated = readFileSync(tempOutput, 'utf8').replace(/\r\n/g, '\n');
 
     if (command === 'generate') {

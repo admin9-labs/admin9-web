@@ -61,7 +61,7 @@ async function refreshAccessToken(expected: AuthSessionSnapshot) {
   if (refreshFlight?.key === key) return refreshFlight.promise;
 
   const promise = axios
-    .post<unknown, ApiOperationResponse<'admin.auth.refresh', 200>>('/api/admin/auth/refresh', undefined, {
+    .post<unknown, ApiOperationResponse<'admin.auth.refresh', 200>>('/admin/auth/refresh', undefined, {
       headers: { Authorization: `Bearer ${expected.token}` },
       admin9SessionGeneration: expected.generation,
       admin9RequestToken: expected.token,

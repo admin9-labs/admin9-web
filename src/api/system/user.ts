@@ -23,29 +23,29 @@ type UserRoleSyncResponse = ApiOperationResponse<'admin.users.roles.update', 200
 
 export function queryUserList(params?: UserListParams): Promise<UserListResponse> {
   const pageParams = params?.current ? { current: params.current } : undefined;
-  return axios.get<unknown, UserListResponse>('/api/admin/users', { params: pageParams });
+  return axios.get<unknown, UserListResponse>('/admin/users', { params: pageParams });
 }
 
 export function createUser(data: UserCreateData): Promise<UserCreateResponse> {
-  return axios.post<unknown, UserCreateResponse>('/api/admin/users', data);
+  return axios.post<unknown, UserCreateResponse>('/admin/users', data);
 }
 
 export function queryUserDetail(userId: number): Promise<UserDetailResponse> {
-  return axios.get<unknown, UserDetailResponse>(`/api/admin/users/${userId}`);
+  return axios.get<unknown, UserDetailResponse>(`/admin/users/${userId}`);
 }
 
 export function updateUser(userId: number, data: UserUpdateData): Promise<UserUpdateResponse> {
-  return axios.put<unknown, UserUpdateResponse>(`/api/admin/users/${userId}`, data);
+  return axios.put<unknown, UserUpdateResponse>(`/admin/users/${userId}`, data);
 }
 
 export function deleteUser(userId: number): Promise<UserDeleteResponse> {
-  return axios.delete<unknown, UserDeleteResponse>(`/api/admin/users/${userId}`);
+  return axios.delete<unknown, UserDeleteResponse>(`/admin/users/${userId}`);
 }
 
 export function resetUserPassword(userId: number, data: UserPasswordData): Promise<UserPasswordResponse> {
-  return axios.put<unknown, UserPasswordResponse>(`/api/admin/users/${userId}/password`, data);
+  return axios.put<unknown, UserPasswordResponse>(`/admin/users/${userId}/password`, data);
 }
 
 export function syncUserRoles(userId: number, data: UserRoleSyncData): Promise<UserRoleSyncResponse> {
-  return axios.put<unknown, UserRoleSyncResponse>(`/api/admin/users/${userId}/roles`, data);
+  return axios.put<unknown, UserRoleSyncResponse>(`/admin/users/${userId}/roles`, data);
 }

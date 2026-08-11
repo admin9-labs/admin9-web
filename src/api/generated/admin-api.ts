@@ -5,31 +5,31 @@
 
 
 export interface paths {
-  "/api/admin/activity-logs": {
+  "/admin/activity-logs": {
     get: operations["admin.activity-logs.index"];
   };
-  "/api/admin/auth/login": {
+  "/admin/auth/login": {
     post: operations["admin.auth.login"];
   };
-  "/api/admin/auth/logout": {
+  "/admin/auth/logout": {
     post: operations["admin.auth.logout"];
   };
-  "/api/admin/auth/me": {
+  "/admin/auth/me": {
     get: operations["admin.auth.me"];
   };
-  "/api/admin/auth/password": {
+  "/admin/auth/password": {
     put: operations["admin.auth.password.update"];
   };
-  "/api/admin/auth/refresh": {
+  "/admin/auth/refresh": {
     post: operations["admin.auth.refresh"];
   };
-  "/api/admin/dictionary-items": {
+  "/admin/dictionary-items": {
     /** Display a listing of the resource */
     get: operations["admin.dictionary-items.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.dictionary-items.store"];
   };
-  "/api/admin/dictionary-items/{dictionaryItem}": {
+  "/admin/dictionary-items/{dictionaryItem}": {
     /** Display the specified resource */
     get: operations["admin.dictionary-items.show"];
     /** Update the specified resource in storage */
@@ -37,13 +37,13 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.dictionary-items.destroy"];
   };
-  "/api/admin/dictionary-types": {
+  "/admin/dictionary-types": {
     /** Display a listing of the resource */
     get: operations["admin.dictionary-types.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.dictionary-types.store"];
   };
-  "/api/admin/dictionary-types/{dictionaryType}": {
+  "/admin/dictionary-types/{dictionaryType}": {
     /** Display the specified resource */
     get: operations["admin.dictionary-types.show"];
     /** Update the specified resource in storage */
@@ -51,40 +51,40 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.dictionary-types.destroy"];
   };
-  "/api/admin/login-logs": {
+  "/admin/login-logs": {
     get: operations["admin.login-logs.index"];
   };
-  "/api/admin/media": {
+  "/admin/media": {
     get: operations["admin.media.index"];
     post: operations["admin.media.store"];
   };
-  "/api/admin/media/{media}": {
+  "/admin/media/{media}": {
     delete: operations["admin.media.destroy"];
   };
-  "/api/admin/members": {
+  "/admin/members": {
     get: operations["admin.members.index"];
     post: operations["admin.members.store"];
   };
-  "/api/admin/members/{member}": {
+  "/admin/members/{member}": {
     get: operations["admin.members.show"];
     put: operations["admin.members.update"];
   };
-  "/api/admin/members/{member}/invalidate-sessions": {
+  "/admin/members/{member}/invalidate-sessions": {
     post: operations["admin.members.invalidate-sessions"];
   };
-  "/api/admin/members/{member}/password": {
+  "/admin/members/{member}/password": {
     put: operations["admin.members.reset-password"];
   };
-  "/api/admin/members/{member}/status": {
+  "/admin/members/{member}/status": {
     put: operations["admin.members.update-status"];
   };
-  "/api/admin/menus": {
+  "/admin/menus": {
     /** Return the complete bounded admin menu catalog for management UIs */
     get: operations["admin.menus.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.menus.store"];
   };
-  "/api/admin/menus/{menu}": {
+  "/admin/menus/{menu}": {
     /** Display the specified resource */
     get: operations["admin.menus.show"];
     /** Update the specified resource in storage */
@@ -92,17 +92,17 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.menus.destroy"];
   };
-  "/api/admin/menus/tree": {
+  "/admin/menus/tree": {
     /** Return the complete bounded visible menu tree for admin shell navigation */
     get: operations["admin.menus.tree"];
   };
-  "/api/admin/permissions": {
+  "/admin/permissions": {
     /** Return the complete bounded RBAC permission catalog for configuration UIs */
     get: operations["admin.permissions.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.permissions.store"];
   };
-  "/api/admin/permissions/{permission}": {
+  "/admin/permissions/{permission}": {
     /** Display the specified resource */
     get: operations["admin.permissions.show"];
     /** Update the specified resource in storage */
@@ -110,13 +110,13 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.permissions.destroy"];
   };
-  "/api/admin/roles": {
+  "/admin/roles": {
     /** Return the complete bounded admin role catalog for assignment UIs */
     get: operations["admin.roles.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.roles.store"];
   };
-  "/api/admin/roles/{role}": {
+  "/admin/roles/{role}": {
     /** Display the specified resource */
     get: operations["admin.roles.show"];
     /** Update the specified resource in storage */
@@ -124,16 +124,16 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.roles.destroy"];
   };
-  "/api/admin/roles/{role}/permissions": {
+  "/admin/roles/{role}/permissions": {
     put: operations["admin.roles.permissions.update"];
   };
-  "/api/admin/system-configs": {
+  "/admin/system-configs": {
     /** Display a listing of the resource */
     get: operations["admin.system-configs.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.system-configs.store"];
   };
-  "/api/admin/system-configs/{systemConfig}": {
+  "/admin/system-configs/{systemConfig}": {
     /** Display the specified resource */
     get: operations["admin.system-configs.show"];
     /** Update the specified resource in storage */
@@ -141,13 +141,13 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.system-configs.destroy"];
   };
-  "/api/admin/users": {
+  "/admin/users": {
     /** Display a listing of the resource */
     get: operations["admin.users.index"];
     /** Store a newly created resource in storage */
     post: operations["admin.users.store"];
   };
-  "/api/admin/users/{user}": {
+  "/admin/users/{user}": {
     /** Display the specified resource */
     get: operations["admin.users.show"];
     /** Update the specified resource in storage */
@@ -155,10 +155,10 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.users.destroy"];
   };
-  "/api/admin/users/{user}/password": {
+  "/admin/users/{user}/password": {
     put: operations["admin.users.password.update"];
   };
-  "/api/admin/users/{user}/roles": {
+  "/admin/users/{user}/roles": {
     put: operations["admin.users.roles.update"];
   };
   "/api/auth/login": {
