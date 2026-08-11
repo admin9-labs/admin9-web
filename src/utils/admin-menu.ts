@@ -48,11 +48,14 @@ function filterRoutes(routes: RouteRecordNormalized[], access: Map<string, MenuR
       if (!routeAccess && children.length === 0) return null;
       if (routeAccess?.type === 'directory' && children.length === 0) return null;
 
-      return {
+      const filteredRoute = {
         ...route,
         meta: { ...route.meta, ...(routeAccess ? { order: routeAccess.order } : {}) },
-        children,
       } as RouteRecordNormalized;
+      if (children.length > 0) filteredRoute.children = children;
+      else Reflect.deleteProperty(filteredRoute, 'children');
+
+      return filteredRoute;
     })
     .filter((route): route is RouteRecordNormalized => route !== null)
     .sort((left, right) => (left.meta.order ?? 0) - (right.meta.order ?? 0));
