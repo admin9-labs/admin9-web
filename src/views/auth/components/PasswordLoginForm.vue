@@ -2,13 +2,13 @@
   <div class="login-container">
     <a-form ref="loginForm" :model="userInfo" :rules="rules" layout="vertical" size="large" @submit-success="handleSubmit">
       <a-form-item field="email" :validate-trigger="['change', 'blur']" required hide-label>
-        <a-input v-model="userInfo.email" type="email" placeholder="请输入管理员邮箱" allow-clear />
+        <a-input v-model="userInfo.email" type="email" :placeholder="$t('login.form.email.placeholder')" allow-clear />
       </a-form-item>
       <a-form-item field="password" :validate-trigger="['change', 'blur']" required hide-label>
-        <a-input-password v-model="userInfo.password" type="password" placeholder="请输入登录密码" />
+        <a-input-password v-model="userInfo.password" type="password" :placeholder="$t('login.form.password.placeholder')" />
       </a-form-item>
       <a-form-item hide-label>
-        <AgreementNotice type="login" />
+        <AgreementNotice />
       </a-form-item>
       <a-form-item hide-label>
         <a-button type="primary" html-type="submit" long :loading="loading"> 登录 </a-button>
@@ -40,12 +40,12 @@
 
   const rules = {
     email: [
-      { required: true, message: '请输入管理员邮箱' },
-      { type: 'email', message: '请输入有效的邮箱地址' },
+      { required: true, message: t('login.form.email.required') },
+      { type: 'email', message: t('login.form.email.invalid') },
     ],
     password: [
-      { required: true, message: '请输入登录密码' },
-      { min: 6, max: 20, message: '密码长度在 6 到 20 个字符之间' },
+      { required: true, message: t('login.form.password.errMsg') },
+      { maxLength: 255, message: t('login.form.password.maxLength') },
     ],
   };
 

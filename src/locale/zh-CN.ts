@@ -3,8 +3,17 @@ import localeLogin from '@/views/auth/locale/zh-CN';
 
 import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
 import localeUserInfo from '@/views/user/info/locale/zh-CN';
+import localeSystemRole from '@/views/system/roles/locale/zh-CN';
+import localeSystemPermission from '@/views/system/permissions/locale/zh-CN';
+import localeSystemUser from '@/views/system/users/locale/zh-CN';
+import localeSystemMember from '@/views/system/members/locale/zh-CN';
+import localeSystemMenu from '@/views/system/menus/locale/zh-CN';
+import localeSystemDict from '@/views/system/dictionaries/locale/zh-CN';
+import localeSystemConfig from '@/views/system/configs/locale/zh-CN';
+import localeSystemLog from '@/views/system/log/locale/zh-CN';
 
 import localeSettings from './zh-CN/settings';
+import localeCommon from './zh-CN/common';
 
 export default {
   'menu.dashboard': '仪表盘',
@@ -18,6 +27,7 @@ export default {
   'menu.profile': '详情页',
   'menu.visualization': '数据可视化',
   'menu.user': '账号管理',
+  'menu.system': '系统管理',
   'menu.arcoWebsite': 'Arco Design',
   'menu.faq': '常见问题',
   'navbar.docs': '文档中心',
@@ -25,8 +35,17 @@ export default {
   'menu.form.tiptap': '富文本',
 
   ...localeSettings,
+  ...localeCommon,
   ...localeMessageBox,
   ...localeLogin,
   ...localeWorkplace,
   ...localeUserInfo,
+  ...localeSystemRole,
+  ...localeSystemPermission,
+  ...localeSystemUser,
+  ...localeSystemMember,
+  ...localeSystemMenu,
+  ...localeSystemDict,
+  ...localeSystemConfig,
+  ...localeSystemLog,
 };

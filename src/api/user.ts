@@ -1,74 +1,50 @@
 import axios from 'axios';
-import type { RouteRecordNormalized } from 'vue-router';
+import type {
+  AdminChangePasswordRequest,
+  AdminChangePasswordResponse,
+  AdminIdentityResponse,
+  AdminLoginRequest,
+  AdminLoginResponse,
+  AdminLogoutResponse,
+  AdminMenu,
+  AdminMenuTreeResponse,
+  AdminRefreshResponse,
+} from '@/api/generated/contracts';
 
-export interface LoginData {
-  email: string;
-  password: string;
+export type LoginData = AdminLoginRequest;
+export type LoginRes = AdminLoginResponse['data'];
+export type AuthIdentityRes = AdminIdentityResponse['data'];
+export type { AdminMenu };
+
+const ADMIN_AUTH_ENDPOINTS = {
+  login: '/api/admin/auth/login',
+  refresh: '/api/admin/auth/refresh',
+  logout: '/api/admin/auth/logout',
+  me: '/api/admin/auth/me',
+  password: '/api/admin/auth/password',
+  menus: '/api/admin/menus/tree',
+} as const;
+
+export function login(data: LoginData): Promise<AdminLoginResponse> {
+  return axios.post<unknown, AdminLoginResponse>(ADMIN_AUTH_ENDPOINTS.login, data);
 }
 
-export interface AdminRole {
-  id: number;
-  name: string;
-  guard_name: string;
-  created_at: string | null;
-  updated_at: string | null;
+export function refreshToken(): Promise<AdminRefreshResponse> {
+  return axios.post<unknown, AdminRefreshResponse>(ADMIN_AUTH_ENDPOINTS.refresh);
 }
 
-export interface AdminUser {
-  id: number;
-  name: string;
-  email: string;
-  is_active: boolean;
-  last_login_at: string | null;
-  last_login_ip: string | null;
-  roles: AdminRole[];
-  created_at: string | null;
-  updated_at: string | null;
+export function logout(): Promise<AdminLogoutResponse> {
+  return axios.post<unknown, AdminLogoutResponse>(ADMIN_AUTH_ENDPOINTS.logout);
 }
 
-export interface AuthIdentity {
-  user: AdminUser;
-  permission_names: string[];
+export function getUserInfo(): Promise<AdminIdentityResponse> {
+  return axios.get<unknown, AdminIdentityResponse>(ADMIN_AUTH_ENDPOINTS.me);
 }
 
-export interface LoginRes extends AuthIdentity {
-  access_token: string;
-  token_type: 'bearer';
-  expires_in: number;
+export function getMenuList(): Promise<AdminMenuTreeResponse> {
+  return axios.get<unknown, AdminMenuTreeResponse>(ADMIN_AUTH_ENDPOINTS.menus);
 }
 
-export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/admin/auth/login', data);
-}
-
-export function logout() {
-  return axios.post<Record<string, never>>('/api/admin/auth/logout');
-}
-
-export function getUserInfo() {
-  return axios.get<AuthIdentity>('/api/admin/auth/me');
-}
-
-export function getMenuList() {
-  return axios.post<RouteRecordNormalized[]>('/api/user/menu');
-}
-
-export interface RegisterData {
-  phone: string;
-  code: string;
-  password: string;
-  invite_code?: string;
-}
-
-export function register(data: RegisterData) {
-  return axios.post('/api/user/register', data);
-}
-
-// 上传头像
-export function uploadAvatar(data: FormData) {
-  return axios.post('/api/user/upload-avatar', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+export function changePassword(data: AdminChangePasswordRequest): Promise<AdminChangePasswordResponse> {
+  return axios.put<unknown, AdminChangePasswordResponse>(ADMIN_AUTH_ENDPOINTS.password, data);
 }

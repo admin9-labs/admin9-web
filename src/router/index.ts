@@ -35,15 +35,6 @@ const router = createRouter({
             locale: 'auth.login',
           },
         },
-        {
-          path: 'register',
-          name: 'register',
-          component: () => import('@/views/auth/register.vue'),
-          meta: {
-            requiresAuth: false,
-            locale: 'auth.register',
-          },
-        },
       ],
     },
     ...appRoutes,

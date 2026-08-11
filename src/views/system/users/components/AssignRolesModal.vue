@@ -1,0 +1,107 @@
+<template>
+  <a-modal
+    v-model:visible="visible"
+    :title="$t('system.user.rolesModal.title')"
+    :ok-loading="submitLoading"
+    :mask-closable="!submitLoading"
+    unmount-on-close
+    @before-ok="onSave"
+    @close="onReset"
+  >
+    <a-spin :loading="detailLoading" class="form-spin">
+      <a-form ref="formRef" :model="formData" layout="vertical">
+        <a-form-item :label="$t('system.user.rolesModal.roles')" field="roles">
+          <a-select v-model="formData.roles" :placeholder="$t('system.user.rolesModal.roles.placeholder')" allow-clear multiple>
+            <a-option v-for="role in roleOptions" :key="role.id" :value="role.name">
+              {{ role.name }}
+            </a-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+    </a-spin>
+  </a-modal>
+</template>
+
+<script lang="ts" setup>
+  import { reactive, ref } from 'vue';
+  import { Message, type FormInstance } from '@arco-design/web-vue';
+  import { useI18n } from 'vue-i18n';
+  import { useVisible } from '@/hooks';
+  import { queryRoleList, type RoleRecord } from '@/api/system/role';
+  import { queryUserDetail, syncUserRoles } from '@/api/system/user';
+  import { isCurrentEditorRequest } from '@/utils/async-editor';
+
+  const emit = defineEmits<{ success: [userId: number] }>();
+
+  const { t } = useI18n();
+  const { visible, setVisible } = useVisible(false);
+  const formRef = ref<FormInstance>();
+  const editingId = ref<number>();
+  const roleOptions = ref<RoleRecord[]>([]);
+  const reservedRoleNames = new Set(['super-admin', 'system-admin']);
+  const detailLoading = ref(false);
+  const submitLoading = ref(false);
+  const formData = reactive({ roles: [] as string[] });
+  let editorGeneration = 0;
+
+  const onReset = () => {
+    editorGeneration += 1;
+    editingId.value = undefined;
+    roleOptions.value = [];
+    formData.roles = [];
+    detailLoading.value = false;
+    submitLoading.value = false;
+    formRef.value?.resetFields();
+  };
+
+  const onEdit = async (userId: number, allowReservedRoles: boolean) => {
+    onReset();
+    const request = { generation: editorGeneration, target: userId };
+    editingId.value = userId;
+    setVisible(true);
+    detailLoading.value = true;
+    try {
+      const [userRes, roleRes] = await Promise.all([queryUserDetail(userId), queryRoleList()]);
+      if (!isCurrentEditorRequest(editorGeneration, editingId.value, request)) return;
+      roleOptions.value = allowReservedRoles ? roleRes.data : roleRes.data.filter((role) => !reservedRoleNames.has(role.name));
+      formData.roles = (userRes.data.user.roles ?? []).map((role) => role.name);
+    } catch {
+      if (isCurrentEditorRequest(editorGeneration, editingId.value, request)) setVisible(false);
+    } finally {
+      if (isCurrentEditorRequest(editorGeneration, editingId.value, request)) detailLoading.value = false;
+    }
+  };
+
+  const onSave = async (done: (closed: boolean) => void) => {
+    const request = { generation: editorGeneration, target: editingId.value };
+    if (detailLoading.value || request.target === undefined) {
+      done(false);
+      return false;
+    }
+
+    submitLoading.value = true;
+    const roles = [...formData.roles];
+    try {
+      await syncUserRoles(request.target, { roles });
+      if (!isCurrentEditorRequest(editorGeneration, editingId.value, request)) return false;
+      Message.success(t('system.user.rolesModal.success'));
+      emit('success', request.target);
+      done(true);
+      return true;
+    } catch {
+      if (!isCurrentEditorRequest(editorGeneration, editingId.value, request)) return false;
+      done(false);
+      return false;
+    } finally {
+      if (isCurrentEditorRequest(editorGeneration, editingId.value, request)) submitLoading.value = false;
+    }
+  };
+
+  defineExpose({ onEdit });
+</script>
+
+<style scoped lang="less">
+  .form-spin {
+    width: 100%;
+  }
+</style>

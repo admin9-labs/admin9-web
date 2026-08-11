@@ -1,14 +1,19 @@
 import { defineStore } from 'pinia';
-import { Notification } from '@arco-design/web-vue';
-import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized } from 'vue-router';
 import defaultSettings from '@/config/settings.json';
 import { getMenuList } from '@/api/user';
-import { AppState } from './types';
+import { appRoutes } from '@/router/routes';
+import { filterLocalAdminMenus, isCurrentMenuRequest } from '@/utils/admin-menu';
+import { getSessionSnapshot } from '@/utils/auth';
+import { AppState, type AppSettings } from './types';
 
 const useAppStore = defineStore('app', {
-  state: (): AppState => ({ ...defaultSettings }),
-
+  state: (): AppState => ({
+    ...defaultSettings,
+    serverMenu: [] as RouteRecordNormalized[],
+    serverMenuStatus: 'idle',
+    serverMenuRequestId: 0,
+  }),
   getters: {
     appCurrentSetting(state: AppState): AppState {
       return { ...state };
@@ -17,26 +22,17 @@ const useAppStore = defineStore('app', {
       return state.device;
     },
     appAsyncMenus(state: AppState): RouteRecordNormalized[] {
-      return state.serverMenu as unknown as RouteRecordNormalized[];
+      return state.serverMenu as RouteRecordNormalized[];
     },
   },
-
   actions: {
-    // Update app settings
-    updateSettings(partial: Partial<AppState>) {
-      // @ts-ignore-next-line
+    updateSettings(partial: Partial<AppSettings>) {
       this.$patch(partial);
     },
-
-    // Change theme color
     toggleTheme(dark: boolean) {
-      if (dark) {
-        this.theme = 'dark';
-        document.body.setAttribute('arco-theme', 'dark');
-      } else {
-        this.theme = 'light';
-        document.body.removeAttribute('arco-theme');
-      }
+      this.theme = dark ? 'dark' : 'light';
+      if (dark) document.body.setAttribute('arco-theme', 'dark');
+      else document.body.removeAttribute('arco-theme');
     },
     toggleDevice(device: string) {
       this.device = device;
@@ -45,31 +41,51 @@ const useAppStore = defineStore('app', {
       this.hideMenu = value;
     },
     async fetchServerMenuConfig() {
-      let notifyInstance: NotificationReturn | null = null;
-      try {
-        notifyInstance = Notification.info({
-          id: 'menuNotice', // Keep the instance id the same
-          content: 'loading',
-          closable: true,
-        });
-        const { data } = await getMenuList();
-        this.serverMenu = data;
-        notifyInstance = Notification.success({
-          id: 'menuNotice',
-          content: 'success',
-          closable: true,
-        });
-      } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        notifyInstance = Notification.error({
-          id: 'menuNotice',
-          content: 'error',
-          closable: true,
-        });
-      }
+      if (this.serverMenuStatus === 'loading') return;
+      const requestId = this.serverMenuRequestId + 1;
+      const requestSession = getSessionSnapshot();
+      this.serverMenuRequestId = requestId;
+      this.serverMenuStatus = 'loading';
+
+      const fetchForSession = async (
+        activeRequestId: number,
+        activeRequestSession: ReturnType<typeof getSessionSnapshot>
+      ): Promise<void> => {
+        let response: Awaited<ReturnType<typeof getMenuList>>;
+        try {
+          response = await getMenuList();
+        } catch (error) {
+          const currentSession = getSessionSnapshot();
+          if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, currentSession)) {
+            this.serverMenu = [];
+            this.serverMenuStatus = 'error';
+            throw error;
+          }
+          if (this.serverMenuRequestId !== activeRequestId || !currentSession.token) return;
+          const nextRequestId = activeRequestId + 1;
+          this.serverMenuRequestId = nextRequestId;
+          await fetchForSession(nextRequestId, currentSession);
+          return;
+        }
+
+        const currentSession = getSessionSnapshot();
+        if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, currentSession)) {
+          this.serverMenu = filterLocalAdminMenus(appRoutes, response.data);
+          this.serverMenuStatus = 'ready';
+          return;
+        }
+        if (this.serverMenuRequestId !== activeRequestId || !currentSession.token) return;
+        const nextRequestId = activeRequestId + 1;
+        this.serverMenuRequestId = nextRequestId;
+        await fetchForSession(nextRequestId, currentSession);
+      };
+
+      await fetchForSession(requestId, requestSession);
     },
     clearServerMenu() {
+      this.serverMenuRequestId += 1;
       this.serverMenu = [];
+      this.serverMenuStatus = 'idle';
     },
   },
 });

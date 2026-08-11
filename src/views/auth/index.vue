@@ -6,16 +6,7 @@
     <div class="content">
       <div class="content-inner flex flex-col">
         <div class="auth-title font-brand">欢迎使用 {{ appStore?.app_name }}</div>
-        <!-- 登录 -->
-        <template v-if="$route.name === 'login'">
-          <Login />
-        </template>
-
-        <!-- 注册 -->
-        <template v-else-if="$route.name === 'register'">
-          <Register v-model:register-type="registerType" />
-          <div class="text-center text-sm"> 已有账号？ <a-link class="text-sm" @click="onLogin">立即登录</a-link> </div>
-        </template>
+        <Login />
       </div>
     </div>
     <div class="footer">
@@ -25,16 +16,12 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
   import { useAppStore } from '@/store';
   import { useDark } from '@vueuse/core';
   import Footer from '@/components/footer/index.vue';
-  import { useRouter } from 'vue-router';
   import Login from './login.vue';
-  import Register from './register.vue';
 
   const appStore = useAppStore();
-  const router = useRouter();
 
   useDark({
     selector: 'body',
@@ -46,13 +33,6 @@
       appStore.toggleTheme(dark);
     },
   });
-
-  // 注册方式
-  const registerType = ref<'password' | 'phone'>('phone');
-
-  const onLogin = () => {
-    router.push({ name: 'login' });
-  };
 </script>
 
 <style lang="less" scoped>

@@ -3,10 +3,11 @@
     <template v-for="key in tableSlots" :key="key" #[key]="scoped">
       <slot :key="key" :name="key" v-bind="scoped" />
     </template>
-    <template #action="{ record }">
-      <a-space fill>
-        <a-button size="small" type="text" @click="onEdit(record)">修改</a-button>
-        <a-button :loading="record?.loading" size="small" type="text" @click="onDelete(record)">删除</a-button>
+    <template #action="scoped">
+      <slot v-if="slots.action" name="action" v-bind="scoped" />
+      <a-space v-else fill>
+        <a-button size="small" type="text" @click="onEdit(scoped.record)">修改</a-button>
+        <a-button :loading="scoped.record?.loading" size="small" type="text" @click="onDelete(scoped.record)"> 删除 </a-button>
       </a-space>
     </template>
   </a-table>

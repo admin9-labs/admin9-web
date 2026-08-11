@@ -1,30 +1,28 @@
-import { DirectiveBinding } from 'vue';
-import { useUserStore } from '@/store';
+import { watchEffect, type DirectiveBinding, type WatchStopHandle } from 'vue';
+import usePermission from '@/hooks/permission';
 
-function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
-  const { value } = binding;
-  const userStore = useUserStore();
-  const { role } = userStore;
+const stops = new WeakMap<HTMLElement, WatchStopHandle>();
 
-  if (Array.isArray(value)) {
-    if (value.length > 0) {
-      const permissionValues = value;
-
-      const hasPermission = permissionValues.includes(role);
-      if (!hasPermission && el.parentNode) {
-        el.parentNode.removeChild(el);
-      }
-    }
-  } else {
-    throw new Error(`need roles! Like v-permission="['admin','user']"`);
+function checkPermission(el: HTMLElement, value: unknown) {
+  const permissions = typeof value === 'string' ? [value] : value;
+  if (!Array.isArray(permissions) || permissions.length === 0) {
+    throw new Error(`need permission names! Like v-permission="['system.user.create']"`);
   }
+  el.hidden = !usePermission().hasPermission(permissions);
 }
 
 export default {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
-    checkPermission(el, binding);
+    stops.set(
+      el,
+      watchEffect(() => checkPermission(el, binding.value))
+    );
   },
   updated(el: HTMLElement, binding: DirectiveBinding) {
-    checkPermission(el, binding);
+    checkPermission(el, binding.value);
+  },
+  unmounted(el: HTMLElement) {
+    stops.get(el)?.();
+    stops.delete(el);
   },
 };

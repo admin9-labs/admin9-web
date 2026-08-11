@@ -1,45 +1,32 @@
 import { defineStore } from 'pinia';
+import { getUserInfo, login as userLogin, logout as userLogout, type AuthIdentityRes, type LoginData } from '@/api/user';
+import { clearToken, getSessionSnapshot, setToken } from '@/utils/auth';
 import {
-  login as userLogin,
-  logout as userLogout,
-  register as userRegister,
-  getUserInfo,
-  LoginData,
-  RegisterData,
-} from '@/api/user';
-import { setToken, clearToken } from '@/utils/auth';
+  completeLogoutAttempt,
+  sessionBelongsToGeneration,
+  sessionMatches,
+  shouldRetryIdentityLoad,
+  type AuthSessionSnapshot,
+} from '@/utils/auth-session';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    id: '',
-    nickname: undefined,
-    name: undefined,
-    avatar: undefined,
-    job: undefined,
-    organization: undefined,
-    location: undefined,
-    email: undefined,
-    introduction: undefined,
-    personalWebsite: undefined,
-    jobName: undefined,
-    organizationName: undefined,
-    locationName: undefined,
-    phone: undefined,
-    registrationDate: undefined,
-    accountId: undefined,
-    certification: undefined,
-    role: '',
-    introduce: '',
-    is_active: undefined,
-    last_login_at: undefined,
-    last_login_ip: undefined,
+    id: null,
+    name: '',
+    email: '',
     roles: [],
-    permission_names: [],
-    created_at: undefined,
-    updated_at: undefined,
+    permissionNames: [],
+    is_active: false,
+    last_login_at: null,
+    last_login_ip: null,
+    created_at: null,
+    updated_at: null,
+    identityLoaded: false,
+    identitySessionGeneration: null,
+    identitySessionToken: null,
   }),
 
   getters: {
@@ -49,71 +36,72 @@ const useUserStore = defineStore('user', {
   },
 
   actions: {
-    // Set user's information
-    setInfo(partial: Partial<UserState>) {
-      this.$patch(partial);
+    identityMatchesSession(session = getSessionSnapshot()) {
+      return (
+        this.identityLoaded &&
+        sessionMatches(session, {
+          generation: this.identitySessionGeneration ?? '',
+          token: this.identitySessionToken,
+        })
+      );
     },
-
-    // Reset user's information
+    setIdentity(identity: AuthIdentityRes, requestSession: AuthSessionSnapshot = getSessionSnapshot()) {
+      if (!sessionMatches(getSessionSnapshot(), requestSession)) return false;
+      const { roles = [], ...user } = identity.user;
+      this.$patch({
+        ...user,
+        roles: roles.map((role) => role.name),
+        permissionNames: [...identity.permission_names],
+        identityLoaded: true,
+        identitySessionGeneration: requestSession.generation,
+        identitySessionToken: requestSession.token,
+      });
+      return true;
+    },
     resetInfo() {
       this.$reset();
     },
-
-    // Get user's information
-    async info() {
-      const res = await getUserInfo();
-      const { user, permission_names: permissionNames } = res.data;
-
-      this.setInfo({
-        id: user.id,
-        name: user.name,
-        nickname: user.name,
-        email: user.email,
-        role: 'admin',
-        is_active: user.is_active,
-        last_login_at: user.last_login_at,
-        last_login_ip: user.last_login_ip,
-        roles: user.roles.map((role) => role.name),
-        permission_names: permissionNames,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-      });
+    async info(attempt = 0): Promise<boolean> {
+      const requestSession = getSessionSnapshot();
+      const response = await getUserInfo();
+      if (this.setIdentity(response.data, requestSession)) return true;
+      const currentSession = getSessionSnapshot();
+      if (shouldRetryIdentityLoad(attempt, requestSession, currentSession)) return this.info(attempt + 1);
+      throw new Error('Authentication session changed while identity was loading');
     },
-
-    // Login
     async login(loginForm: LoginData) {
+      const requestSession = getSessionSnapshot();
+      let authenticatedSession = null as ReturnType<typeof setToken>;
       try {
-        const res = await userLogin(loginForm);
-        setToken(res.data.access_token);
-      } catch (err) {
-        clearToken();
-        throw err;
+        const response = await userLogin(loginForm);
+        authenticatedSession = setToken(response.data.access_token, requestSession.generation);
+        if (!authenticatedSession) {
+          throw new Error('Authentication session changed while login was pending');
+        }
+        if (!this.setIdentity(response.data, authenticatedSession)) {
+          throw new Error('Authentication session changed while login identity was loading');
+        }
+        useAppStore().clearServerMenu();
+      } catch (error) {
+        clearToken(authenticatedSession ?? requestSession);
+        throw error;
       }
     },
-    // Register
-    async register(registerForm: RegisterData) {
-      try {
-        const res = await userRegister(registerForm);
-        setToken(res.data.token);
-      } catch (err) {
-        clearToken();
-        throw err;
-      }
-    },
-    logoutCallBack() {
-      const appStore = useAppStore();
+    logoutCallBack(expectedSession = getSessionSnapshot()) {
+      if (!clearToken(expectedSession)) return false;
       this.resetInfo();
-      clearToken();
       removeRouteListener();
-      appStore.clearServerMenu();
+      useAppStore().clearServerMenu();
+      return true;
     },
-    // Logout
+    logoutSessionGeneration(expectedGeneration: string) {
+      const currentSession = getSessionSnapshot();
+      if (!sessionBelongsToGeneration(currentSession, expectedGeneration)) return false;
+      return this.logoutCallBack(currentSession);
+    },
     async logout() {
-      try {
-        await userLogout();
-      } finally {
-        this.logoutCallBack();
-      }
+      const requestSession = getSessionSnapshot();
+      return completeLogoutAttempt(userLogout, () => this.logoutCallBack(requestSession));
     },
   },
 });

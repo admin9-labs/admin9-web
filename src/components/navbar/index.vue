@@ -69,7 +69,7 @@
       <li>
         <a-dropdown trigger="click">
           <a-avatar :size="32" :style="{ marginRight: '8px', cursor: 'pointer' }">
-            <img alt="avatar" :src="avatar" />
+            <icon-user />
           </a-avatar>
           <template #content>
             <a-doption>
@@ -98,18 +98,14 @@
 <script lang="ts" setup>
   import { computed, ref, inject } from 'vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
-  import { useAppStore, useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
 
   const appStore = useAppStore();
-  const userStore = useUserStore();
   const { logout } = useUser();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-  const avatar = computed(() => {
-    return userStore.avatar;
-  });
   const theme = computed(() => {
     return appStore.theme;
   });
