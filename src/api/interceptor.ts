@@ -41,6 +41,10 @@ function requestPath(config?: AxiosRequestConfig) {
   return config?.url?.split('?')[0] ?? '';
 }
 
+function isSilentRequest(config?: AxiosRequestConfig) {
+  return requestPath(config) === '/system-settings/public';
+}
+
 function applyToken(config: RetriableRequestConfig, session: AuthSessionSnapshot) {
   config.admin9SessionGeneration = session.generation;
   config.admin9RequestToken = session.token;
@@ -106,7 +110,8 @@ axios.interceptors.response.use(
   (response: AxiosResponse<HttpResponse>) => {
     const body = response.data;
     if (body.success === false || body.code !== 0) {
-      Message.error({ content: body.message || 'Error', duration: 5000 });
+      const config = response.config as RetriableRequestConfig;
+      if (!isSilentRequest(config)) Message.error({ content: body.message || 'Error', duration: 5000 });
       return Promise.reject(new Error(body.message || 'Error'));
     }
     return body;
@@ -136,7 +141,7 @@ axios.interceptors.response.use(
     }
 
     const message = axiosError.response?.data?.message || axiosError.message || 'Request Error';
-    Message.error({ content: message, duration: 5000 });
+    if (!isSilentRequest(config)) Message.error({ content: message, duration: 5000 });
     return Promise.reject(axiosError);
   }
 );

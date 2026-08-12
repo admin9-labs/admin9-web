@@ -16,6 +16,7 @@ const businessApiFiles = [
     .map((fileName) => path.join(systemApiDirectory, fileName)),
 ];
 const axiosMethods = new Set(['get', 'post', 'put', 'patch', 'delete']);
+const publicBusinessPaths = new Set(['/system-settings/public']);
 const dynamicSegment = Symbol('dynamic-segment');
 
 type RouteSegment = string | typeof dynamicSegment;
@@ -32,14 +33,18 @@ type AxiosCall = {
 };
 
 function splitLiteralPath(value: string): string[] | undefined {
-  if (!value.startsWith('/admin/') || value.includes('?') || value.includes('#')) return undefined;
+  if ((!value.startsWith('/admin/') && !publicBusinessPaths.has(value)) || value.includes('?') || value.includes('#')) {
+    return undefined;
+  }
   return value.split('/').slice(1);
 }
 
 function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[]; error?: string } {
   if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
     const segments = splitLiteralPath(expression.text);
-    return segments ? { segments } : { error: 'URL must be a direct /admin/* path without a query string or fragment' };
+    return segments
+      ? { segments }
+      : { error: 'URL must be a direct /admin/* path or an approved public path without a query string or fragment' };
   }
 
   if (!ts.isTemplateExpression(expression)) {
@@ -53,7 +58,7 @@ function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[];
 
   const rawSegments = splitLiteralPath(value);
   if (!rawSegments) {
-    return { error: 'URL must be a direct /admin/* path without a query string or fragment' };
+    return { error: 'URL must be a direct /admin/* path or an approved public path without a query string or fragment' };
   }
 
   if (rawSegments.some((segment) => segment.includes('\0') && !/^\0\d+\0$/.test(segment))) {

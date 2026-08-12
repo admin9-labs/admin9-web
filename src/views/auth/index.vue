@@ -1,11 +1,17 @@
 <template>
   <div class="auth-container">
     <div class="logo">
-      <div class="logo-text">{{ appStore?.app_name }}</div>
+      <BrandImage
+        class="logo-image"
+        :src="systemSettingsStore.loginLogoUrl"
+        :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginLogo.url || ''"
+        :alt="systemSettingsStore.systemName"
+      />
+      <div class="logo-text">{{ systemSettingsStore.systemName }}</div>
     </div>
     <div class="content">
       <div class="content-inner flex flex-col">
-        <div class="auth-title font-brand">欢迎使用 {{ appStore?.app_name }}</div>
+        <div class="auth-title font-brand">欢迎使用 {{ systemSettingsStore.systemName }}</div>
         <Login />
       </div>
     </div>
@@ -16,12 +22,30 @@
 </template>
 
 <script lang="ts" setup>
-  import { useAppStore } from '@/store';
+  import { computed, ref, watch } from 'vue';
+  import { useAppStore, useSystemSettingsStore } from '@/store';
   import { useDark } from '@vueuse/core';
+  import { DEFAULT_BRAND_SYSTEM_SETTINGS } from '@/config/system-settings';
+  import BrandImage from '@/components/brand-image/index.vue';
+  import loadImageSource from '@/utils/brand-assets';
   import Footer from '@/components/footer/index.vue';
   import Login from './login.vue';
 
   const appStore = useAppStore();
+  const systemSettingsStore = useSystemSettingsStore();
+  const renderedLoginBackground = ref(DEFAULT_BRAND_SYSTEM_SETTINGS.loginBackground.url || '');
+  const loginBackground = computed(() => `url("${renderedLoginBackground.value.replace(/(["\\])/g, '\\$1')}")`);
+  let backgroundRequestId = 0;
+  watch(
+    () => systemSettingsStore.loginBackgroundUrl,
+    async (source) => {
+      backgroundRequestId += 1;
+      const requestId = backgroundRequestId;
+      const resolved = await loadImageSource(source, DEFAULT_BRAND_SYSTEM_SETTINGS.loginBackground.url || '');
+      if (requestId === backgroundRequestId) renderedLoginBackground.value = resolved;
+    },
+    { immediate: true }
+  );
 
   useDark({
     selector: 'body',
@@ -39,7 +63,7 @@
   .auth-container {
     display: flex;
     height: 100vh;
-    background-image: url('assets/images/login-bg.png');
+    background-image: v-bind('loginBackground');
     background-repeat: no-repeat;
     background-position: 50%;
     background-size: cover;
@@ -80,6 +104,12 @@
     z-index: 1;
     display: inline-flex;
     align-items: center;
+
+    &-image {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
 
     &-text {
       margin-right: 4px;

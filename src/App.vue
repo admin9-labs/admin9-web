@@ -9,15 +9,20 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
   import GlobalSetting from '@/components/global-setting/index.vue';
   import useLocale from '@/hooks/locale';
+  import { useSystemSettingsStore } from '@/store';
+  import { DEFAULT_BRAND_SYSTEM_SETTINGS } from '@/config/system-settings';
+  import loadImageSource from '@/utils/brand-assets';
   import DingTalkJinBuTiWoff2 from '@/assets/webfont/DingTalk-JinBuTi.woff2';
   import DingTalkJinBuTiWoff from '@/assets/webfont/DingTalk-JinBuTi.woff';
 
   const { currentLocale } = useLocale();
+  const systemSettingsStore = useSystemSettingsStore();
+  systemSettingsStore.loadPublicSettings();
   const locale = computed(() => {
     switch (currentLocale.value) {
       case 'zh-CN':
@@ -30,6 +35,27 @@
   });
 
   const isFontLoaded = ref(false);
+
+  let faviconRequestId = 0;
+  watch(
+    () => [systemSettingsStore.systemName, systemSettingsStore.faviconUrl] as const,
+    async ([systemName, faviconUrl]) => {
+      faviconRequestId += 1;
+      const requestId = faviconRequestId;
+      document.title = systemName;
+      const source = await loadImageSource(faviconUrl, DEFAULT_BRAND_SYSTEM_SETTINGS.favicon.url || '');
+      if (requestId !== faviconRequestId) return;
+      let favicon = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        document.head.appendChild(favicon);
+      }
+      favicon.removeAttribute('type');
+      favicon.href = source;
+    },
+    { immediate: true }
+  );
 
   onMounted(() => {
     const font = new FontFace(

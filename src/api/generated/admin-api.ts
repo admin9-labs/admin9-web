@@ -51,6 +51,13 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.dictionary-types.destroy"];
   };
+  "/admin/files": {
+    get: operations["admin.files.index"];
+    post: operations["admin.files.store"];
+  };
+  "/admin/files/{file}": {
+    delete: operations["admin.files.destroy"];
+  };
   "/admin/login-logs": {
     get: operations["admin.login-logs.index"];
   };
@@ -141,6 +148,15 @@ export interface paths {
     /** Remove the specified resource from storage */
     delete: operations["admin.system-configs.destroy"];
   };
+  "/admin/system-settings": {
+    get: operations["admin.system-settings.show"];
+  };
+  "/admin/system-settings/basic": {
+    put: operations["admin.system-settings.basic.update"];
+  };
+  "/admin/system-settings/branding": {
+    put: operations["admin.system-settings.branding.update"];
+  };
   "/admin/users": {
     /** Display a listing of the resource */
     get: operations["admin.users.index"];
@@ -161,20 +177,23 @@ export interface paths {
   "/admin/users/{user}/roles": {
     put: operations["admin.users.roles.update"];
   };
-  "/api/auth/login": {
+  "/auth/login": {
     post: operations["member.auth.login"];
   };
-  "/api/auth/logout": {
+  "/auth/logout": {
     post: operations["member.auth.logout"];
   };
-  "/api/auth/me": {
+  "/auth/me": {
     get: operations["member.auth.me"];
   };
-  "/api/auth/password": {
+  "/auth/password": {
     put: operations["member.auth.password.update"];
   };
-  "/api/auth/refresh": {
+  "/auth/refresh": {
     post: operations["member.auth.refresh"];
+  };
+  "/system-settings/public": {
+    get: operations["system-settings.public"];
   };
 }
 
@@ -262,6 +281,25 @@ export interface components {
       sort: number;
       updated_at: string | null;
     };
+    /** FileResource */
+    FileResource: {
+      created_at: string;
+      extension: string;
+      height: number | null;
+      /** Format: int64 */
+      id: number;
+      mime_type: string;
+      name: string;
+      /** Format: int64 */
+      size: number;
+      /** @enum {string} */
+      status: "pending" | "ready" | "failed";
+      /** @enum {string} */
+      type: "image" | "document" | "video" | "audio" | "other";
+      /** Format: uri */
+      url: string | null;
+      width: number | null;
+    };
     /** LoginLogResource */
     LoginLogResource: {
       account: string | null;
@@ -303,6 +341,14 @@ export interface components {
       /** Format: uri */
       url: string | null;
       width: number | null;
+    };
+    /** MediaSetting */
+    MediaSetting: {
+      media: components["schemas"]["MediaResource"] | null;
+      /** Format: int64 */
+      media_id: number | null;
+      /** @enum {string} */
+      state: "empty" | "ready" | "invalid";
     };
     /** MemberResource */
     MemberResource: {
@@ -388,6 +434,14 @@ export interface components {
       is_active?: boolean;
       name: string;
       sort?: number;
+    };
+    /** StoreFileRequest */
+    StoreFileRequest: {
+      /**
+       * Format: binary
+       * @description Allowed formats: image (JPG, JPEG, PNG, WEBP, GIF; max 5 MiB); document (PDF, TXT, CSV; max 20 MiB); video (MP4; max 100 MiB); audio (MP3, WAV; max 20 MiB); other (ZIP; max 20 MiB). The filename extension, detected MIME type, and inspected structure must match.
+       */
+      file: string;
     };
     /** StoreMediaRequest */
     StoreMediaRequest: {
@@ -486,6 +540,33 @@ export interface components {
       value: string | number | boolean | {
         [key: string]: unknown;
       } | unknown[] | null;
+    };
+    /** SystemSettingsResource */
+    SystemSettingsResource: {
+      basic: {
+        copyright: string | null;
+        icp_filing_number: string | null;
+        system_name: string | null;
+      };
+      branding: {
+        favicon: components["schemas"]["MediaSetting"];
+        login_background: components["schemas"]["MediaSetting"];
+        login_logo: components["schemas"]["MediaSetting"];
+        navigation_logo: components["schemas"]["MediaSetting"];
+      };
+    };
+    /** UpdateBasicSystemSettingsRequest */
+    UpdateBasicSystemSettingsRequest: {
+      copyright: string | null;
+      icp_filing_number: string | null;
+      system_name: string;
+    };
+    /** UpdateBrandingSystemSettingsRequest */
+    UpdateBrandingSystemSettingsRequest: {
+      favicon_media_id: number | null;
+      login_background_media_id: number | null;
+      login_logo_media_id: number | null;
+      navigation_logo_media_id: number | null;
     };
     /** UpdateDictionaryItemRequest */
     UpdateDictionaryItemRequest: {
@@ -602,6 +683,28 @@ export interface components {
         };
       };
     };
+    /** @description Service Unavailable */
+    ApiFileDeleteFailedResponse: {
+      headers: {
+        /** @description Request correlation identifier. Matches the response body request_id. */
+        "X-Request-Id"?: string;
+      };
+      content: {
+        "application/json": {
+          /** @constant */
+          code: 503;
+          data: Record<string, never>;
+          /** @enum {string} */
+          error_code: "file_delete_failed";
+          errors: Record<string, never>;
+          message: string;
+          /** Format: uuid */
+          request_id: string;
+          /** @enum {boolean} */
+          success: false;
+        };
+      };
+    };
     /** @description Forbidden */
     ApiForbiddenResponse: {
       headers: {
@@ -615,6 +718,50 @@ export interface components {
           data: Record<string, never>;
           /** @enum {string} */
           error_code?: "account_inactive";
+          errors: Record<string, never>;
+          message: string;
+          /** Format: uuid */
+          request_id: string;
+          /** @enum {boolean} */
+          success: false;
+        };
+      };
+    };
+    /** @description Conflict */
+    ApiManagedSystemSettingConflictResponse: {
+      headers: {
+        /** @description Request correlation identifier. Matches the response body request_id. */
+        "X-Request-Id"?: string;
+      };
+      content: {
+        "application/json": {
+          /** @constant */
+          code: 409;
+          data: Record<string, never>;
+          /** @enum {string} */
+          error_code: "managed_system_setting_immutable";
+          errors: Record<string, never>;
+          message: string;
+          /** Format: uuid */
+          request_id: string;
+          /** @enum {boolean} */
+          success: false;
+        };
+      };
+    };
+    /** @description Conflict */
+    ApiMediaInUseBySystemSettingsResponse: {
+      headers: {
+        /** @description Request correlation identifier. Matches the response body request_id. */
+        "X-Request-Id"?: string;
+      };
+      content: {
+        "application/json": {
+          /** @constant */
+          code: 409;
+          data: Record<string, never>;
+          /** @enum {string} */
+          error_code: "media_in_use_by_system_settings";
           errors: Record<string, never>;
           message: string;
           /** Format: uuid */
@@ -1381,6 +1528,121 @@ export interface operations {
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
+  "admin.files.index": {
+    parameters: {
+      query?: {
+        page?: number;
+        per_page?: number;
+        search?: string | null;
+        type?: "image" | "document" | "video" | "audio" | "other";
+      };
+    };
+    responses: {
+      /** @description Paginated list */
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: components["schemas"]["FileResource"][];
+            message: string;
+            meta: {
+              /** @description Whether more pages exist */
+              has_more: boolean;
+              /** @description Current page number */
+              page: number;
+              /** @description Items per page */
+              page_size: number;
+              /** @description Pagination strategy */
+              pagination: string;
+              /** @description Total number of items */
+              total: number;
+            };
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.files.store": {
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["StoreFileRequest"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: {
+              file: components["schemas"]["FileResource"];
+            };
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      413: components["responses"]["ApiContentTooLargeResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
+      429: components["responses"]["ApiRateLimitResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.files.destroy": {
+    parameters: {
+      path: {
+        /** @description The file ID */
+        file: number;
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: Record<string, never>;
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      404: components["responses"]["ApiNotFoundResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+      503: components["responses"]["ApiFileDeleteFailedResponse"];
+    };
+  };
   "admin.login-logs.index": {
     parameters: {
       query?: {
@@ -1546,6 +1808,7 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       404: components["responses"]["ApiNotFoundResponse"];
+      409: components["responses"]["ApiMediaInUseBySystemSettingsResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
       503: components["responses"]["ApiServiceUnavailableResponse"];
     };
@@ -2496,6 +2759,7 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
       413: components["responses"]["ApiContentTooLargeResponse"];
       422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
@@ -2573,6 +2837,7 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       404: components["responses"]["ApiNotFoundResponse"];
+      409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
       413: components["responses"]["ApiContentTooLargeResponse"];
       422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
@@ -2608,6 +2873,99 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       404: components["responses"]["ApiNotFoundResponse"];
+      409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.system-settings.show": {
+    responses: {
+      /** @description `SystemSettingsResource` */
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: components["schemas"]["SystemSettingsResource"];
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.system-settings.basic.update": {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateBasicSystemSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description `SystemSettingsResource` */
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: components["schemas"]["SystemSettingsResource"];
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      413: components["responses"]["ApiContentTooLargeResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.system-settings.branding.update": {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateBrandingSystemSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description `SystemSettingsResource` */
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: components["schemas"]["SystemSettingsResource"];
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      413: components["responses"]["ApiContentTooLargeResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -3030,6 +3388,31 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       413: components["responses"]["ApiContentTooLargeResponse"];
+      429: components["responses"]["ApiRateLimitResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "system-settings.public": {
+    responses: {
+      /** @description `SystemSettingsResource` */
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: components["schemas"]["SystemSettingsResource"];
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
       429: components["responses"]["ApiRateLimitResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };

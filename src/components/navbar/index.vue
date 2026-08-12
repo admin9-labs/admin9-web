@@ -2,8 +2,13 @@
   <div class="navbar">
     <div class="left-side">
       <a-space>
-        <div v-if="appStore.device === 'mobile'" class="font-brand site-name">A9 Pro</div>
-        <div v-else class="font-brand site-name">{{ appStore?.app_name }}</div>
+        <BrandImage
+          class="site-logo"
+          :src="systemSettingsStore.navigationLogoUrl"
+          :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.navigationLogo.url || ''"
+          :alt="systemSettingsStore.systemName"
+        />
+        <div v-if="appStore.device !== 'mobile'" class="font-brand site-name">{{ systemSettingsStore.systemName }}</div>
         <icon-menu-fold
           v-if="!topMenu && appStore.device === 'mobile'"
           style="font-size: 22px; cursor: pointer"
@@ -98,12 +103,15 @@
 <script lang="ts" setup>
   import { computed, ref, inject } from 'vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
-  import { useAppStore } from '@/store';
+  import { useAppStore, useSystemSettingsStore } from '@/store';
+  import { DEFAULT_BRAND_SYSTEM_SETTINGS } from '@/config/system-settings';
+  import BrandImage from '@/components/brand-image/index.vue';
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
 
   const appStore = useAppStore();
+  const systemSettingsStore = useSystemSettingsStore();
   const { logout } = useUser();
   const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
   const theme = computed(() => {
@@ -160,6 +168,12 @@
     .site-name {
       color: var(--color-text-1);
       font-size: 20px;
+    }
+
+    .site-logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
     }
   }
 

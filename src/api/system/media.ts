@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { components, operations } from '@/api/generated/admin-api';
+import supportsXhrUploadProgress from '@/utils/media-upload';
 
 export type MediaRecord = components['schemas']['MediaResource'];
 type MediaListParams = NonNullable<operations['admin.media.index']['parameters']['query']>;
@@ -22,11 +23,14 @@ export function queryMediaList(params: MediaListParams): Promise<MediaListRespon
 export function uploadMedia(data: MediaUploadData): Promise<MediaUploadResponse> {
   const formData = new FormData();
   formData.append('file', data.file);
+  const onUploadProgress = supportsXhrUploadProgress()
+    ? (event: ProgressEvent) => {
+        if (event.total) data.onProgress?.(Math.round((event.loaded / event.total) * 100));
+      }
+    : undefined;
 
   return axios.post<unknown, MediaUploadResponse>('/admin/media', formData, {
-    onUploadProgress: (event: ProgressEvent) => {
-      if (event.total) data.onProgress?.(Math.round((event.loaded / event.total) * 100));
-    },
+    onUploadProgress,
     signal: data.signal,
   });
 }
