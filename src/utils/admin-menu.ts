@@ -8,7 +8,7 @@ export const ADMIN_MENU_ROUTE_NAMES = {
   'system.permissions': 'SystemPermission',
   'system.users': 'SystemUser',
   'SystemMember': 'SystemMember',
-  'system.media': 'SystemMedia',
+  'system.file': 'SystemFiles',
   'system.menus': 'SystemMenu',
   'system.dictionaries': 'SystemDict',
   'system.configs': 'SystemConfig',

@@ -4,6 +4,7 @@ import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import Admin9UI from '@admin9-labs/admin9-ui';
 import '@admin9-labs/admin9-ui/styles';
 import { mediaService } from '@/services/mediaService';
+import { fileService } from '@/services/fileService';
 import globalComponents from '@/components';
 import router from './router';
 import store from './store';
@@ -21,7 +22,7 @@ const app = createApp(App);
 
 app.use(ArcoVue, {});
 app.use(ArcoVueIcon);
-app.use(Admin9UI, { mediaService });
+app.use(Admin9UI, { mediaService, fileService });
 
 app.use(router);
 app.use(store);

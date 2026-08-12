@@ -68,6 +68,17 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
+      path: 'files',
+      name: 'SystemFiles',
+      component: () => import('@/views/system/files/index.vue'),
+      meta: {
+        locale: 'menu.system.files',
+        icon: 'icon-file',
+        requiresAuth: true,
+        permissions: ['system.file.view'],
+      },
+    },
+    {
       path: 'menus',
       name: 'SystemMenu',
       component: () => import('@/views/system/menus/index.vue'),

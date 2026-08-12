@@ -8,6 +8,7 @@ import localeSystemPermission from '@/views/system/permissions/locale/zh-CN';
 import localeSystemUser from '@/views/system/users/locale/zh-CN';
 import localeSystemMember from '@/views/system/members/locale/zh-CN';
 import localeSystemMedia from '@/views/system/media/locale/zh-CN';
+import localeSystemFiles from '@/views/system/files/locale/zh-CN';
 import localeSystemMenu from '@/views/system/menus/locale/zh-CN';
 import localeSystemDict from '@/views/system/dictionaries/locale/zh-CN';
 import localeSystemConfig from '@/views/system/configs/locale/zh-CN';
@@ -46,6 +47,7 @@ export default {
   ...localeSystemUser,
   ...localeSystemMember,
   ...localeSystemMedia,
+  ...localeSystemFiles,
   ...localeSystemMenu,
   ...localeSystemDict,
   ...localeSystemConfig,
