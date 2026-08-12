@@ -57,17 +57,6 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
-      path: 'media',
-      name: 'SystemMedia',
-      component: () => import('@/views/system/media/index.vue'),
-      meta: {
-        locale: 'menu.system.media',
-        icon: 'icon-image',
-        requiresAuth: true,
-        permissions: ['system.media.view'],
-      },
-    },
-    {
       path: 'files',
       name: 'SystemFiles',
       component: () => import('@/views/system/files/index.vue'),

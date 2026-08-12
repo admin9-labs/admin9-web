@@ -65,8 +65,6 @@
                 :label="$t('system.config.fields.navigationLogo')"
                 :description="$t('system.config.descriptions.navigationLogo')"
                 :readonly="!canEdit"
-                :can-browse="canBrowseMedia"
-                :can-upload="canUploadMedia"
                 @update:asset="brandForm.navigationLogo = $event"
               />
               <BrandAssetField
@@ -75,8 +73,6 @@
                 :label="$t('system.config.fields.loginLogo')"
                 :description="$t('system.config.descriptions.loginLogo')"
                 :readonly="!canEdit"
-                :can-browse="canBrowseMedia"
-                :can-upload="canUploadMedia"
                 @update:asset="brandForm.loginLogo = $event"
               />
               <BrandAssetField
@@ -86,8 +82,6 @@
                 :description="$t('system.config.descriptions.loginBackground')"
                 variant="background"
                 :readonly="!canEdit"
-                :can-browse="canBrowseMedia"
-                :can-upload="canUploadMedia"
                 @update:asset="brandForm.loginBackground = $event"
               />
               <BrandAssetField
@@ -97,8 +91,6 @@
                 :description="$t('system.config.descriptions.favicon')"
                 variant="favicon"
                 :readonly="!canEdit"
-                :can-browse="canBrowseMedia"
-                :can-upload="canUploadMedia"
                 @update:asset="brandForm.favicon = $event"
               />
               <div v-if="canUpdate" class="form-actions">
@@ -150,8 +142,6 @@
   const canEdit = computed(
     () => canUpdate.value && settingsLoaded.value && !loading.value && !basicSaving.value && !brandSaving.value
   );
-  const canBrowseMedia = computed(() => hasPermission('system.media.view'));
-  const canUploadMedia = computed(() => hasPermission('system.media.create'));
   let loadRequestId = 0;
 
   const cloneBasic = (settings: BasicSystemSettings): BasicSystemSettings => ({ ...settings });
@@ -251,10 +241,10 @@
     brandSaving.value = true;
     try {
       const response = await updateBrandingSystemSettings({
-        navigation_logo_media_id: brandForm.navigationLogo.id,
-        login_logo_media_id: brandForm.loginLogo.id,
-        login_background_media_id: brandForm.loginBackground.id,
-        favicon_media_id: brandForm.favicon.id,
+        navigation_logo_url: brandForm.navigationLogo.url || null,
+        login_logo_url: brandForm.loginLogo.url || null,
+        login_background_url: brandForm.loginBackground.url || null,
+        favicon_url: brandForm.favicon.url || null,
       });
       applySettingsResource(response.data);
       Message.success(t('system.config.saveSuccess'));

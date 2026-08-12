@@ -36,11 +36,10 @@ function assertExpectedContract(schema: OpenApiSchema) {
     '/admin/menus/tree',
     '/admin/users',
     '/admin/members',
-    '/admin/media',
     '/admin/system-settings',
     '/admin/system-settings/basic',
     '/admin/system-settings/branding',
-    '/system-settings/public',
+    '/api/system-settings/public',
   ];
 
   if (schema.info?.title !== 'Admin9 API Laravel' || requiredPaths.some((endpoint) => !schema.paths?.[endpoint])) {

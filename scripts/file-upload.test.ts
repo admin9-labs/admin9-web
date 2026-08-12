@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import supportsXhrUploadProgress from '../src/utils/media-upload';
+import supportsXhrUploadProgress from '../src/utils/file-upload';
 
 class XMLHttpRequestStub {
   readonly readyState = 0;

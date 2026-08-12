@@ -61,13 +61,6 @@ export interface paths {
   "/admin/login-logs": {
     get: operations["admin.login-logs.index"];
   };
-  "/admin/media": {
-    get: operations["admin.media.index"];
-    post: operations["admin.media.store"];
-  };
-  "/admin/media/{media}": {
-    delete: operations["admin.media.destroy"];
-  };
   "/admin/members": {
     get: operations["admin.members.index"];
     post: operations["admin.members.store"];
@@ -177,22 +170,22 @@ export interface paths {
   "/admin/users/{user}/roles": {
     put: operations["admin.users.roles.update"];
   };
-  "/auth/login": {
+  "/api/auth/login": {
     post: operations["member.auth.login"];
   };
-  "/auth/logout": {
+  "/api/auth/logout": {
     post: operations["member.auth.logout"];
   };
-  "/auth/me": {
+  "/api/auth/me": {
     get: operations["member.auth.me"];
   };
-  "/auth/password": {
+  "/api/auth/password": {
     put: operations["member.auth.password.update"];
   };
-  "/auth/refresh": {
+  "/api/auth/refresh": {
     post: operations["member.auth.refresh"];
   };
-  "/system-settings/public": {
+  "/api/system-settings/public": {
     get: operations["system-settings.public"];
   };
 }
@@ -325,31 +318,6 @@ export interface components {
       account: string;
       password: string;
     };
-    /** MediaResource */
-    MediaResource: {
-      created_at: string;
-      extension: string;
-      height: number | null;
-      /** Format: int64 */
-      id: number;
-      mime_type: string;
-      name: string;
-      /** Format: int64 */
-      size: number;
-      /** @enum {string} */
-      status: "pending" | "ready" | "failed";
-      /** Format: uri */
-      url: string | null;
-      width: number | null;
-    };
-    /** MediaSetting */
-    MediaSetting: {
-      media: components["schemas"]["MediaResource"] | null;
-      /** Format: int64 */
-      media_id: number | null;
-      /** @enum {string} */
-      state: "empty" | "ready" | "invalid";
-    };
     /** MemberResource */
     MemberResource: {
       email: string | null;
@@ -440,14 +408,6 @@ export interface components {
       /**
        * Format: binary
        * @description Allowed formats: image (JPG, JPEG, PNG, WEBP, GIF; max 5 MiB); document (PDF, TXT, CSV; max 20 MiB); video (MP4; max 100 MiB); audio (MP3, WAV; max 20 MiB); other (ZIP; max 20 MiB). The filename extension, detected MIME type, and inspected structure must match.
-       */
-      file: string;
-    };
-    /** StoreMediaRequest */
-    StoreMediaRequest: {
-      /**
-       * Format: binary
-       * @description JPEG, PNG, WebP, or GIF image up to 5 MiB. The filename extension must match the detected MIME type.
        */
       file: string;
     };
@@ -549,10 +509,10 @@ export interface components {
         system_name: string | null;
       };
       branding: {
-        favicon: components["schemas"]["MediaSetting"];
-        login_background: components["schemas"]["MediaSetting"];
-        login_logo: components["schemas"]["MediaSetting"];
-        navigation_logo: components["schemas"]["MediaSetting"];
+        favicon_url: string | null;
+        login_background_url: string | null;
+        login_logo_url: string | null;
+        navigation_logo_url: string | null;
       };
     };
     /** UpdateBasicSystemSettingsRequest */
@@ -563,10 +523,14 @@ export interface components {
     };
     /** UpdateBrandingSystemSettingsRequest */
     UpdateBrandingSystemSettingsRequest: {
-      favicon_media_id: number | null;
-      login_background_media_id: number | null;
-      login_logo_media_id: number | null;
-      navigation_logo_media_id: number | null;
+      /** Format: uri */
+      favicon_url: string | null;
+      /** Format: uri */
+      login_background_url: string | null;
+      /** Format: uri */
+      login_logo_url: string | null;
+      /** Format: uri */
+      navigation_logo_url: string | null;
     };
     /** UpdateDictionaryItemRequest */
     UpdateDictionaryItemRequest: {
@@ -749,28 +713,6 @@ export interface components {
         };
       };
     };
-    /** @description Conflict */
-    ApiMediaInUseBySystemSettingsResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 409;
-          data: Record<string, never>;
-          /** @enum {string} */
-          error_code: "media_in_use_by_system_settings";
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
-        };
-      };
-    };
     /** @description Not Found */
     ApiNotFoundResponse: {
       headers: {
@@ -851,7 +793,7 @@ export interface components {
           code: 503;
           data: Record<string, never>;
           /** @enum {string} */
-          error_code: "media_delete_failed";
+          error_code: "file_delete_failed";
           errors: Record<string, never>;
           message: string;
           /** Format: uuid */
@@ -1696,121 +1638,6 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.media.index": {
-    parameters: {
-      query?: {
-        page?: number;
-        per_page?: number;
-        search?: string | null;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["MediaResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
-            };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.media.store": {
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["StoreMediaRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              media: components["schemas"]["MediaResource"];
-            };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.media.destroy": {
-    parameters: {
-      path: {
-        /** @description The media ID */
-        media: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      409: components["responses"]["ApiMediaInUseBySystemSettingsResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-      503: components["responses"]["ApiServiceUnavailableResponse"];
     };
   };
   "admin.members.index": {

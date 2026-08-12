@@ -3,7 +3,6 @@ import type { components, operations } from '@/api/generated/admin-api';
 import type { BasicSystemSettings, BrandAsset, BrandSystemSettings } from '@/config/system-settings';
 
 export type SystemSettingsResource = components['schemas']['SystemSettingsResource'];
-export type MediaSetting = components['schemas']['MediaSetting'];
 export type UpdateBasicSystemSettingsRequest = components['schemas']['UpdateBasicSystemSettingsRequest'];
 export type UpdateBrandingSystemSettingsRequest = components['schemas']['UpdateBrandingSystemSettingsRequest'];
 
@@ -19,12 +18,8 @@ export interface MappedSystemSettings {
   brand: BrandSystemSettings;
 }
 
-function mapMediaSetting(setting: MediaSetting): BrandAsset {
-  const isReady = setting.state === 'ready';
-  return {
-    id: isReady ? setting.media_id : null,
-    url: isReady && setting.media?.url ? setting.media.url : null,
-  };
+function mapBrandUrl(url: string | null | undefined): BrandAsset {
+  return { url: url ?? null };
 }
 
 export function mapSystemSettings(resource: SystemSettingsResource): MappedSystemSettings {
@@ -35,10 +30,10 @@ export function mapSystemSettings(resource: SystemSettingsResource): MappedSyste
       icpFilingNumber: resource.basic.icp_filing_number ?? '',
     },
     brand: {
-      navigationLogo: mapMediaSetting(resource.branding.navigation_logo),
-      loginLogo: mapMediaSetting(resource.branding.login_logo),
-      loginBackground: mapMediaSetting(resource.branding.login_background),
-      favicon: mapMediaSetting(resource.branding.favicon),
+      navigationLogo: mapBrandUrl(resource.branding.navigation_logo_url),
+      loginLogo: mapBrandUrl(resource.branding.login_logo_url),
+      loginBackground: mapBrandUrl(resource.branding.login_background_url),
+      favicon: mapBrandUrl(resource.branding.favicon_url),
     },
   };
 }

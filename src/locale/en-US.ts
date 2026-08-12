@@ -7,7 +7,6 @@ import localeSystemRole from '@/views/system/roles/locale/en-US';
 import localeSystemPermission from '@/views/system/permissions/locale/en-US';
 import localeSystemUser from '@/views/system/users/locale/en-US';
 import localeSystemMember from '@/views/system/members/locale/en-US';
-import localeSystemMedia from '@/views/system/media/locale/en-US';
 import localeSystemFiles from '@/views/system/files/locale/en-US';
 import localeSystemMenu from '@/views/system/menus/locale/en-US';
 import localeSystemDict from '@/views/system/dictionaries/locale/en-US';
@@ -46,7 +45,6 @@ export default {
   ...localeSystemPermission,
   ...localeSystemUser,
   ...localeSystemMember,
-  ...localeSystemMedia,
   ...localeSystemFiles,
   ...localeSystemMenu,
   ...localeSystemDict,

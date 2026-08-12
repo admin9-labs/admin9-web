@@ -17,7 +17,7 @@ export default {
   'system.config.descriptions.loginLogo': 'Shown on the login page. The built-in logo is used when unavailable.',
   'system.config.descriptions.loginBackground': 'Full-page login background. A landscape image is recommended.',
   'system.config.descriptions.favicon': 'Shown in browser tabs. A square image is recommended.',
-  'system.config.brand.select': 'Select Media',
+  'system.config.brand.urlPlaceholder': 'Enter a valid URL or leave empty',
   'system.config.brand.useDefault': 'Use Default',
   'system.config.readonly': 'Your account has view-only access to system settings.',
   'system.config.loadError': 'System settings could not be loaded. Built-in defaults are shown.',

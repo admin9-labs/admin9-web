@@ -4,8 +4,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import { createPinia } from 'pinia';
-import type { components } from '../src/api/generated/admin-api';
-import { mapSystemSettings, type MediaSetting, type SystemSettingsResource } from '../src/api/system/settings';
+import { mapSystemSettings, type SystemSettingsResource } from '../src/api/system/settings';
 
 const require = createRequire(import.meta.url);
 const loadAssetPath = (module: NodeModule, filename: string) => {
@@ -14,30 +13,8 @@ const loadAssetPath = (module: NodeModule, filename: string) => {
 require.extensions['.svg'] = loadAssetPath;
 require.extensions['.png'] = loadAssetPath;
 
-type MediaResource = components['schemas']['MediaResource'];
 const settingsPageSource = readFileSync(resolve(process.cwd(), 'src/views/system/configs/index.vue'), 'utf8');
 const appSource = readFileSync(resolve(process.cwd(), 'src/App.vue'), 'utf8');
-
-const media = (id: number, url: string | null): MediaResource => ({
-  id,
-  name: `media-${id}`,
-  type: 'image',
-  extension: 'png',
-  mime_type: 'image/png',
-  size: 1024,
-  width: 100,
-  height: 100,
-  status: 'ready',
-  url,
-  created_at: '2026-08-12T00:00:00Z',
-});
-
-const setting = (value: Partial<MediaSetting>): MediaSetting => ({
-  media_id: null,
-  state: 'empty',
-  media: null,
-  ...value,
-});
 
 const resource = (branding: SystemSettingsResource['branding']): SystemSettingsResource => ({
   basic: {
@@ -51,10 +28,10 @@ const resource = (branding: SystemSettingsResource['branding']): SystemSettingsR
 test('nullable basic settings map to empty form values', () => {
   const mapped = mapSystemSettings(
     resource({
-      navigation_logo: setting({}),
-      login_logo: setting({}),
-      login_background: setting({}),
-      favicon: setting({}),
+      navigation_logo_url: null,
+      login_logo_url: null,
+      login_background_url: null,
+      favicon_url: null,
     })
   );
 
@@ -65,21 +42,21 @@ test('nullable basic settings map to empty form values', () => {
   });
 });
 
-test('media settings keep ready IDs and clear invalid selections before they can be saved again', () => {
+test('branding URL settings map directly without resource state or IDs', () => {
   const mapped = mapSystemSettings(
     resource({
-      navigation_logo: setting({ media_id: 11, state: 'ready', media: media(11, 'https://cdn.test/nav.png') }),
-      login_logo: setting({ media_id: 12, state: 'invalid' }),
-      login_background: setting({}),
-      favicon: setting({ media_id: 13, state: 'ready', media: media(13, null) }),
+      navigation_logo_url: 'https://cdn.test/nav.png',
+      login_logo_url: null,
+      login_background_url: null,
+      favicon_url: null,
     })
   );
 
   assert.deepEqual(mapped.brand, {
-    navigationLogo: { id: 11, url: 'https://cdn.test/nav.png' },
-    loginLogo: { id: null, url: null },
-    loginBackground: { id: null, url: null },
-    favicon: { id: 13, url: null },
+    navigationLogo: { url: 'https://cdn.test/nav.png' },
+    loginLogo: { url: null },
+    loginBackground: { url: null },
+    favicon: { url: null },
   });
 });
 
@@ -92,10 +69,10 @@ test('an admin resource invalidates an older public request generation', async (
 
   store.applyResource(
     resource({
-      navigation_logo: setting({ media_id: 21, state: 'ready', media: media(21, 'https://cdn.test/new-nav.png') }),
-      login_logo: setting({}),
-      login_background: setting({}),
-      favicon: setting({}),
+      navigation_logo_url: 'https://cdn.test/new-nav.png',
+      login_logo_url: null,
+      login_background_url: null,
+      favicon_url: null,
     })
   );
 

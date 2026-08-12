@@ -16,7 +16,7 @@ const businessApiFiles = [
     .map((fileName) => path.join(systemApiDirectory, fileName)),
 ];
 const axiosMethods = new Set(['get', 'post', 'put', 'patch', 'delete']);
-const publicBusinessPaths = new Set(['/system-settings/public']);
+const publicBusinessPaths = new Set(['/system-settings/public', '/api/system-settings/public']);
 const dynamicSegment = Symbol('dynamic-segment');
 
 type RouteSegment = string | typeof dynamicSegment;
@@ -146,6 +146,12 @@ test('template path segments match OpenAPI parameters and methods exactly', () =
 test('Admin9 business API Axios calls match the backend OpenAPI contract', () => {
   const document = JSON.parse(readFileSync(openapiPath, 'utf8')) as OpenApiDocument;
   assert.ok(document.paths, `OpenAPI document has no paths: ${openapiPath}`);
+  document.paths = Object.fromEntries(
+    Object.entries(document.paths).map(([pathname, operations]) => [
+      pathname.startsWith('/api/') ? pathname.slice(4) : pathname,
+      operations,
+    ])
+  );
 
   const calls = businessApiFiles.flatMap(collectAxiosCalls);
   assert.ok(calls.length > 0, 'No direct Axios calls were found in the Admin9 business API files');
