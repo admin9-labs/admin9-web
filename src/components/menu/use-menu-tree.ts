@@ -3,7 +3,16 @@ import { RouteRecordRaw, RouteRecordNormalized } from 'vue-router';
 import usePermission from '@/hooks/permission';
 import { useAppStore } from '@/store';
 import appClientMenus from '@/router/app-menus';
-import { cloneDeep } from 'lodash';
+
+const cloneRoutes = (routes: RouteRecordNormalized[]): RouteRecordNormalized[] =>
+  routes.map(
+    (route) =>
+      ({
+        ...route,
+        meta: { ...route.meta },
+        ...(route.children ? { children: cloneRoutes(route.children as RouteRecordNormalized[]) } : {}),
+      } as RouteRecordNormalized)
+  );
 
 export default function useMenuTree() {
   const permission = usePermission();
@@ -15,7 +24,7 @@ export default function useMenuTree() {
     return appClientMenus;
   });
   const menuTree = computed(() => {
-    const copyRouter = cloneDeep(appRoute.value) as RouteRecordNormalized[];
+    const copyRouter = cloneRoutes(appRoute.value as RouteRecordNormalized[]);
     copyRouter.sort((a: RouteRecordNormalized, b: RouteRecordNormalized) => {
       return (a.meta.order || 0) - (b.meta.order || 0);
     });

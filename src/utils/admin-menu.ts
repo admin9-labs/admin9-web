@@ -1,24 +1,22 @@
 import type { RouteRecordNormalized } from 'vue-router';
 import type { AdminMenu } from '@/api/user';
 import { sessionMatches, type AuthSessionSnapshot } from '@/utils/auth-session';
+import { resolveMenuIcon } from '@/utils/menu-icons';
 
-export const ADMIN_MENU_ROUTE_NAMES = {
-  'system': 'system',
-  'system.roles': 'SystemRole',
-  'system.permissions': 'SystemPermission',
-  'system.users': 'SystemUser',
-  'SystemMember': 'SystemMember',
-  'system.file': 'SystemFiles',
-  'system.menus': 'SystemMenu',
-  'system.dictionaries': 'SystemDict',
-  'system.configs': 'SystemConfig',
-  'system.logs': 'SystemLog',
+export const ADMIN_MENU_ROUTE_REGISTRY = {
+  'system': { routeName: 'system', expectedType: 'directory' },
+  'system.roles': { routeName: 'SystemRole', expectedType: 'page' },
+  'system.permissions': { routeName: 'SystemPermission', expectedType: 'page' },
+  'system.users': { routeName: 'SystemUser', expectedType: 'page' },
+  'SystemMember': { routeName: 'SystemMember', expectedType: 'page' },
+  'system.file': { routeName: 'SystemFiles', expectedType: 'page' },
+  'system.menus': { routeName: 'SystemMenu', expectedType: 'page' },
+  'system.dictionaries': { routeName: 'SystemDict', expectedType: 'page' },
+  'system.configs': { routeName: 'SystemConfig', expectedType: 'page' },
+  'system.logs': { routeName: 'SystemLog', expectedType: 'page' },
 } as const;
 
-interface MenuRouteAccess {
-  order: number;
-  type: AdminMenu['type'];
-}
+type RegisteredMenuCode = keyof typeof ADMIN_MENU_ROUTE_REGISTRY;
 
 export function isCurrentMenuRequest(
   activeRequestId: number,
@@ -29,41 +27,68 @@ export function isCurrentMenuRequest(
   return activeRequestId === requestId && sessionMatches(requestSession, currentSession);
 }
 
-function collectMenuAccess(menus: AdminMenu[], access: Map<string, MenuRouteAccess>, order: number[]) {
-  menus.forEach((menu) => {
-    const routeName = ADMIN_MENU_ROUTE_NAMES[menu.code as keyof typeof ADMIN_MENU_ROUTE_NAMES];
-    if (routeName && menu.type !== 'button' && menu.is_active && menu.is_visible) {
-      access.set(routeName, { order: order[0], type: menu.type });
-      order[0] += 1;
-    }
-    collectMenuAccess(menu.children ?? [], access, order);
+export function isRegisteredMenuRouteType(code: string, type: AdminMenu['type']): boolean {
+  const registration = ADMIN_MENU_ROUTE_REGISTRY[code as RegisteredMenuCode];
+  return registration?.expectedType === type;
+}
+
+export function menuRouteRegistrationIssue(code: string, type: AdminMenu['type']): 'missing' | 'type-mismatch' | null {
+  const registration = ADMIN_MENU_ROUTE_REGISTRY[code as RegisteredMenuCode];
+  if (!registration) return type === 'button' ? null : 'missing';
+  return registration.expectedType === type ? null : 'type-mismatch';
+}
+
+export function shouldValidateMenuRouteRegistration(
+  original: Pick<AdminMenu, 'code' | 'type'> | null,
+  code: string,
+  type: AdminMenu['type']
+): boolean {
+  return original === null || original.code !== code || original.type !== type;
+}
+
+function flattenRoutes(routes: RouteRecordNormalized[], routesByName: Map<string, RouteRecordNormalized>) {
+  routes.forEach((route) => {
+    if (typeof route.name === 'string') routesByName.set(route.name, route);
+    flattenRoutes((route.children ?? []) as RouteRecordNormalized[], routesByName);
   });
 }
 
-function filterRoutes(routes: RouteRecordNormalized[], access: Map<string, MenuRouteAccess>): RouteRecordNormalized[] {
-  return routes
-    .map((route) => {
-      const routeName = typeof route.name === 'string' ? route.name : '';
-      const routeAccess = access.get(routeName);
-      const children = filterRoutes((route.children ?? []) as RouteRecordNormalized[], access);
-      if (!routeAccess && children.length === 0) return null;
-      if (routeAccess?.type === 'directory' && children.length === 0) return null;
+function buildRegisteredMenuTree(
+  backendMenus: AdminMenu[],
+  routesByName: Map<string, RouteRecordNormalized>,
+  expectedParentType: 'root' | 'directory'
+): RouteRecordNormalized[] {
+  return backendMenus.flatMap((menu, order) => {
+    if (!menu.is_active || !menu.is_visible) return [];
+    if (expectedParentType === 'root' && menu.type !== 'directory') return [];
+    if (expectedParentType === 'directory' && menu.type !== 'page') return [];
 
-      const filteredRoute = {
-        ...route,
-        meta: { ...route.meta, ...(routeAccess ? { order: routeAccess.order } : {}) },
-      } as RouteRecordNormalized;
-      if (children.length > 0) filteredRoute.children = children;
-      else Reflect.deleteProperty(filteredRoute, 'children');
+    const registration = ADMIN_MENU_ROUTE_REGISTRY[menu.code as RegisteredMenuCode];
+    if (!registration || registration.expectedType !== menu.type) return [];
 
-      return filteredRoute;
-    })
-    .filter((route): route is RouteRecordNormalized => route !== null)
-    .sort((left, right) => (left.meta.order ?? 0) - (right.meta.order ?? 0));
+    const localRoute = routesByName.get(registration.routeName);
+    if (!localRoute) return [];
+
+    const children = menu.type === 'directory' ? buildRegisteredMenuTree(menu.children ?? [], routesByName, 'directory') : [];
+    if (menu.type === 'directory' && children.length === 0) return [];
+
+    const meta = {
+      ...localRoute.meta,
+      order,
+      icon: resolveMenuIcon(menu.icon),
+    };
+    if (!meta.icon) Reflect.deleteProperty(meta, 'icon');
+
+    const route = { ...localRoute, meta } as RouteRecordNormalized;
+    if (children.length > 0) route.children = children;
+    else Reflect.deleteProperty(route, 'children');
+
+    return [route];
+  });
 }
 
 export function filterLocalAdminMenus(localRoutes: RouteRecordNormalized[], backendMenus: AdminMenu[]) {
-  const access = new Map<string, MenuRouteAccess>();
-  collectMenuAccess(backendMenus, access, [0]);
-  return filterRoutes(localRoutes, access);
+  const routesByName = new Map<string, RouteRecordNormalized>();
+  flattenRoutes(localRoutes, routesByName);
+  return buildRegisteredMenuTree(backendMenus, routesByName, 'root');
 }

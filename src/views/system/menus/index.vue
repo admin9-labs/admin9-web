@@ -31,7 +31,7 @@
       >
         <template #name="{ record }">
           <div class="menu-name-cell">
-            <component :is="getIconComponent(record.icon)" v-if="record.icon" class="menu-icon" />
+            <component :is="resolveMenuIcon(record.icon)" v-if="resolveMenuIcon(record.icon)" class="menu-icon" />
             <div class="menu-name-copy">
               <div class="menu-name-text">{{ record.name }}</div>
               <code class="menu-name-code">{{ record.code }}</code>
@@ -89,7 +89,7 @@
                   type="text"
                   size="small"
                   status="danger"
-                  :disabled="Boolean(record.children?.length) || isBuiltInMenu(record)"
+                  :disabled="Boolean(record.children?.length)"
                   @click="handleDelete(record)"
                 >
                   <template #icon><icon-delete /></template>
@@ -111,7 +111,7 @@
   import { useLoading, useModal } from '@/hooks';
   import usePermission from '@/hooks/permission';
   import { useAppStore } from '@/store';
-  import { ADMIN_MENU_ROUTE_NAMES } from '@/utils/admin-menu';
+  import { resolveMenuIcon } from '@/utils/menu-icons';
   import { queryMenuList, deleteMenu, type MenuRecord } from '@/api/system/menu';
   import EditMenuModal from './components/EditMenuModal.vue';
 
@@ -129,14 +129,7 @@
   const canUpdateMenu = computed(() => hasPermission('system.menu.update'));
   const canViewPermissionCatalog = computed(() => hasPermission('system.permission.view'));
 
-  const getIconComponent = (icon: string | null) => {
-    if (!icon) return undefined;
-    return icon.startsWith('icon-') ? icon : `icon-${icon}`;
-  };
-
-  const isBuiltInMenu = (record: MenuRecord) => Object.prototype.hasOwnProperty.call(ADMIN_MENU_ROUTE_NAMES, record.code);
   const deleteTooltip = (record: MenuRecord) => {
-    if (isBuiltInMenu(record)) return t('system.menu.delete.builtIn');
     if (record.children?.length) return t('system.menu.delete.hasChildren');
     return t('system.menu.delete.title');
   };
@@ -219,7 +212,7 @@
   };
 
   const handleDelete = (record: MenuRecord) => {
-    if (record.children.length || isBuiltInMenu(record)) return;
+    if (record.children.length) return;
 
     confirmDelete({
       onDelete: async () => {

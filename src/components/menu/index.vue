@@ -1,11 +1,12 @@
 <script lang="tsx">
-  import { defineComponent, ref, h, compile, computed } from 'vue';
+  import { defineComponent, ref, h, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter, RouteRecordRaw } from 'vue-router';
   import type { RouteMeta } from 'vue-router';
   import { useAppStore } from '@/store';
   import { listenerRouteChange } from '@/utils/route-listener';
   import { openWindow, regexUrl } from '@/utils';
+  import { resolveMenuIcon } from '@/utils/menu-icons';
   import useMenuTree from './use-menu-tree';
 
   export default defineComponent({
@@ -90,7 +91,9 @@
           if (_route) {
             _route.forEach((element) => {
               // This is demo, modify nodes as needed
-              const icon = element?.meta?.icon ? () => h(compile(`<${element?.meta?.icon}/>`)) : null;
+              const iconComponent =
+                typeof element?.meta?.icon === 'string' ? resolveMenuIcon(element.meta.icon) : element?.meta?.icon;
+              const icon = iconComponent ? () => h(iconComponent) : undefined;
               if (element?.children && element?.children.length) {
                 const node = groupMenu.value ? (
                   <a-menu-item-group key={element?.name} title={t(element?.meta?.locale || '')}>
@@ -101,7 +104,7 @@
                     key={element?.name}
                     v-slots={{
                       icon,
-                      title: () => h(compile(t(element?.meta?.locale || ''))),
+                      title: () => t(element?.meta?.locale || ''),
                     }}
                   >
                     {travel(element?.children)}
@@ -149,6 +152,7 @@
       display: flex;
       align-items: center;
     }
+
     .arco-icon {
       &:not(.arco-icon-down) {
         font-size: 18px;

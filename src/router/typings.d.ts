@@ -1,11 +1,12 @@
 import 'vue-router';
+import type { Component } from 'vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
     roles?: string[]; // Controls roles that have access to the page
     permissions?: string[]; // Backend permission names accepted by the route
     requiresAuth: boolean; // Whether login is required to access the current page (every route must declare)
-    icon?: string; // The icon show in the side menu
+    icon?: string | Component; // The icon show in the side menu
     locale?: string; // The locale name show in side menu and breadcrumb
     hideInMenu?: boolean; // If true, it is not displayed in the side menu
     hideChildrenInMenu?: boolean; // if set true, the children are not displayed in the side menu
