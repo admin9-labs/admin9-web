@@ -177,3 +177,51 @@ test('Admin9 business API Axios calls match the backend OpenAPI contract', () =>
 
   assert.deepEqual(errors, []);
 });
+
+test('the API alignment matrix classifies every OpenAPI operation exactly once', () => {
+  const document = JSON.parse(readFileSync(openapiPath, 'utf8')) as OpenApiDocument;
+  const operationIds = Object.values(document.paths ?? {}).flatMap((operations) =>
+    Object.values(operations).flatMap((operation) => {
+      if (!operation || typeof operation !== 'object' || !('operationId' in operation)) return [];
+      const { operationId } = operation as { operationId?: unknown };
+      return typeof operationId === 'string' ? [operationId] : [];
+    })
+  );
+  const operationIdSet = new Set(operationIds);
+  const matrix = readFileSync(path.join(workspaceRoot, 'docs/api-alignment-matrix.md'), 'utf8');
+  const documented = Array.from(matrix.matchAll(/`([^`]+)`/g), (match) => match[1]).filter((value) =>
+    operationIdSet.has(value)
+  );
+
+  assert.equal(operationIds.length, 65);
+  assert.equal(documented.length, operationIds.length, 'each operationId must appear once in the matrix');
+  assert.deepEqual([...documented].sort(), [...operationIds].sort());
+});
+
+test('the Axios API prefix defaults to /api and deployed environments include /api', () => {
+  const interceptor = readFileSync(path.join(workspaceRoot, 'src/api/interceptor.ts'), 'utf8');
+  assert.match(interceptor, /VITE_API_BASE_URL\?\.trim\(\) \|\| ['"]\/api['"]/);
+
+  ['.env.production', '.env.staging'].forEach((fileName) => {
+    const source = readFileSync(path.join(workspaceRoot, fileName), 'utf8');
+    const value = source.match(/^VITE_API_BASE_URL\s*=\s*['"]?([^'"\s]+)['"]?\s*$/m)?.[1];
+    assert.ok(value, `${fileName} must define VITE_API_BASE_URL`);
+    assert.equal(new URL(value).pathname.replace(/\/$/, ''), '/api', `${fileName} must target the backend /api prefix`);
+  });
+});
+
+test('login failures preserve an existing session and refreshes synchronize identity and menus', () => {
+  const userStore = readFileSync(path.join(workspaceRoot, 'src/store/modules/user/index.ts'), 'utf8');
+  const interceptor = readFileSync(path.join(workspaceRoot, 'src/api/interceptor.ts'), 'utf8');
+  const loginForm = readFileSync(path.join(workspaceRoot, 'src/views/auth/components/PasswordLoginForm.vue'), 'utf8');
+
+  assert.doesNotMatch(userStore, /clearToken\(authenticatedSession \?\? requestSession\)/);
+  assert.match(userStore, /if \(authenticatedSession\) [\s\S]*logoutCallBack\(authenticatedSession\)/);
+  assert.match(interceptor, /responseData\.permission_names/);
+  assert.match(interceptor, /setIdentity\(responseData/);
+  assert.match(interceptor, /clearServerMenu\(\)/);
+  assert.match(interceptor, /admin9SuppressErrorNotification: true/);
+  assert.match(interceptor, /requestPath\(config\) === ['"]\/admin\/auth\/login['"]/);
+  assert.match(interceptor, /router\.replace\(\{ name: ['"]login['"] \}\)/);
+  assert.match(loginForm, /apiError\?\.errors\?\.\[field\]\?\.\[0\]/);
+});
