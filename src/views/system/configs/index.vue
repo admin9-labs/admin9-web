@@ -58,47 +58,49 @@
           </a-tab-pane>
 
           <a-tab-pane key="brand" :title="$t('system.config.tabs.brand')">
-            <div class="settings-form brand-form">
+            <a-form
+              ref="brandFormRef"
+              :model="brandForm"
+              :rules="brandRules"
+              layout="vertical"
+              class="settings-form brand-form"
+            >
               <BrandAssetField
                 :asset="brandForm.navigationLogo"
                 :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.navigationLogo.url || ''"
                 :label="$t('system.config.fields.navigationLogo')"
+                field="navigationLogo.url"
                 :description="$t('system.config.descriptions.navigationLogo')"
                 :readonly="!canEdit"
-                :can-browse="canBrowseFiles"
-                :can-upload="canUploadFiles"
                 @update:asset="brandForm.navigationLogo = $event"
               />
               <BrandAssetField
                 :asset="brandForm.loginLogo"
                 :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginLogo.url || ''"
                 :label="$t('system.config.fields.loginLogo')"
+                field="loginLogo.url"
                 :description="$t('system.config.descriptions.loginLogo')"
                 :readonly="!canEdit"
-                :can-browse="canBrowseFiles"
-                :can-upload="canUploadFiles"
                 @update:asset="brandForm.loginLogo = $event"
               />
               <BrandAssetField
                 :asset="brandForm.loginBackground"
                 :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginBackground.url || ''"
                 :label="$t('system.config.fields.loginBackground')"
+                field="loginBackground.url"
                 :description="$t('system.config.descriptions.loginBackground')"
                 variant="background"
                 :readonly="!canEdit"
-                :can-browse="canBrowseFiles"
-                :can-upload="canUploadFiles"
                 @update:asset="brandForm.loginBackground = $event"
               />
               <BrandAssetField
                 :asset="brandForm.favicon"
                 :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.favicon.url || ''"
                 :label="$t('system.config.fields.favicon')"
+                field="favicon.url"
                 :description="$t('system.config.descriptions.favicon')"
                 variant="favicon"
                 :readonly="!canEdit"
-                :can-browse="canBrowseFiles"
-                :can-upload="canUploadFiles"
                 @update:asset="brandForm.favicon = $event"
               />
               <div v-if="canUpdate" class="form-actions">
@@ -107,7 +109,7 @@
                   {{ $t('common.action.save') }}
                 </a-button>
               </div>
-            </div>
+            </a-form>
           </a-tab-pane>
         </a-tabs>
       </a-spin>
@@ -129,7 +131,13 @@
     updateBrandingSystemSettings,
     type SystemSettingsResource,
   } from '@/api/system/settings';
-  import { DEFAULT_BRAND_SYSTEM_SETTINGS, type BasicSystemSettings, type BrandSystemSettings } from '@/config/system-settings';
+  import {
+    DEFAULT_BRAND_SYSTEM_SETTINGS,
+    isValidBrandUrl,
+    normalizeBrandUrl,
+    type BasicSystemSettings,
+    type BrandSystemSettings,
+  } from '@/config/system-settings';
   import BrandAssetField from './components/BrandAssetField.vue';
 
   defineOptions({ name: 'SystemConfig' });
@@ -146,9 +154,8 @@
   const basicSaving = ref(false);
   const brandSaving = ref(false);
   const basicFormRef = ref<FormInstance>();
+  const brandFormRef = ref<FormInstance>();
   const canUpdate = computed(() => hasPermission('system.config.update'));
-  const canBrowseFiles = computed(() => hasPermission('system.file.view'));
-  const canUploadFiles = computed(() => canBrowseFiles.value && hasPermission('system.file.create'));
   const canEdit = computed(
     () => canUpdate.value && settingsLoaded.value && !loading.value && !basicSaving.value && !brandSaving.value
   );
@@ -172,6 +179,14 @@
 
   const basicRules = {
     systemName: [{ required: true, maxLength: 100, message: t('system.config.validation.systemName') }],
+  };
+  const validateBrandUrl = (value: string | null | undefined, callback: (message?: string) => void) =>
+    callback(isValidBrandUrl(value) ? undefined : t('system.config.validation.brandUrl'));
+  const brandRules = {
+    'navigationLogo.url': [{ validator: validateBrandUrl }],
+    'loginLogo.url': [{ validator: validateBrandUrl }],
+    'loginBackground.url': [{ validator: validateBrandUrl }],
+    'favicon.url': [{ validator: validateBrandUrl }],
   };
 
   const applySettingsResource = (resource: SystemSettingsResource) => {
@@ -250,11 +265,13 @@
     if (!canEdit.value) return;
     brandSaving.value = true;
     try {
+      const errors = await brandFormRef.value?.validate();
+      if (errors) return;
       const response = await updateBrandingSystemSettings({
-        navigation_logo_path: brandForm.navigationLogo.path,
-        login_logo_path: brandForm.loginLogo.path,
-        login_background_path: brandForm.loginBackground.path,
-        favicon_path: brandForm.favicon.path,
+        navigation_logo_url: normalizeBrandUrl(brandForm.navigationLogo.url),
+        login_logo_url: normalizeBrandUrl(brandForm.loginLogo.url),
+        login_background_url: normalizeBrandUrl(brandForm.loginBackground.url),
+        favicon_url: normalizeBrandUrl(brandForm.favicon.url),
       });
       applySettingsResource(response.data);
       Message.success(t('system.config.saveSuccess'));

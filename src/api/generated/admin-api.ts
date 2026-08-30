@@ -283,7 +283,6 @@ export interface components {
       id: number;
       mime_type: string;
       name: string;
-      path: string;
       /** Format: int64 */
       size: number;
       /** @enum {string} */
@@ -510,16 +509,12 @@ export interface components {
         system_name: string | null;
       };
       branding: {
-        favicon_path: string | null;
         /** Format: uri */
         favicon_url: string | null;
-        login_background_path: string | null;
         /** Format: uri */
         login_background_url: string | null;
-        login_logo_path: string | null;
         /** Format: uri */
         login_logo_url: string | null;
-        navigation_logo_path: string | null;
         /** Format: uri */
         navigation_logo_url: string | null;
       };
@@ -532,10 +527,14 @@ export interface components {
     };
     /** UpdateBrandingSystemSettingsRequest */
     UpdateBrandingSystemSettingsRequest: {
-      favicon_path: string | null;
-      login_background_path: string | null;
-      login_logo_path: string | null;
-      navigation_logo_path: string | null;
+      /** Format: uri */
+      favicon_url: string | null;
+      /** Format: uri */
+      login_background_url: string | null;
+      /** Format: uri */
+      login_logo_url: string | null;
+      /** Format: uri */
+      navigation_logo_url: string | null;
     };
     /** UpdateDictionaryItemRequest */
     UpdateDictionaryItemRequest: {

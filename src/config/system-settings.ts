@@ -2,7 +2,6 @@ const defaultLogoUrl = new URL('../assets/logo.svg', import.meta.url).href;
 const defaultLoginBackgroundUrl = new URL('../assets/images/login-bg.png', import.meta.url).href;
 
 export interface BrandAsset {
-  path: string | null;
   url: string | null;
 }
 
@@ -26,10 +25,27 @@ export const DEFAULT_BASIC_SYSTEM_SETTINGS: BasicSystemSettings = {
 };
 
 export const DEFAULT_BRAND_SYSTEM_SETTINGS: BrandSystemSettings = {
-  navigationLogo: { path: null, url: defaultLogoUrl },
-  loginLogo: { path: null, url: defaultLogoUrl },
-  loginBackground: { path: null, url: defaultLoginBackgroundUrl },
-  favicon: { path: null, url: defaultLogoUrl },
+  navigationLogo: { url: defaultLogoUrl },
+  loginLogo: { url: defaultLogoUrl },
+  loginBackground: { url: defaultLoginBackgroundUrl },
+  favicon: { url: defaultLogoUrl },
 };
+
+export function normalizeBrandUrl(value: string | null | undefined): string | null {
+  return value?.trim() || null;
+}
+
+export function isValidBrandUrl(value: string | null | undefined): boolean {
+  const normalized = normalizeBrandUrl(value);
+  if (normalized === null) return true;
+  if (normalized.length > 2048) return false;
+
+  try {
+    const url = new URL(normalized);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
 
 export const MIIT_RECORD_URL = 'https://beian.miit.gov.cn/';

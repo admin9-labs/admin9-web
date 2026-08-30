@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { createPinia } from 'pinia';
 import { mapSystemSettings, type SystemSettingsResource } from '../src/api/system/settings';
+import { isValidBrandUrl, normalizeBrandUrl } from '../src/config/system-settings';
 
 const require = createRequire(import.meta.url);
 const loadAssetPath = (module: NodeModule, filename: string) => {
@@ -32,13 +33,9 @@ const resource = (branding: SystemSettingsResource['branding']): SystemSettingsR
 test('nullable basic settings map to empty form values', () => {
   const mapped = mapSystemSettings(
     resource({
-      navigation_logo_path: null,
       navigation_logo_url: null,
-      login_logo_path: null,
       login_logo_url: null,
-      login_background_path: null,
       login_background_url: null,
-      favicon_path: null,
       favicon_url: null,
     })
   );
@@ -50,26 +47,39 @@ test('nullable basic settings map to empty form values', () => {
   });
 });
 
-test('branding file paths and derived URLs map without File IDs', () => {
+test('branding URL settings map directly without resource state or IDs', () => {
   const mapped = mapSystemSettings(
     resource({
-      navigation_logo_path: 'files/2026/08/nav.png',
       navigation_logo_url: 'https://cdn.test/nav.png',
-      login_logo_path: null,
       login_logo_url: null,
-      login_background_path: 'files/2026/08/missing.png',
       login_background_url: null,
-      favicon_path: null,
       favicon_url: null,
     })
   );
 
   assert.deepEqual(mapped.brand, {
-    navigationLogo: { path: 'files/2026/08/nav.png', url: 'https://cdn.test/nav.png' },
-    loginLogo: { path: null, url: null },
-    loginBackground: { path: 'files/2026/08/missing.png', url: null },
-    favicon: { path: null, url: null },
+    navigationLogo: { url: 'https://cdn.test/nav.png' },
+    loginLogo: { url: null },
+    loginBackground: { url: null },
+    favicon: { url: null },
   });
+});
+
+test('branding URLs allow null and empty values and normalize surrounding whitespace', () => {
+  assert.equal(isValidBrandUrl(null), true);
+  assert.equal(isValidBrandUrl(''), true);
+  assert.equal(isValidBrandUrl('   '), true);
+  assert.equal(normalizeBrandUrl('  https://cdn.test/logo.png  '), 'https://cdn.test/logo.png');
+});
+
+test('branding URLs require HTTP(S), exclude credentials, and enforce the 2048 character limit', () => {
+  assert.equal(isValidBrandUrl('http://cdn.test/logo.png'), true);
+  assert.equal(isValidBrandUrl('https://cdn.test/logo.png'), true);
+  assert.equal(isValidBrandUrl('ftp://cdn.test/logo.png'), false);
+  assert.equal(isValidBrandUrl('https://user:secret@cdn.test/logo.png'), false);
+  assert.equal(isValidBrandUrl('https://cdn.test'), true);
+  assert.equal(isValidBrandUrl(`https://cdn.test/${'a'.repeat(2031)}`), true);
+  assert.equal(isValidBrandUrl(`https://cdn.test/${'a'.repeat(2032)}`), false);
 });
 
 test('an admin resource invalidates an older public request generation', async () => {
@@ -81,13 +91,9 @@ test('an admin resource invalidates an older public request generation', async (
 
   store.applyResource(
     resource({
-      navigation_logo_path: 'files/2026/08/new-nav.png',
       navigation_logo_url: 'https://cdn.test/new-nav.png',
-      login_logo_path: null,
       login_logo_url: null,
-      login_background_path: null,
       login_background_url: null,
-      favicon_path: null,
       favicon_url: null,
     })
   );
@@ -127,19 +133,23 @@ test('save handlers acquire their lock before the first asynchronous operation',
   assert.ok(saveBasic);
   assert.ok(saveBrand);
   assert.ok(saveBasic.indexOf('basicSaving.value = true') < saveBasic.indexOf('await basicFormRef.value?.validate()'));
-  assert.ok(saveBrand.indexOf('brandSaving.value = true') < saveBrand.indexOf('await updateBrandingSystemSettings'));
-  assert.match(saveBrand, /navigation_logo_path: brandForm\.navigationLogo\.path/);
-  assert.doesNotMatch(saveBrand, /navigation_logo_url/);
+  assert.ok(saveBrand.indexOf('brandSaving.value = true') < saveBrand.indexOf('await brandFormRef.value?.validate()'));
+  assert.ok(
+    saveBrand.indexOf('await brandFormRef.value?.validate()') < saveBrand.indexOf('await updateBrandingSystemSettings')
+  );
+  assert.match(saveBrand, /navigation_logo_url: normalizeBrandUrl\(brandForm\.navigationLogo\.url\)/);
+  assert.match(saveBrand, /login_logo_url: normalizeBrandUrl\(brandForm\.loginLogo\.url\)/);
+  assert.match(saveBrand, /login_background_url: normalizeBrandUrl\(brandForm\.loginBackground\.url\)/);
+  assert.match(saveBrand, /favicon_url: normalizeBrandUrl\(brandForm\.favicon\.url\)/);
+  assert.doesNotMatch(saveBrand, /navigation_logo_path/);
 });
 
-test('brand file picker is an unbound replacement command that resets after selection', () => {
-  assert.match(brandAssetFieldSource, /<AFilePicker/);
-  assert.doesNotMatch(brandAssetFieldSource, /model-value/);
-  assert.match(brandAssetFieldSource, /#trigger="\{ open \}"/);
-  assert.match(brandAssetFieldSource, /@click="open"/);
-  assert.match(brandAssetFieldSource, /item\?\.path/);
-  assert.match(brandAssetFieldSource, /pickerKey\.value \+= 1/);
-  assert.match(brandAssetFieldSource, /asset\.path && !asset\.url/);
+test('brand editor accepts direct URLs without File API coupling', () => {
+  assert.match(settingsPageSource, /ref="brandFormRef"/);
+  assert.match(settingsPageSource, /:rules="brandRules"/);
+  assert.match(brandAssetFieldSource, /:model-value="asset\.url \?\? ''"/);
+  assert.match(brandAssetFieldSource, /:max-length="2048"/);
+  assert.doesNotMatch(brandAssetFieldSource, /AFilePicker|FileItem|asset\.path/);
 });
 
 test('dynamic favicons do not retain the built-in SVG MIME hint', () => {

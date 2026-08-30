@@ -57,7 +57,7 @@ const SYSTEM: AppRouteRecordRaw = {
       },
     },
     {
-      path: 'files',
+      path: 'file',
       name: 'SystemFiles',
       component: () => import('@/views/system/files/index.vue'),
       meta: {

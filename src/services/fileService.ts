@@ -9,6 +9,20 @@ const ALLOWED_EXTENSIONS: Record<FileType, readonly string[]> = {
   audio: ['mp3', 'wav'],
   other: ['zip'],
 };
+const MAX_FILE_SIZE_MIB: Record<FileType, number> = {
+  image: 5,
+  document: 20,
+  video: 100,
+  audio: 20,
+  other: 20,
+};
+const UNSUPPORTED_ARCHIVE_ACCEPT = '.admin9-unsupported';
+
+export function fileAccept(fileType?: FileUploadOptions['fileType']): string {
+  if (fileType === 'archive') return UNSUPPORTED_ARCHIVE_ACCEPT;
+  const extensions = fileType ? ALLOWED_EXTENSIONS[fileType] : Object.values(ALLOWED_EXTENSIONS).flat();
+  return extensions.map((extension) => `.${extension}`).join(',');
+}
 
 export function toFileItem(file: FileRecord): FileItem {
   return {
@@ -17,7 +31,6 @@ export function toFileItem(file: FileRecord): FileItem {
     type: file.type,
     groupId: null,
     url: file.url,
-    path: file.path,
     size: file.size,
     mime: file.mime_type,
     extension: file.extension,
@@ -30,6 +43,42 @@ function fileId(id: string) {
   const parsed = Number(id);
   if (!Number.isSafeInteger(parsed) || parsed <= 0) throw new Error('Invalid file ID');
   return parsed;
+}
+
+export function validateFileUpload(file: File, fileType: FileUploadOptions['fileType']): void {
+  if (!BACKEND_FILE_TYPES.includes(fileType as FileType)) {
+    throw new Error('The current backend does not accept archive files');
+  }
+  const backendFileType = fileType as FileType;
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  if (!extension || !ALLOWED_EXTENSIONS[backendFileType].includes(extension)) {
+    throw new Error(`Unsupported ${fileType} file format`);
+  }
+  if (file.size < 1) {
+    throw new Error('The file must not be empty');
+  }
+  const maxSizeMib = MAX_FILE_SIZE_MIB[backendFileType];
+  if (file.size > maxSizeMib * 1024 ** 2) {
+    throw new Error(`The ${fileType} file may not be greater than ${maxSizeMib} MiB`);
+  }
+}
+
+export async function removeFiles(
+  ids: string[],
+  deleteRequest: (id: number) => Promise<unknown> = deleteFile
+): Promise<string[]> {
+  const results = await Promise.allSettled(
+    ids.map(async (id) => {
+      await deleteRequest(fileId(id));
+      return id;
+    })
+  );
+  const succeeded = results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []));
+  const firstFailure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+  if (succeeded.length === 0 && firstFailure) {
+    throw firstFailure.reason;
+  }
+  return succeeded;
 }
 
 const fileService: FileManagerAdapter = {
@@ -54,19 +103,12 @@ const fileService: FileManagerAdapter = {
     };
   },
   async upload(options: FileUploadOptions) {
-    if (!BACKEND_FILE_TYPES.includes(options.fileType as FileType)) {
-      throw new Error('The current backend does not accept archive files');
-    }
-    const extension = options.file.name.split('.').pop()?.toLowerCase();
-    if (!extension || !ALLOWED_EXTENSIONS[options.fileType as FileType].includes(extension)) {
-      throw new Error(`Unsupported ${options.fileType} file format`);
-    }
+    validateFileUpload(options.file, options.fileType);
     const response = await uploadFile(options.file, { onProgress: options.onProgress, signal: options.signal });
     return toFileItem(response.data.file);
   },
   async remove(ids: string[]) {
-    await Promise.all(ids.map((id) => deleteFile(fileId(id))));
-    return ids;
+    return removeFiles(ids);
   },
 };
 
