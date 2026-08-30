@@ -24,17 +24,23 @@
             class="log-filter-input log-filter-input-wide"
             @press-enter="handleSearch"
           />
-          <a-input
+          <a-input-number
             v-model="filters.subject_id"
             :placeholder="$t('system.log.filter.subjectId')"
+            :min="1"
+            :precision="0"
             allow-clear
+            hide-button
             class="log-filter-input"
             @press-enter="handleSearch"
           />
-          <a-input
+          <a-input-number
             v-model="filters.causer_id"
             :placeholder="$t('system.log.filter.causerId')"
+            :min="1"
+            :precision="0"
             allow-clear
+            hide-button
             class="log-filter-input"
             @press-enter="handleSearch"
           />
@@ -129,8 +135,8 @@
     log_name: string;
     event: string;
     subject_type: string;
-    subject_id: string;
-    causer_id: string;
+    subject_id: number | undefined;
+    causer_id: number | undefined;
     created_at: string[];
   }
 
@@ -138,8 +144,8 @@
     log_name: '',
     event: '',
     subject_type: '',
-    subject_id: '',
-    causer_id: '',
+    subject_id: undefined,
+    causer_id: undefined,
     created_at: [],
   });
 
@@ -216,8 +222,8 @@
         log_name: filters.log_name || undefined,
         event: filters.event || undefined,
         subject_type: filters.subject_type || undefined,
-        subject_id: filters.subject_id || undefined,
-        causer_id: filters.causer_id || undefined,
+        subject_id: filters.subject_id,
+        causer_id: filters.causer_id,
         created_at: toDateRange(filters.created_at),
         current: pagination.current,
         pageSize: pagination.pageSize,

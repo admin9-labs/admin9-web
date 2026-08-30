@@ -33,10 +33,13 @@
             <a-option value="1">{{ $t('system.log.status.success') }}</a-option>
             <a-option value="0">{{ $t('system.log.status.failure') }}</a-option>
           </a-select>
-          <a-input
+          <a-input-number
             v-model="filters.subject_id"
             :placeholder="$t('system.log.filter.subjectId')"
+            :min="1"
+            :precision="0"
             allow-clear
+            hide-button
             class="log-filter-input"
             @press-enter="handleSearch"
           />
@@ -155,7 +158,7 @@
     guard: string;
     event: string;
     successful: '1' | '0' | undefined;
-    subject_id: string;
+    subject_id: number | undefined;
     ip_address: string;
     created_at: string[];
   }
@@ -165,7 +168,7 @@
     guard: '',
     event: '',
     successful: undefined,
-    subject_id: '',
+    subject_id: undefined,
     ip_address: '',
     created_at: [],
   });
@@ -257,7 +260,7 @@
         guard: filters.guard || undefined,
         event: filters.event || undefined,
         successful: filters.successful === undefined ? undefined : filters.successful === '1',
-        subject_id: filters.subject_id || undefined,
+        subject_id: filters.subject_id,
         ip_address: filters.ip_address || undefined,
         created_at: toDateRange(filters.created_at),
         current: pagination.current,

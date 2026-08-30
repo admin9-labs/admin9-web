@@ -19,8 +19,8 @@ export interface ActivityLogListParams {
   log_name?: string;
   event?: string;
   subject_type?: string;
-  subject_id?: string;
-  causer_id?: string;
+  subject_id?: number;
+  causer_id?: number;
   created_at?: LogDateRange;
   sorts?: string;
   current?: number;
@@ -32,7 +32,7 @@ export interface LoginLogListParams {
   event?: string;
   successful?: boolean;
   account?: string;
-  subject_id?: string;
+  subject_id?: number;
   ip_address?: string;
   created_at?: LogDateRange;
   sorts?: string;
