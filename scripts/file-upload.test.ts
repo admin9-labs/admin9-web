@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { toFileItem } from '../src/services/fileService';
 import supportsXhrUploadProgress from '../src/utils/file-upload';
 
 class XMLHttpRequestStub {
@@ -36,4 +37,24 @@ test('upload progress is enabled only for an event-capable XHR upload target', (
 
 test('upload progress stays optional outside a browser environment', () => {
   assert.equal(supportsXhrUploadProgress(), false);
+});
+
+test('file adapter preserves the backend storage path', () => {
+  const item = toFileItem({
+    id: 9,
+    name: 'brand.png',
+    type: 'image',
+    mime_type: 'image/png',
+    extension: 'png',
+    size: 128,
+    path: 'files/2026/08/brand.png',
+    url: 'https://files.test/storage/files/2026/08/brand.png',
+    width: 32,
+    height: 32,
+    status: 'ready',
+    created_at: '2026-08-30 12:00:00',
+  });
+
+  assert.equal(item.id, '9');
+  assert.equal(item.path, 'files/2026/08/brand.png');
 });

@@ -14,6 +14,10 @@ require.extensions['.svg'] = loadAssetPath;
 require.extensions['.png'] = loadAssetPath;
 
 const settingsPageSource = readFileSync(resolve(process.cwd(), 'src/views/system/configs/index.vue'), 'utf8');
+const brandAssetFieldSource = readFileSync(
+  resolve(process.cwd(), 'src/views/system/configs/components/BrandAssetField.vue'),
+  'utf8'
+);
 const appSource = readFileSync(resolve(process.cwd(), 'src/App.vue'), 'utf8');
 
 const resource = (branding: SystemSettingsResource['branding']): SystemSettingsResource => ({
@@ -28,9 +32,13 @@ const resource = (branding: SystemSettingsResource['branding']): SystemSettingsR
 test('nullable basic settings map to empty form values', () => {
   const mapped = mapSystemSettings(
     resource({
+      navigation_logo_path: null,
       navigation_logo_url: null,
+      login_logo_path: null,
       login_logo_url: null,
+      login_background_path: null,
       login_background_url: null,
+      favicon_path: null,
       favicon_url: null,
     })
   );
@@ -42,21 +50,25 @@ test('nullable basic settings map to empty form values', () => {
   });
 });
 
-test('branding URL settings map directly without resource state or IDs', () => {
+test('branding file paths and derived URLs map without File IDs', () => {
   const mapped = mapSystemSettings(
     resource({
+      navigation_logo_path: 'files/2026/08/nav.png',
       navigation_logo_url: 'https://cdn.test/nav.png',
+      login_logo_path: null,
       login_logo_url: null,
+      login_background_path: 'files/2026/08/missing.png',
       login_background_url: null,
+      favicon_path: null,
       favicon_url: null,
     })
   );
 
   assert.deepEqual(mapped.brand, {
-    navigationLogo: { url: 'https://cdn.test/nav.png' },
-    loginLogo: { url: null },
-    loginBackground: { url: null },
-    favicon: { url: null },
+    navigationLogo: { path: 'files/2026/08/nav.png', url: 'https://cdn.test/nav.png' },
+    loginLogo: { path: null, url: null },
+    loginBackground: { path: 'files/2026/08/missing.png', url: null },
+    favicon: { path: null, url: null },
   });
 });
 
@@ -69,9 +81,13 @@ test('an admin resource invalidates an older public request generation', async (
 
   store.applyResource(
     resource({
+      navigation_logo_path: 'files/2026/08/new-nav.png',
       navigation_logo_url: 'https://cdn.test/new-nav.png',
+      login_logo_path: null,
       login_logo_url: null,
+      login_background_path: null,
       login_background_url: null,
+      favicon_path: null,
       favicon_url: null,
     })
   );
@@ -112,6 +128,18 @@ test('save handlers acquire their lock before the first asynchronous operation',
   assert.ok(saveBrand);
   assert.ok(saveBasic.indexOf('basicSaving.value = true') < saveBasic.indexOf('await basicFormRef.value?.validate()'));
   assert.ok(saveBrand.indexOf('brandSaving.value = true') < saveBrand.indexOf('await updateBrandingSystemSettings'));
+  assert.match(saveBrand, /navigation_logo_path: brandForm\.navigationLogo\.path/);
+  assert.doesNotMatch(saveBrand, /navigation_logo_url/);
+});
+
+test('brand file picker is an unbound replacement command that resets after selection', () => {
+  assert.match(brandAssetFieldSource, /<AFilePicker/);
+  assert.doesNotMatch(brandAssetFieldSource, /model-value/);
+  assert.match(brandAssetFieldSource, /#trigger="\{ open \}"/);
+  assert.match(brandAssetFieldSource, /@click="open"/);
+  assert.match(brandAssetFieldSource, /item\?\.path/);
+  assert.match(brandAssetFieldSource, /pickerKey\.value \+= 1/);
+  assert.match(brandAssetFieldSource, /asset\.path && !asset\.url/);
 });
 
 test('dynamic favicons do not retain the built-in SVG MIME hint', () => {

@@ -65,6 +65,8 @@
                 :label="$t('system.config.fields.navigationLogo')"
                 :description="$t('system.config.descriptions.navigationLogo')"
                 :readonly="!canEdit"
+                :can-browse="canBrowseFiles"
+                :can-upload="canUploadFiles"
                 @update:asset="brandForm.navigationLogo = $event"
               />
               <BrandAssetField
@@ -73,6 +75,8 @@
                 :label="$t('system.config.fields.loginLogo')"
                 :description="$t('system.config.descriptions.loginLogo')"
                 :readonly="!canEdit"
+                :can-browse="canBrowseFiles"
+                :can-upload="canUploadFiles"
                 @update:asset="brandForm.loginLogo = $event"
               />
               <BrandAssetField
@@ -82,6 +86,8 @@
                 :description="$t('system.config.descriptions.loginBackground')"
                 variant="background"
                 :readonly="!canEdit"
+                :can-browse="canBrowseFiles"
+                :can-upload="canUploadFiles"
                 @update:asset="brandForm.loginBackground = $event"
               />
               <BrandAssetField
@@ -91,6 +97,8 @@
                 :description="$t('system.config.descriptions.favicon')"
                 variant="favicon"
                 :readonly="!canEdit"
+                :can-browse="canBrowseFiles"
+                :can-upload="canUploadFiles"
                 @update:asset="brandForm.favicon = $event"
               />
               <div v-if="canUpdate" class="form-actions">
@@ -139,6 +147,8 @@
   const brandSaving = ref(false);
   const basicFormRef = ref<FormInstance>();
   const canUpdate = computed(() => hasPermission('system.config.update'));
+  const canBrowseFiles = computed(() => hasPermission('system.file.view'));
+  const canUploadFiles = computed(() => canBrowseFiles.value && hasPermission('system.file.create'));
   const canEdit = computed(
     () => canUpdate.value && settingsLoaded.value && !loading.value && !basicSaving.value && !brandSaving.value
   );
@@ -241,10 +251,10 @@
     brandSaving.value = true;
     try {
       const response = await updateBrandingSystemSettings({
-        navigation_logo_url: brandForm.navigationLogo.url || null,
-        login_logo_url: brandForm.loginLogo.url || null,
-        login_background_url: brandForm.loginBackground.url || null,
-        favicon_url: brandForm.favicon.url || null,
+        navigation_logo_path: brandForm.navigationLogo.path,
+        login_logo_path: brandForm.loginLogo.path,
+        login_background_path: brandForm.loginBackground.path,
+        favicon_path: brandForm.favicon.path,
       });
       applySettingsResource(response.data);
       Message.success(t('system.config.saveSuccess'));

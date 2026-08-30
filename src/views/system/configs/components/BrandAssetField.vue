@@ -4,20 +4,42 @@
       <BrandImage :src="asset.url || fallback" :fallback="fallback" :alt="label" />
     </div>
     <div class="asset-content">
-      <a-form-item :label="label" :extra="description">
-        <a-input
-          :model-value="asset.url ?? ''"
-          :disabled="readonly"
-          allow-clear
-          :placeholder="$t('system.config.brand.urlPlaceholder')"
-          @update:model-value="emit('update:asset', { url: $event || null })"
-        />
-      </a-form-item>
+      <div class="asset-heading">{{ label }}</div>
+      <div v-if="description" class="asset-description">{{ description }}</div>
+      <div class="asset-path">
+        <span>{{ $t('system.config.brand.filePath') }}</span>
+        <code>{{ asset.path || $t('system.config.brand.defaultAsset') }}</code>
+      </div>
+      <a-alert v-if="asset.path && !asset.url" type="warning" class="asset-warning">
+        {{ $t('system.config.brand.invalid') }}
+      </a-alert>
+      <div v-if="!readonly" class="asset-actions">
+        <AFilePicker
+          v-if="canBrowse"
+          :key="pickerKey"
+          :file-types="['image']"
+          :multiple="false"
+          :can-upload="canUpload"
+          @change="handleSelect"
+        >
+          <template #trigger="{ open }">
+            <a-button @click="open">
+              <template #icon><icon-image /></template>
+              {{ asset.path ? $t('system.config.brand.replace') : $t('system.config.brand.select') }}
+            </a-button>
+          </template>
+        </AFilePicker>
+        <a-button v-if="asset.path" type="text" @click="emit('update:asset', { path: null, url: null })">
+          {{ $t('system.config.brand.useDefault') }}
+        </a-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { ref } from 'vue';
+  import { AFilePicker, type FileItem } from '@admin9-labs/admin9-ui';
   import type { BrandAsset } from '@/config/system-settings';
   import BrandImage from '@/components/brand-image/index.vue';
 
@@ -29,11 +51,27 @@
       description?: string;
       variant?: 'logo' | 'background' | 'favicon';
       readonly?: boolean;
+      canBrowse?: boolean;
+      canUpload?: boolean;
     }>(),
-    { description: '', variant: 'logo', readonly: false }
+    {
+      description: '',
+      variant: 'logo',
+      readonly: false,
+      canBrowse: false,
+      canUpload: false,
+    }
   );
 
   const emit = defineEmits<{ (event: 'update:asset', value: BrandAsset): void }>();
+  const pickerKey = ref(0);
+
+  const handleSelect = (items: FileItem[]) => {
+    const item = items[0];
+    if (!item?.path || !item.url) return;
+    emit('update:asset', { path: item.path, url: item.url });
+    pickerKey.value += 1;
+  };
 </script>
 
 <style lang="less" scoped>
@@ -70,6 +108,46 @@
     height: 100%;
     max-height: none;
     object-fit: cover;
+  }
+
+  .asset-content {
+    min-width: 0;
+  }
+
+  .asset-heading {
+    color: var(--color-text-1);
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .asset-description,
+  .asset-path {
+    margin-top: 6px;
+    color: var(--color-text-3);
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  .asset-path {
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .asset-path code {
+    overflow-wrap: anywhere;
+  }
+
+  .asset-warning {
+    margin-top: 10px;
+  }
+
+  .asset-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 12px;
   }
 
   @media (width <= 767px) {

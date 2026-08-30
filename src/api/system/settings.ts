@@ -18,8 +18,8 @@ export interface MappedSystemSettings {
   brand: BrandSystemSettings;
 }
 
-function mapBrandUrl(url: string | null | undefined): BrandAsset {
-  return { url: url ?? null };
+function mapBrandAsset(path: string | null | undefined, url: string | null | undefined): BrandAsset {
+  return { path: path ?? null, url: url ?? null };
 }
 
 export function mapSystemSettings(resource: SystemSettingsResource): MappedSystemSettings {
@@ -30,10 +30,10 @@ export function mapSystemSettings(resource: SystemSettingsResource): MappedSyste
       icpFilingNumber: resource.basic.icp_filing_number ?? '',
     },
     brand: {
-      navigationLogo: mapBrandUrl(resource.branding.navigation_logo_url),
-      loginLogo: mapBrandUrl(resource.branding.login_logo_url),
-      loginBackground: mapBrandUrl(resource.branding.login_background_url),
-      favicon: mapBrandUrl(resource.branding.favicon_url),
+      navigationLogo: mapBrandAsset(resource.branding.navigation_logo_path, resource.branding.navigation_logo_url),
+      loginLogo: mapBrandAsset(resource.branding.login_logo_path, resource.branding.login_logo_url),
+      loginBackground: mapBrandAsset(resource.branding.login_background_path, resource.branding.login_background_url),
+      favicon: mapBrandAsset(resource.branding.favicon_path, resource.branding.favicon_url),
     },
   };
 }

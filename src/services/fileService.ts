@@ -17,6 +17,7 @@ export function toFileItem(file: FileRecord): FileItem {
     type: file.type,
     groupId: null,
     url: file.url,
+    path: file.path,
     size: file.size,
     mime: file.mime_type,
     extension: file.extension,
