@@ -25,6 +25,7 @@ export interface RetryRequestState {
 }
 
 export type SessionRetryDecision = 'fail' | 'replay' | 'refresh';
+export type IdentityLoadFailureDecision = 'retry' | 'unauthenticated' | 'unavailable';
 
 export function sessionMatches(left: AuthSessionSnapshot, right: AuthSessionSnapshot) {
   return left.generation === right.generation && left.token === right.token;
@@ -40,6 +41,16 @@ export function shouldRetryIdentityLoad(
   currentSession: AuthSessionSnapshot
 ) {
   return attempt < 1 && !!currentSession.token && !sessionMatches(requestSession, currentSession);
+}
+
+export function identityLoadFailureDecision(
+  requestSession: AuthSessionSnapshot,
+  currentSession: AuthSessionSnapshot,
+  invalidatesSession: boolean
+): IdentityLoadFailureDecision {
+  if (currentSession.token && !sessionMatches(currentSession, requestSession)) return 'retry';
+  if (!currentSession.token || invalidatesSession) return 'unauthenticated';
+  return 'unavailable';
 }
 
 export async function completeLogoutAttempt(remoteLogout: () => Promise<unknown>, clearLocalSession: () => boolean) {
@@ -70,7 +81,9 @@ export function sessionRetryDecision(request: RetryRequestState, current: AuthSe
   ) {
     return 'fail';
   }
-  if (!sessionMatches({ generation: request.generation ?? '', token: request.token ?? null }, current)) return 'replay';
+  const requestSession = { generation: request.generation ?? '', token: request.token ?? null };
+  if (!sessionBelongsToGeneration(current, requestSession.generation)) return 'fail';
+  if (!sessionMatches(requestSession, current)) return 'replay';
   return 'refresh';
 }
 

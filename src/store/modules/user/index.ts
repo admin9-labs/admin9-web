@@ -83,7 +83,7 @@ const useUserStore = defineStore('user', {
         }
         useAppStore().clearServerMenu();
       } catch (error) {
-        clearToken(authenticatedSession ?? requestSession);
+        if (authenticatedSession) this.logoutCallBack(authenticatedSession);
         throw error;
       }
     },

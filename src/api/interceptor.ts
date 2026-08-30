@@ -2,7 +2,8 @@ import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message } from '@arco-design/web-vue';
 import type { ApiOperationResponse } from '@/api/openapi';
-import { clearToken, getSessionSnapshot, replaceToken } from '@/utils/auth';
+import { getSessionSnapshot, replaceToken } from '@/utils/auth';
+import { createApiError, formatApiErrorMessage, invalidatesAuthSession, type ApiError } from '@/utils/api-error';
 import { sessionRetryDecision, type AuthSessionSnapshot } from '@/utils/auth-session';
 
 export interface PaginationMeta {
@@ -28,6 +29,7 @@ interface RetriableRequestConfig extends AxiosRequestConfig {
   admin9Retried?: boolean;
   admin9SessionGeneration?: string;
   admin9RequestToken?: string | null;
+  admin9SuppressErrorNotification?: boolean;
 }
 
 interface RefreshFlight {
@@ -42,7 +44,44 @@ function requestPath(config?: AxiosRequestConfig) {
 }
 
 function isSilentRequest(config?: AxiosRequestConfig) {
-  return requestPath(config) === '/system-settings/public';
+  const retriableConfig = config as RetriableRequestConfig | undefined;
+  return (
+    requestPath(config) === '/system-settings/public' ||
+    requestPath(config) === '/admin/auth/login' ||
+    !!retriableConfig?.admin9SuppressErrorNotification
+  );
+}
+
+function notifyError(error: ApiError, config?: AxiosRequestConfig) {
+  if (!isSilentRequest(config)) Message.error({ content: formatApiErrorMessage(error), duration: 5000 });
+}
+
+function requestSession(config?: RetriableRequestConfig): AuthSessionSnapshot | null {
+  if (!config?.admin9SessionGeneration) return null;
+  return {
+    generation: config.admin9SessionGeneration,
+    token: config.admin9RequestToken ?? null,
+  };
+}
+
+async function teardownRequestSession(config: RetriableRequestConfig | undefined) {
+  const expected = requestSession(config);
+  if (!expected?.token || requestPath(config) === '/admin/auth/login') return false;
+  const { useUserStore } = await import('@/store');
+  if (!useUserStore().logoutCallBack(expected)) return false;
+  const { default: router } = await import('@/router');
+  if (router.currentRoute.value.name !== 'login') await router.replace({ name: 'login' });
+  return true;
+}
+
+type RefreshIdentity = ApiOperationResponse<'admin.auth.refresh', 200>['data'];
+
+async function synchronizeRefreshedIdentity(responseData: RefreshIdentity, session: AuthSessionSnapshot) {
+  const { useAppStore, useUserStore } = await import('@/store');
+  if (!responseData.permission_names) return false;
+  if (!useUserStore().setIdentity(responseData, session)) return false;
+  useAppStore().clearServerMenu();
+  return true;
 }
 
 function applyToken(config: RetriableRequestConfig, session: AuthSessionSnapshot) {
@@ -69,17 +108,18 @@ async function refreshAccessToken(expected: AuthSessionSnapshot) {
       headers: { Authorization: `Bearer ${expected.token}` },
       admin9SessionGeneration: expected.generation,
       admin9RequestToken: expected.token,
+      admin9SuppressErrorNotification: true,
     } as RetriableRequestConfig)
-    .then((response) => {
+    .then(async (response) => {
       const nextToken = response.data.access_token;
-      if (replaceToken(expected, nextToken)) return nextToken;
+      if (replaceToken(expected, nextToken)) {
+        const current = getSessionSnapshot();
+        await synchronizeRefreshedIdentity(response.data, current);
+        return nextToken;
+      }
       const current = getSessionSnapshot();
-      if (current.token) return current.token;
+      if (current.generation === expected.generation && current.token) return current.token;
       throw new Error('Authentication session changed during refresh');
-    })
-    .catch((error) => {
-      clearToken(expected);
-      throw error;
     })
     .finally(() => {
       if (refreshFlight?.key === key) refreshFlight = null;
@@ -89,7 +129,7 @@ async function refreshAccessToken(expected: AuthSessionSnapshot) {
   return promise;
 }
 
-if (import.meta.env.VITE_API_BASE_URL) axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL?.trim() || '/api';
 
 axios.interceptors.request.use((requestConfig: AxiosRequestConfig) => {
   const config = requestConfig as RetriableRequestConfig;
@@ -107,12 +147,14 @@ axios.interceptors.request.use((requestConfig: AxiosRequestConfig) => {
 });
 
 axios.interceptors.response.use(
-  (response: AxiosResponse<HttpResponse>) => {
+  async (response: AxiosResponse<HttpResponse>) => {
     const body = response.data;
     if (body.success === false || body.code !== 0) {
       const config = response.config as RetriableRequestConfig;
-      if (!isSilentRequest(config)) Message.error({ content: body.message || 'Error', duration: 5000 });
-      return Promise.reject(new Error(body.message || 'Error'));
+      const error = createApiError(body, { status: body.code || response.status, headers: response.headers });
+      if (invalidatesAuthSession(error)) await teardownRequestSession(config);
+      notifyError(error, config);
+      return Promise.reject(error);
     }
     return body;
   },
@@ -135,13 +177,20 @@ axios.interceptors.response.use(
       try {
         await refreshAccessToken(current);
         return retryWithCurrentSession(config, getSessionSnapshot());
-      } catch {
-        // The original 401 remains the actionable failure.
+      } catch (refreshError) {
+        const error = createApiError(refreshError, { fallbackMessage: 'Authentication refresh failed' });
+        notifyError(error, config);
+        return Promise.reject(error);
       }
     }
 
-    const message = axiosError.response?.data?.message || axiosError.message || 'Request Error';
-    if (!isSilentRequest(config)) Message.error({ content: message, duration: 5000 });
-    return Promise.reject(axiosError);
+    const error = createApiError(axiosError.response?.data, {
+      status: axiosError.response?.status,
+      headers: axiosError.response?.headers,
+      fallbackMessage: axiosError.message,
+    });
+    if (invalidatesAuthSession(error)) await teardownRequestSession(config);
+    notifyError(error, config);
+    return Promise.reject(error);
   }
 );

@@ -31,6 +31,7 @@
   import useLoading from '@/hooks/loading';
   import { useUserStore } from '@/store';
   import type { LoginData } from '@/api/user';
+  import { ApiError } from '@/utils/api-error';
   import AgreementNotice from './AgreementNotice.vue';
 
   const { t } = useI18n();
@@ -66,12 +67,18 @@
       });
       Message.success(t('login.form.login.success'));
     } catch (err) {
-      loginForm.value.setFields({
-        password: {
-          status: 'error',
-          message: (err as Error).message,
-        },
-      });
+      const apiError = err instanceof ApiError ? err : null;
+      const fieldErrors = Object.fromEntries(
+        ['email', 'password'].flatMap((field) => {
+          const message = apiError?.errors?.[field]?.[0];
+          return message ? [[field, { status: 'error', message }]] : [];
+        })
+      );
+      loginForm.value.setFields(
+        Object.keys(fieldErrors).length
+          ? fieldErrors
+          : { password: { status: 'error', message: err instanceof Error ? err.message : t('login.form.password.errMsg') } }
+      );
     } finally {
       setLoading(false);
     }

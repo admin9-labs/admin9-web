@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import './api-error.test';
 import {
   completeLogoutAttempt,
   createAuthSessionState,
+  identityLoadFailureDecision,
   sessionBelongsToGeneration,
   sessionMatches,
   sessionRetryDecision,
@@ -27,11 +29,11 @@ function createState() {
   });
 }
 
-test('a late 401 for an old token replays with the current token', () => {
+test('a late 401 replays only after same-generation token rotation', () => {
   const request = { status: 401, retried: false, path: '/admin/auth/me', generation: 'session-1', token: 'old' };
 
   assert.equal(sessionRetryDecision(request, { generation: 'session-1', token: 'refreshed' }), 'replay');
-  assert.equal(sessionRetryDecision(request, { generation: 'session-2', token: 'new-login' }), 'replay');
+  assert.equal(sessionRetryDecision(request, { generation: 'session-2', token: 'new-login' }), 'fail');
 });
 
 test('same-generation token replacement is a different request snapshot', () => {
@@ -51,6 +53,15 @@ test('identity loading retries once for a replaced token or a newer login', () =
   assert.equal(shouldRetryIdentityLoad(0, oldSession, newLoginSession), true);
   assert.equal(shouldRetryIdentityLoad(1, oldSession, refreshedSession), false);
   assert.equal(shouldRetryIdentityLoad(0, oldSession, { generation: 'session-2', token: null }), false);
+});
+
+test('identity loading distinguishes transient failures from authentication loss', () => {
+  const requestSession = { generation: 'session-1', token: 'current' };
+
+  assert.equal(identityLoadFailureDecision(requestSession, requestSession, false), 'unavailable');
+  assert.equal(identityLoadFailureDecision(requestSession, requestSession, true), 'unauthenticated');
+  assert.equal(identityLoadFailureDecision(requestSession, { generation: 'session-2', token: 'new-login' }, true), 'retry');
+  assert.equal(identityLoadFailureDecision(requestSession, { generation: 'session-1', token: null }, false), 'unauthenticated');
 });
 
 test('the matching session refreshes once while retried requests fail', () => {
@@ -83,6 +94,22 @@ test('a refresh cannot replace or clear a newer login session', () => {
 
   assert.equal(state.replaceToken(refreshing, 'late-refresh-token'), false);
   assert.equal(state.clearSession(refreshing), false);
+  assert.deepEqual(state.snapshot(), newer);
+});
+
+test('a terminal response for an older generation cannot clear a newer login', () => {
+  const state = createState();
+  const anonymous = state.snapshot();
+  const older = state.beginSession('old-token', anonymous.generation);
+  assert.ok(older);
+  const newer = state.beginSession('new-login-token', older.generation);
+  assert.ok(newer);
+
+  assert.equal(
+    sessionRetryDecision({ status: 401, retried: true, path: '/admin/auth/me', ...older }, state.snapshot()),
+    'fail'
+  );
+  assert.equal(state.clearSession(older), false);
   assert.deepEqual(state.snapshot(), newer);
 });
 

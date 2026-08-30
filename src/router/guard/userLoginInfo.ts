@@ -3,30 +3,38 @@ import NProgress from 'nprogress'; // progress bar
 
 import { useUserStore } from '@/store';
 import { getSessionSnapshot, isLogin } from '@/utils/auth';
-import { sessionMatches } from '@/utils/auth-session';
+import { invalidatesAuthSession } from '@/utils/api-error';
+import { identityLoadFailureDecision } from '@/utils/auth-session';
+
+type IdentityLoadResult = 'loaded' | 'unauthenticated' | 'unavailable';
 
 async function ensureIdentityLoaded() {
   const userStore = useUserStore();
 
-  const loadIdentity = async (attempt: number): Promise<boolean> => {
-    if (attempt >= 2) return false;
+  const loadIdentity = async (attempt: number): Promise<IdentityLoadResult> => {
+    if (attempt >= 2) return 'unavailable';
     const requestSession = getSessionSnapshot();
-    if (!requestSession.token) return false;
-    if (userStore.identityMatchesSession(requestSession)) return true;
+    if (!requestSession.token) return 'unauthenticated';
+    if (userStore.identityMatchesSession(requestSession)) return 'loaded';
 
     try {
       await userStore.info();
-    } catch {
+    } catch (error) {
       const currentSession = getSessionSnapshot();
-      if (currentSession.token && !sessionMatches(currentSession, requestSession)) return loadIdentity(attempt + 1);
-      userStore.logoutCallBack(currentSession.token ? requestSession : currentSession);
-      return false;
+      const decision = identityLoadFailureDecision(requestSession, currentSession, invalidatesAuthSession(error));
+      if (decision === 'retry') return loadIdentity(attempt + 1);
+      if (decision === 'unauthenticated') {
+        userStore.logoutCallBack(requestSession);
+        return 'unauthenticated';
+      }
+      return 'unavailable';
     }
 
     const currentSession = getSessionSnapshot();
-    if (currentSession.token && userStore.identityMatchesSession(currentSession)) return true;
-    if (currentSession.token && !sessionMatches(currentSession, requestSession)) return loadIdentity(attempt + 1);
-    return false;
+    if (currentSession.token && userStore.identityMatchesSession(currentSession)) return 'loaded';
+    const decision = identityLoadFailureDecision(requestSession, currentSession, false);
+    if (decision === 'retry') return loadIdentity(attempt + 1);
+    return decision;
   };
 
   return loadIdentity(0);
@@ -36,8 +44,12 @@ export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     NProgress.start();
     if (isLogin()) {
-      if (await ensureIdentityLoaded()) {
+      const identityResult = await ensureIdentityLoaded();
+      if (identityResult === 'loaded') {
         next();
+      } else if (identityResult === 'unavailable') {
+        NProgress.done();
+        next(false);
       } else {
         next({
           name: 'login',
