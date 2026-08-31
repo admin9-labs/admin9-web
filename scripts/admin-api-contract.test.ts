@@ -180,8 +180,13 @@ test('Admin9 business API Axios calls match the backend OpenAPI contract', () =>
 
 test('the API alignment matrix classifies every OpenAPI operation exactly once', () => {
   const document = JSON.parse(readFileSync(openapiPath, 'utf8')) as OpenApiDocument;
+  const httpMethods = new Set(['get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'trace']);
+  const methodPaths = Object.entries(document.paths ?? {}).flatMap(([pathname, operations]) =>
+    Object.entries(operations).flatMap(([method]) => (httpMethods.has(method) ? [`${method.toUpperCase()} ${pathname}`] : []))
+  );
   const operationIds = Object.values(document.paths ?? {}).flatMap((operations) =>
-    Object.values(operations).flatMap((operation) => {
+    Object.entries(operations).flatMap(([method, operation]) => {
+      if (!httpMethods.has(method)) return [];
       if (!operation || typeof operation !== 'object' || !('operationId' in operation)) return [];
       const { operationId } = operation as { operationId?: unknown };
       return typeof operationId === 'string' ? [operationId] : [];
@@ -192,7 +197,16 @@ test('the API alignment matrix classifies every OpenAPI operation exactly once',
   const documented = Array.from(matrix.matchAll(/`([^`]+)`/g), (match) => match[1]).filter((value) =>
     operationIdSet.has(value)
   );
+  const documentedMethodPaths = Array.from(
+    matrix.matchAll(
+      /\|\s+(?:已正确接入|已修复契约漂移|新补齐能力|明确排除|仍阻塞)\s+\|\s+(GET|POST|PUT|PATCH|DELETE)\s+`([^`]+)`/g
+    ),
+    (match) => `${match[1]} ${match[2]}`
+  );
 
+  assert.equal(methodPaths.length, 72);
+  assert.equal(documentedMethodPaths.length, methodPaths.length, 'each method/path operation must appear once in the matrix');
+  assert.deepEqual([...documentedMethodPaths].sort(), [...methodPaths].sort());
   assert.equal(operationIds.length, 65);
   assert.equal(documented.length, operationIds.length, 'each operationId must appear once in the matrix');
   assert.deepEqual([...documented].sort(), [...operationIds].sort());
