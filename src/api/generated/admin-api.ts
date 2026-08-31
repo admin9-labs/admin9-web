@@ -36,6 +36,48 @@ export interface paths {
     put: operations["admin.dictionary-items.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.dictionary-items.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The dictionary item ID */
+          dictionaryItem: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateDictionaryItemRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                dictionary_item: components["schemas"]["DictionaryItemResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/dictionary-types": {
     /** Display a listing of the resource */
@@ -50,6 +92,48 @@ export interface paths {
     put: operations["admin.dictionary-types.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.dictionary-types.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The dictionary type ID */
+          dictionaryType: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateDictionaryTypeRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                dictionary_type: components["schemas"]["DictionaryTypeResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/files": {
     get: operations["admin.files.index"];
@@ -91,6 +175,48 @@ export interface paths {
     put: operations["admin.menus.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.menus.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The menu ID */
+          menu: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateMenuRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                menu: components["schemas"]["MenuResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/menus/tree": {
     /** Return the complete bounded visible menu tree for admin shell navigation */
@@ -109,6 +235,48 @@ export interface paths {
     put: operations["admin.permissions.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.permissions.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The permission ID */
+          permission: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdatePermissionRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                permission: components["schemas"]["PermissionResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/roles": {
     /** Return the complete bounded admin role catalog for assignment UIs */
@@ -123,6 +291,48 @@ export interface paths {
     put: operations["admin.roles.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.roles.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The role ID */
+          role: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateRoleRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                role: components["schemas"]["RoleResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/roles/{role}/permissions": {
     put: operations["admin.roles.permissions.update"];
@@ -140,6 +350,49 @@ export interface paths {
     put: operations["admin.system-configs.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.system-configs.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The system config ID */
+          systemConfig: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateSystemConfigRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                system_config: components["schemas"]["SystemConfigResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/system-settings": {
     get: operations["admin.system-settings.show"];
@@ -163,6 +416,48 @@ export interface paths {
     put: operations["admin.users.update"];
     /** Remove the specified resource from storage */
     delete: operations["admin.users.destroy"];
+    /** Update the specified resource in storage */
+    patch: {
+      parameters: {
+        path: {
+          /** @description The user ID */
+          user: number;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateUserRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: {
+                user: components["schemas"]["UserResource"];
+              };
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
   };
   "/admin/users/{user}/password": {
     put: operations["admin.users.password.update"];
@@ -377,7 +672,8 @@ export interface components {
     RoleResource: {
       created_at: string | null;
       guard_name: string;
-      id: string;
+      /** Format: int64 */
+      id: number;
       name: string;
       permissions?: components["schemas"]["PermissionResource"][];
       updated_at: string | null;
@@ -871,8 +1167,8 @@ export interface operations {
         subject_id?: number;
         causer_id?: number;
         created_at?: string[];
-        /** @description Sort field. Prefix with - for descending order. */
-        sort?: "id" | "created_at";
+        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
+        sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
@@ -1079,14 +1375,14 @@ export interface operations {
     parameters: {
       query?: {
         dictionary_type_id?: string;
-        "type_code:type$code"?: string;
+        type_code?: string;
         code?: string;
         name?: string;
         value?: string;
         is_active?: string;
         keyword?: string;
-        /** @description Sort field. Prefix with - for descending order. */
-        sort?: "id" | "name" | "code" | "value" | "sort" | "created_at" | "updated_at";
+        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, value, sort, created_at, updated_at. */
+        sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
@@ -1283,8 +1579,8 @@ export interface operations {
         name?: string;
         is_active?: string;
         keyword?: string;
-        /** @description Sort field. Prefix with - for descending order. */
-        sort?: "id" | "name" | "code" | "sort" | "created_at" | "updated_at";
+        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, sort, created_at, updated_at. */
+        sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
@@ -1599,8 +1895,8 @@ export interface operations {
         subject_id?: number;
         ip_address?: string;
         created_at?: string[];
-        /** @description Sort field. Prefix with - for descending order. */
-        sort?: "id" | "created_at";
+        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
+        sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
@@ -2460,6 +2756,7 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       404: components["responses"]["ApiNotFoundResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -2515,8 +2812,8 @@ export interface operations {
         is_public?: string;
         is_active?: string;
         keyword?: string;
-        /** @description Sort field. Prefix with - for descending order. */
-        sort?: "id" | "name" | "key" | "type" | "config_group" | "sort" | "created_at" | "updated_at";
+        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, key, type, config_group, sort, created_at, updated_at. */
+        sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
@@ -2802,6 +3099,14 @@ export interface operations {
   };
   /** Display a listing of the resource */
   "admin.users.index": {
+    parameters: {
+      query?: {
+        /** @description Items per page. */
+        page_size?: number;
+        /** @description Page number. */
+        page?: number;
+      };
+    };
     responses: {
       /** @description Paginated list */
       200: {
@@ -2981,6 +3286,7 @@ export interface operations {
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
       404: components["responses"]["ApiNotFoundResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
