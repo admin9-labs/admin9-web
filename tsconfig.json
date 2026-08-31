@@ -16,6 +16,6 @@
     "lib": ["es2020", "dom"],
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/**/*.vue"],
+  "include": ["src/**/*", "src/**/*.vue", "scripts/auth-runtime.test.ts", "scripts/auth-production-runtime.test.ts"],
   "exclude": ["node_modules"]
 }
