@@ -42,20 +42,23 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
         with:
-          version: 9.15.9
+          package_json_file: admin9-web/package.json
 
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 22
+          node-version-file: admin9-web/.node-version
           cache: pnpm
           cache-dependency-path: admin9-web/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test file uploads and picker operations
-        run: pnpm test:file-upload
+      - name: Audit dependencies against reviewed usage
+        run: pnpm audit:dependencies
+
+      - name: Test application behavior
+        run: pnpm test:unit
 
       - name: Check API contracts and generated types
         run: |
@@ -64,3 +67,8 @@ jobs:
 
       - name: Type-check and build production assets
         run: pnpm build
+
+      - name: Lint application code and styles
+        run: |
+          pnpm lint
+          pnpm lint:styles

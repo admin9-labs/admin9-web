@@ -4,10 +4,11 @@ Admin9 管理后台前端，基于 [arco-design-pro-vite-simple](https://github.
 
 ## 本地开发
 
-准备 Node.js 和 pnpm，并启动 Laravel 后端。
+使用 `.node-version` 中的 Node.js 22.23.2 和 `package.json` 固定的 pnpm 10.34.6，并启动 Laravel 后端。CI 使用相同版本。
 
 ```bash
-pnpm install
+corepack enable
+pnpm install --frozen-lockfile
 ```
 
 按需修改 `.env.development`：`VITE_API_BASE_URL` 为后端 API 根地址（包含 `/api`），留空时使用同源 `/api`；`VITE_QQ_MAP_KEY` 为腾讯地图密钥。
