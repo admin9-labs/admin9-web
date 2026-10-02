@@ -1,7 +1,7 @@
 <template>
   <div v-permission="['system.file.view']" class="page-container">
     <Grid :title="$t('system.files.title')">
-      <GridToolbar @refresh="fetchData">
+      <GridToolbar @refresh="refresh">
         <template #prepend>
           <a-space wrap>
             <AFileUploader
@@ -9,18 +9,42 @@
               :service="fileService"
               :file-types="BACKEND_FILE_TYPES"
               :accept="fileAccept()"
+              :group-id="currentGroupId === 'ungrouped' ? null : currentGroupId || null"
               @success="handleUploadSuccess"
             />
+            <a-button v-if="canUploadFiles" :disabled="groupLoading" @click="openCreateGroup">
+              {{ $t('system.files.createGroup') }}
+            </a-button>
+            <a-button
+              v-if="canDeleteFiles && currentGroupId && currentGroupId !== 'ungrouped'"
+              :disabled="groupLoading"
+              @click="handleDeleteGroup"
+            >
+              {{ $t('system.files.deleteGroup') }}
+            </a-button>
+            <a-button v-if="canMoveFiles" :disabled="!selectedKeys.length || loading" @click="moveVisible = true">
+              {{ $t('system.files.move') }}
+            </a-button>
             <a-button v-if="canDeleteFiles" status="danger" :disabled="!selectedKeys.length || loading" @click="handleDelete">
               <template #icon><icon-delete /></template>
               {{ $t('common.action.delete') }}
             </a-button>
-            <a-button v-if="canDeleteFiles && selectedKeys.length" type="text" @click="selectedKeys = []">
+            <a-button v-if="(canDeleteFiles || canMoveFiles) && selectedKeys.length" type="text" @click="selectedKeys = []">
               {{ $t('system.files.clearSelection', { count: selectedKeys.length }) }}
             </a-button>
           </a-space>
         </template>
         <a-space class="file-filters" wrap>
+          <a-tree-select
+            v-model="currentGroupId"
+            :data="groupTree"
+            :loading="groupLoading"
+            :placeholder="$t('system.files.allGroups')"
+            :aria-label="$t('system.files.group')"
+            :style="{ width: '220px' }"
+            allow-clear
+            @change="handleSearch"
+          />
           <a-select
             v-model="currentFileType"
             :options="fileTypeOptions"
@@ -49,7 +73,7 @@
         :data="tableData"
         :columns="columns"
         :pagination="pagination"
-        :row-selection="canDeleteFiles ? { type: 'checkbox', showCheckedAll: true } : undefined"
+        :row-selection="canDeleteFiles || canMoveFiles ? { type: 'checkbox', showCheckedAll: true } : undefined"
         :scroll="{ x: 1480 }"
         @page-change="onPageChange"
       >
@@ -70,15 +94,34 @@
         </template>
       </GridTable>
     </Grid>
+    <a-modal
+      v-model:visible="groupVisible"
+      :title="$t('system.files.createGroup')"
+      :mask-closable="false"
+      unmount-on-close
+      @before-ok="createGroup"
+    >
+      <a-form ref="groupFormRef" :model="groupForm" layout="vertical">
+        <a-form-item field="name" :label="$t('system.files.groupName')" :rules="[{ required: true }]">
+          <a-input v-model="groupForm.name" :max-length="64" />
+        </a-form-item>
+        <a-form-item field="parentId" :label="$t('system.files.parentGroup')">
+          <a-select v-model="groupForm.parentId" :options="rootGroupOptions" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+    <a-modal v-model:visible="moveVisible" :title="$t('system.files.move')" :mask-closable="false" @before-ok="moveSelected">
+      <a-tree-select v-model="moveGroupId" :data="groupTree" :aria-label="$t('system.files.group')" />
+    </a-modal>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { computed, onMounted, onBeforeUnmount, reactive, ref } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, type FormInstance } from '@arco-design/web-vue';
   import { AFileUploader, type FileItem } from '@admin9-labs/admin9-ui';
   import { useI18n } from 'vue-i18n';
-  import type { FileType } from '@/api/system/files';
+  import { queryFileDirectories, deleteFileDirectory, type FileType, type FileDirectoryRecord } from '@/api/system/files';
   import { useLoading, useModal } from '@/hooks';
   import usePermission from '@/hooks/permission';
   import { BACKEND_FILE_TYPES, fileAccept, fileService, removeFiles } from '@/services/fileService';
@@ -91,6 +134,33 @@
   const { hasPermission } = usePermission();
   const canUploadFiles = computed(() => hasPermission('system.file.create'));
   const canDeleteFiles = computed(() => hasPermission('system.file.delete'));
+  const canMoveFiles = computed(() => hasPermission('system.file.update'));
+  const groups = ref<FileDirectoryRecord[]>([]);
+  const groupLoading = ref(false);
+  const currentGroupId = ref<string>();
+  const groupVisible = ref(false);
+  const groupFormRef = ref<FormInstance>();
+  const groupForm = reactive({ name: '', parentId: '' });
+  const moveVisible = ref(false);
+  const moveGroupId = ref('ungrouped');
+  const groupTree = computed(() => [
+    { key: 'ungrouped', title: t('system.files.ungrouped') },
+    ...groups.value
+      .filter((group) => group.parent_id === null)
+      .map((group) => ({
+        key: String(group.id),
+        title: group.name,
+        children: groups.value
+          .filter((child) => child.parent_id === group.id)
+          .map((child) => ({ key: String(child.id), title: child.name })),
+      })),
+  ]);
+  const rootGroupOptions = computed(() => [
+    { value: '', label: t('system.files.rootGroup') },
+    ...groups.value
+      .filter((group) => group.parent_id === null)
+      .map((group) => ({ value: String(group.id), label: group.name })),
+  ]);
   const currentFileType = ref<FileType>();
   const keyword = ref('');
   const tableData = ref<FileItem[]>([]);
@@ -121,6 +191,7 @@
         page: pagination.current,
         pageSize: pagination.pageSize,
         keyword: keyword.value,
+        groupId: currentGroupId.value === 'ungrouped' ? null : currentGroupId.value,
         fileType: currentFileType.value,
       });
       if (activeRequest !== requestId) return;
@@ -135,6 +206,66 @@
       }
     } finally {
       if (activeRequest === requestId) setLoading(false);
+    }
+  };
+
+  const fetchGroups = async () => {
+    groupLoading.value = true;
+    try {
+      const response = await queryFileDirectories();
+      groups.value = response.data;
+    } finally {
+      groupLoading.value = false;
+    }
+  };
+  const refresh = () => {
+    fetchGroups().catch(() => undefined);
+    fetchData();
+  };
+  const openCreateGroup = () => {
+    groupForm.name = '';
+    const group = groups.value.find((item) => String(item.id) === currentGroupId.value);
+    groupForm.parentId = group ? String(group.parent_id ?? group.id) : '';
+    groupVisible.value = true;
+  };
+  const createGroup = async () => {
+    groupForm.name = groupForm.name.trim();
+    if (!canUploadFiles.value || (await groupFormRef.value?.validate())) return false;
+    try {
+      await fileService.createGroup?.({ name: groupForm.name.trim(), parentId: groupForm.parentId || null });
+      await fetchGroups();
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const handleDeleteGroup = () => {
+    if (!canDeleteFiles.value || !currentGroupId.value || currentGroupId.value === 'ungrouped') return;
+    const id = Number(currentGroupId.value);
+    confirmDelete({
+      content: t('system.files.confirmDeleteGroup'),
+      onDelete: async () => {
+        await deleteFileDirectory(id);
+        currentGroupId.value = undefined;
+        selectedKeys.value = [];
+        pagination.current = 1;
+      },
+      onSuccess: refresh,
+    });
+  };
+  const moveSelected = async () => {
+    if (!canMoveFiles.value || !selectedKeys.value.length) return false;
+    try {
+      const ids = selectedKeys.value.map(String);
+      const moved =
+        (await fileService.moveFiles?.({ ids, groupId: moveGroupId.value === 'ungrouped' ? null : moveGroupId.value })) ?? [];
+      selectedKeys.value = selectedKeys.value.filter((id) => !moved.includes(String(id)));
+      if (moved.length < ids.length) Message.warning(t('system.files.partialMove', { count: moved.length }));
+      pagination.current = 1;
+      await fetchData();
+      return moved.length === ids.length;
+    } catch {
+      return false;
     }
   };
 
@@ -179,7 +310,7 @@
     return `${(size / 1024 ** 3).toFixed(1)} GB`;
   };
 
-  onMounted(fetchData);
+  onMounted(refresh);
   onBeforeUnmount(() => {
     requestId += 1;
   });
