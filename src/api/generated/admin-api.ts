@@ -135,12 +135,63 @@ export interface paths {
       };
     };
   };
+  "/admin/file-directories": {
+    get: operations["admin.file-directories.index"];
+    post: operations["admin.file-directories.store"];
+  };
+  "/admin/file-directories/{fileDirectory}": {
+    delete: operations["admin.file-directories.destroy"];
+  };
   "/admin/files": {
     get: operations["admin.files.index"];
     post: operations["admin.files.store"];
   };
   "/admin/files/{file}": {
+    put: operations["admin.files.update"];
     delete: operations["admin.files.destroy"];
+    patch: {
+      parameters: {
+        path: {
+          /** @description The file ID */
+          file: number;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["UpdateFileRequest"];
+        };
+      };
+      responses: {
+        200: {
+          headers: {
+            /** @description Request correlation identifier. Matches the response body request_id. */
+            "X-Request-Id"?: string;
+          };
+          content: {
+            "application/json": {
+              /** @description Business status code, 0 = success */
+              code: number;
+              data: Record<string, never>;
+              message: string;
+              /** @description UUID7 for request tracing */
+              request_id: string;
+              /** @description Whether the request was successful */
+              success: boolean;
+            };
+          };
+        };
+        401: components["responses"]["ApiUnauthorizedResponse"];
+        403: components["responses"]["ApiForbiddenResponse"];
+        404: components["responses"]["ApiNotFoundResponse"];
+        413: components["responses"]["ApiContentTooLargeResponse"];
+        422: components["responses"]["ApiValidationErrorResponse"];
+        500: components["responses"]["ApiServerErrorResponse"];
+      };
+    };
+  };
+  "/admin/files/by-url": {
+    put: operations["admin.files.by-url.update"];
+    delete: operations["admin.files.by-url.destroy"];
   };
   "/admin/login-logs": {
     get: operations["admin.login-logs.index"];
@@ -510,7 +561,9 @@ export interface components {
     /** App.Http.Requests.Admin.Auth.ChangePasswordRequest */
     "App.Http.Requests.Admin.Auth.ChangePasswordRequest": {
       current_password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password_confirmation: string;
     };
     /** App.Http.Requests.Admin.Auth.LoginRequest */
@@ -536,7 +589,9 @@ export interface components {
     /** ChangePasswordRequest */
     ChangePasswordRequest: {
       current_password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password_confirmation: string;
     };
     /** DictionaryItemResource */
@@ -569,9 +624,19 @@ export interface components {
       sort: number;
       updated_at: string | null;
     };
+    /** FileDirectoryResource */
+    FileDirectoryResource: {
+      created_at: string | null;
+      id: number;
+      name: string;
+      parent_id: number | null;
+      updated_at: string | null;
+    };
     /** FileResource */
     FileResource: {
       created_at: string;
+      /** Format: int64 */
+      directory_id: number | null;
       extension: string;
       height: number | null;
       /** Format: int64 */
@@ -660,12 +725,16 @@ export interface components {
     };
     /** ResetMemberPasswordRequest */
     ResetMemberPasswordRequest: {
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password_confirmation: string;
     };
     /** ResetUserPasswordRequest */
     ResetUserPasswordRequest: {
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password_confirmation: string;
     };
     /** RoleResource */
@@ -699,8 +768,15 @@ export interface components {
       name: string;
       sort?: number;
     };
+    /** StoreFileDirectoryRequest */
+    StoreFileDirectoryRequest: {
+      name: string;
+      parent_id?: number | null;
+    };
     /** StoreFileRequest */
     StoreFileRequest: {
+      allowed_types?: ("image" | "document" | "video" | "audio" | "other")[];
+      directory_id?: number | null;
       /**
        * Format: binary
        * @description Allowed formats: image (JPG, JPEG, PNG, WEBP, GIF; max 5 MiB); document (PDF, TXT, CSV; max 20 MiB); video (MP4; max 100 MiB); audio (MP3, WAV; max 20 MiB); other (ZIP; max 20 MiB). The filename extension, detected MIME type, and inspected structure must match.
@@ -714,7 +790,9 @@ export interface components {
       is_active?: boolean;
       mobile?: string | null;
       name: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password_confirmation: string;
     }) & ({
       /** Format: email */
@@ -770,6 +848,7 @@ export interface components {
       email: string;
       is_active?: boolean;
       name: string;
+      /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
       password: string;
     };
     /** SyncRolePermissionsRequest */
@@ -852,6 +931,15 @@ export interface components {
       is_active?: boolean;
       name?: string;
       sort?: number;
+    };
+    /** UpdateFileByUrlRequest */
+    UpdateFileByUrlRequest: {
+      directory_id: number | null;
+      url: string;
+    };
+    /** UpdateFileRequest */
+    UpdateFileRequest: {
+      directory_id: number | null;
     };
     /** UpdateMemberRequest */
     UpdateMemberRequest: {
@@ -960,6 +1048,28 @@ export interface components {
           data: Record<string, never>;
           /** @enum {string} */
           error_code: "file_delete_failed";
+          errors: Record<string, never>;
+          message: string;
+          /** Format: uuid */
+          request_id: string;
+          /** @enum {boolean} */
+          success: false;
+        };
+      };
+    };
+    /** @description Conflict */
+    ApiFileDirectoryConflictResponse: {
+      headers: {
+        /** @description Request correlation identifier. Matches the response body request_id. */
+        "X-Request-Id"?: string;
+      };
+      content: {
+        "application/json": {
+          /** @constant */
+          code: 409;
+          data: Record<string, never>;
+          /** @enum {string} */
+          error_code: "file_directory_not_empty";
           errors: Record<string, never>;
           message: string;
           /** Format: uuid */
@@ -1084,6 +1194,8 @@ export interface components {
     /** @description Service Unavailable */
     ApiServiceUnavailableResponse: {
       headers: {
+        /** @description Seconds until the client may retry. */
+        "Retry-After"?: number;
         /** @description Request correlation identifier. Matches the response body request_id. */
         "X-Request-Id"?: string;
       };
@@ -1092,8 +1204,6 @@ export interface components {
           /** @constant */
           code: 503;
           data: Record<string, never>;
-          /** @enum {string} */
-          error_code: "file_delete_failed";
           errors: Record<string, never>;
           message: string;
           /** Format: uuid */
@@ -1166,13 +1276,13 @@ export interface operations {
         subject_type?: string;
         subject_id?: number;
         causer_id?: number;
-        created_at?: string[];
         /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
         sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
         page?: number;
+        created_at?: string[];
       };
     };
     responses: {
@@ -1209,6 +1319,7 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -1368,6 +1479,7 @@ export interface operations {
       403: components["responses"]["ApiForbiddenResponse"];
       413: components["responses"]["ApiContentTooLargeResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
+      503: components["responses"]["ApiServiceUnavailableResponse"];
     };
   };
   /** Display a listing of the resource */
@@ -1423,6 +1535,7 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -1621,6 +1734,7 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -1770,6 +1884,99 @@ export interface operations {
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
+  "admin.file-directories.index": {
+    responses: {
+      /** @description Array of `FileDirectoryResource` */
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: components["schemas"]["FileDirectoryResource"][];
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.file-directories.store": {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["StoreFileDirectoryRequest"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: {
+              directory: components["schemas"]["FileDirectoryResource"];
+            };
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      413: components["responses"]["ApiContentTooLargeResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.file-directories.destroy": {
+    parameters: {
+      path: {
+        /** @description The file directory ID */
+        fileDirectory: number;
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: Record<string, never>;
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      404: components["responses"]["ApiNotFoundResponse"];
+      409: components["responses"]["ApiFileDirectoryConflictResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
   "admin.files.index": {
     parameters: {
       query?: {
@@ -1777,6 +1984,9 @@ export interface operations {
         per_page?: number;
         search?: string | null;
         type?: "image" | "document" | "video" | "audio" | "other";
+        "types[]"?: ("image" | "document" | "video" | "audio" | "other")[];
+        ungrouped?: boolean;
+        directory_id?: number;
       };
     };
     responses: {
@@ -1846,9 +2056,49 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      404: components["responses"]["ApiNotFoundResponse"];
       413: components["responses"]["ApiContentTooLargeResponse"];
       422: components["responses"]["ApiValidationErrorResponse"];
       429: components["responses"]["ApiRateLimitResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.files.update": {
+    parameters: {
+      path: {
+        /** @description The file ID */
+        file: number;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateFileRequest"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: Record<string, never>;
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      404: components["responses"]["ApiNotFoundResponse"];
+      413: components["responses"]["ApiContentTooLargeResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -1885,6 +2135,72 @@ export interface operations {
       503: components["responses"]["ApiFileDeleteFailedResponse"];
     };
   };
+  "admin.files.by-url.update": {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateFileByUrlRequest"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: Record<string, never>;
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      404: components["responses"]["ApiNotFoundResponse"];
+      413: components["responses"]["ApiContentTooLargeResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+    };
+  };
+  "admin.files.by-url.destroy": {
+    parameters: {
+      query: {
+        url: string;
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          /** @description Request correlation identifier. Matches the response body request_id. */
+          "X-Request-Id"?: string;
+        };
+        content: {
+          "application/json": {
+            /** @description Business status code, 0 = success */
+            code: number;
+            data: Record<string, never>;
+            message: string;
+            /** @description UUID7 for request tracing */
+            request_id: string;
+            /** @description Whether the request was successful */
+            success: boolean;
+          };
+        };
+      };
+      401: components["responses"]["ApiUnauthorizedResponse"];
+      403: components["responses"]["ApiForbiddenResponse"];
+      404: components["responses"]["ApiNotFoundResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
+      500: components["responses"]["ApiServerErrorResponse"];
+      503: components["responses"]["ApiFileDeleteFailedResponse"];
+    };
+  };
   "admin.login-logs.index": {
     parameters: {
       query?: {
@@ -1894,13 +2210,13 @@ export interface operations {
         account?: string;
         subject_id?: number;
         ip_address?: string;
-        created_at?: string[];
         /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
         sorts?: string;
         /** @description Items per page. */
         page_size?: number;
         /** @description Page number. */
         page?: number;
+        created_at?: string[];
       };
     };
     responses: {
@@ -1937,6 +2253,7 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -2854,6 +3171,7 @@ export interface operations {
       };
       401: components["responses"]["ApiUnauthorizedResponse"];
       403: components["responses"]["ApiForbiddenResponse"];
+      422: components["responses"]["ApiValidationErrorResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
     };
   };
@@ -3527,6 +3845,7 @@ export interface operations {
       413: components["responses"]["ApiContentTooLargeResponse"];
       429: components["responses"]["ApiRateLimitResponse"];
       500: components["responses"]["ApiServerErrorResponse"];
+      503: components["responses"]["ApiServiceUnavailableResponse"];
     };
   };
   "system-settings.public": {

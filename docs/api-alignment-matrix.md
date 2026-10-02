@@ -2,12 +2,12 @@
 
 ## 基线与口径
 
-- Web 基线：`563a899836a1ec26baa21e5dd565e621a14bdd53`。
-- API 基线：`326fe58c`，包含 `2d652a14`、`e0638385` 和 `0df89780`。
+- Web 基线：`0d5e0f8 + 文件分组适配补丁`。
+- API 基线：文件管理配套 PR 分支 `codex/file-groups-and-url-references`。
 - 契约文件：`../admin9-api-laravel/docs/api.json`，SHA-256
-  `c2208fa8a8ec010302cc0940cf201db486b32bc10d3c8bd6ec968ee231a2c483`。
-- OpenAPI 有 41 个 path、72 个 method/path operation；其中 65 个 operationId 与实际命名路由集合一致，
-  7 个 PATCH 是 `apiResource update` 的无新 operationId 等价声明。
+  `f5d7e89e912acec74bb703dd4ae1cf1e01142fd5101d365d753a70df27cc33cf`。
+- OpenAPI 有 44 个 path、79 个 method/path operation；其中 71 个 operationId 与实际命名路由集合一致，
+  8 个 PATCH 是 `apiResource update` 的无新 operationId 等价声明。
 - Web 统一以 `/api` 为 API root，业务 client 使用 `/admin/*` 相对路径；例如 `/admin/users` 最终请求
   `/api/admin/users`。
 
@@ -17,12 +17,12 @@
 | -------------- | ---: | ---------------------------------------------------------------- |
 | 已正确接入     |   49 | 39 个直接消费，4 个原有等价工作流，6 个 PATCH 由 PUT UI 等价覆盖 |
 | 已修复契约漂移 |   12 | 管理员认证 5、受管设置 4、File 3                                 |
-| 新补齐能力     |    0 | 当前 67 个 Web 相关 operation 均有直接、等价或排除结论           |
+| 新补齐能力     |    7 | 文件分组、移动和 URL 引用 6 个操作，另有 1 个 PATCH 等价声明     |
 | 明确排除       |   11 | member auth 5、通用 SystemConfig CRUD/PUT/PATCH 6                |
 | 仍阻塞         |    0 | 无 Web 端点阻塞；浏览器上传环境限制单列                          |
-| 合计           |   72 | 与当前 OpenAPI method/path operation 数一致                      |
+| 合计           |   79 | 与当前 OpenAPI method/path operation 数一致                      |
 
-Web 相关 67 个 operation 中，51 个由 UI/Store 直接消费，10 个由等价工作流覆盖，6 个按受管设置边界排除。
+Web 相关 74 个 operation 中，57 个由 UI/Store 或文件适配层直接消费，11 个由等价工作流覆盖，6 个按受管设置边界排除。
 另有两个不在 OpenAPI 内的模板通知请求 `POST message/list`、`POST message/read`；本次从 navbar 移除其运行时入口，
 不为不存在的后端能力新增页面或契约。
 
@@ -138,11 +138,19 @@ Web 相关 67 个 operation 中，51 个由 UI/Store 直接消费，10 个由等
 
 ### File
 
-| 状态           | Method / path                    | operationId           | RBAC                           | 参数 / body                   | 200 data / 分页         | 主要错误                                   | Web 消费                                     |
-| -------------- | -------------------------------- | --------------------- | ------------------------------ | ----------------------------- | ----------------------- | ------------------------------------------ | -------------------------------------------- |
-| 已修复契约漂移 | GET `/api/admin/files`           | `admin.files.index`   | `system.file.view`             | `page,per_page,search?,type?` | `FileResource[]` + meta | 401,403\*,422,500                          | 不读取内部 path；ready 用 URL，null URL 安全 |
-| 已修复契约漂移 | POST `/api/admin/files`          | `admin.files.store`   | `system.file.create`, throttle | multipart 仅 `file`           | `file`                  | 401,403\*,413,422,429,500                  | 类型/大小前检、XHR progress、响应不含 path   |
-| 已修复契约漂移 | DELETE `/api/admin/files/{file}` | `admin.files.destroy` | `system.file.delete`           | path `file:int`               | `{}`                    | 401,403\*,404,500,503 `file_delete_failed` | 按 ID 删除；批量部分成功返回实际成功 ID      |
+| 状态           | Method / path                    | operationId           | RBAC                           | 参数 / body                                                     | 200 data / 分页         | 主要错误                                   | Web 消费                                     |
+| -------------- | -------------------------------- | --------------------- | ------------------------------ | --------------------------------------------------------------- | ----------------------- | ------------------------------------------ | -------------------------------------------- |
+| 已修复契约漂移 | GET `/api/admin/files`           | `admin.files.index`   | `system.file.view`             | `page,per_page,search?,type?,types[]?,directory_id?,ungrouped?` | `FileResource[]` + meta | 401,403\*,422,500                          | 不读取内部 path；ready 用 URL，null URL 安全 |
+| 已修复契约漂移 | POST `/api/admin/files`          | `admin.files.store`   | `system.file.create`, throttle | multipart `file,allowed_types[]?,directory_id?`                 | `file`                  | 401,403\*,413,422,429,500                  | 类型/大小前检、XHR progress、响应不含 path   |
+| 已修复契约漂移 | DELETE `/api/admin/files/{file}` | `admin.files.destroy` | `system.file.delete`           | path `file:int`                                                 | `{}`                    | 401,403\*,404,500,503 `file_delete_failed` | 按 ID 删除；批量部分成功返回实际成功 ID      |
+
+| 新补齐能力 | GET `/api/admin/file-directories` | `admin.file-directories.index` | `system.file.view` | - | `FileDirectoryResource[]` | 401,403*,500 | 二级分组列表和筛选 |
+| 新补齐能力 | POST `/api/admin/file-directories` | `admin.file-directories.store` | `system.file.create` | `name,parent_id?` | `directory` | 401,403*,413,422,500 | 同级名称唯一的新建分组 |
+| 新补齐能力 | DELETE `/api/admin/file-directories/{fileDirectory}` | `admin.file-directories.destroy` | `system.file.delete` | path `fileDirectory:int` | `{}` | 401,403*,404,409,500 | 只删除空分组 |
+| 新补齐能力 | PUT `/api/admin/files/{file}` | `admin.files.update` | `system.file.update` | `directory_id:null 或 int` | `{}` | 401,403*,404,413,422,500 | 按 ID 移动文件 |
+| 新补齐能力 | PATCH `/api/admin/files/{file}` | - | `system.file.update` | 同 PUT | `{}` | 401,403*,404,413,422,500 | PUT 的等价运行时方法 |
+| 新补齐能力 | PUT `/api/admin/files/by-url` | `admin.files.by-url.update` | `system.file.update` | `url,directory_id` | `{}` | 401,403*,404,413,422,500 | 按精确 public disk URL 移动 |
+| 新补齐能力 | DELETE `/api/admin/files/by-url` | `admin.files.by-url.destroy` | `system.file.delete` | query `url` | `{}` | 401,403\*,404,422,500,503 | 按精确 public disk URL 删除 |
 
 File 限制：image JPG/JPEG/PNG/WEBP/GIF 5 MiB；document PDF/TXT/CSV 20 MiB；video MP4 100 MiB；
 audio MP3/WAV 20 MiB；other ZIP 20 MiB。扩展名、检测 MIME 与结构仍由后端最终校验。

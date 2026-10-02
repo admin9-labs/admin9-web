@@ -204,10 +204,10 @@ test('the API alignment matrix classifies every OpenAPI operation exactly once',
     (match) => `${match[1]} ${match[2]}`
   );
 
-  assert.equal(methodPaths.length, 72);
+  assert.equal(methodPaths.length, 79);
   assert.equal(documentedMethodPaths.length, methodPaths.length, 'each method/path operation must appear once in the matrix');
   assert.deepEqual([...documentedMethodPaths].sort(), [...methodPaths].sort());
-  assert.equal(operationIds.length, 65);
+  assert.equal(operationIds.length, 71);
   assert.equal(documented.length, operationIds.length, 'each operationId must appear once in the matrix');
   assert.deepEqual([...documented].sort(), [...operationIds].sort());
 });
