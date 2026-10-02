@@ -4,7 +4,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import axios from 'axios';
 import type { AxiosAdapter, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { setActivePinia, type Pinia } from 'pinia';
+import type { Pinia } from 'pinia';
+import { createApp } from 'vue';
 import { createServer } from 'vite';
 import type { StorageLike } from '../src/utils/auth-session';
 
@@ -114,7 +115,7 @@ test(
           permissionNames: string[];
         };
       };
-      setActivePinia(storeModule.default);
+      createApp({}).use(storeModule.default);
       const auth = (await vite.ssrLoadModule('/src/utils/auth.ts')) as {
         getSessionSnapshot(): { generation: string; token: string | null };
         setToken(token: string, expectedGeneration: string): { generation: string; token: string | null } | null;

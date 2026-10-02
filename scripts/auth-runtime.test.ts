@@ -243,6 +243,28 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
   };
 }
 
+(['before', 'during'] as const).forEach((timing) => {
+  test(`canceling a request ${timing} dispatch preserves cancellation and the session without an error toast`, async () => {
+    const harness = await createHarness();
+    const controller = new AbortController();
+    if (timing === 'before') controller.abort();
+    harness.setHandler(() => {
+      controller.abort();
+      return success({ uploaded: true });
+    });
+
+    try {
+      await assert.rejects(harness.client.post('/admin/files', {}, { signal: controller.signal }), axios.isCancel);
+      assert.deepEqual(harness.notifications, []);
+      assert.deepEqual(harness.sessionState.snapshot(), harness.authenticated);
+      assert.equal(harness.userStore.logoutCount, 0);
+      assert.equal(harness.router.currentRoute.value.name, 'protected');
+    } finally {
+      harness.cleanup();
+    }
+  });
+});
+
 test('concurrent 401 responses share one refresh and replay with the refreshed token', { timeout: 5000 }, async () => {
   const harness = await createHarness();
   const releaseInitialRequests = createDeferred();

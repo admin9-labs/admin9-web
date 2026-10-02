@@ -1,0 +1,74 @@
+name: Frontend checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: admin9-web
+    steps:
+      - name: Check out frontend
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: admin9-web
+          persist-credentials: false
+
+      - name: Check out matching backend contract
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: admin9-labs/admin9-api-laravel
+          # Merged Laravel PR #20; advance with frontend contract updates.
+          ref: 9c2fd37b839d91a55d76b6df4bfb3d9dc423bccd
+          path: admin9-api-laravel
+          sparse-checkout: docs/api.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          package_json_file: admin9-web/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: admin9-web/.node-version
+          cache: pnpm
+          cache-dependency-path: admin9-web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit dependencies at every severity
+        run: pnpm audit:dependencies
+
+      - name: Test application behavior
+        run: pnpm test:unit
+
+      - name: Check API contracts and generated types
+        run: |
+          pnpm test:api-contract
+          pnpm openapi:check
+
+      - name: Type-check and build production assets
+        run: pnpm build
+
+      - name: Lint application code and styles
+        run: |
+          pnpm lint
+          pnpm lint:styles

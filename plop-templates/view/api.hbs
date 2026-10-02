@@ -1,6 +1,5 @@
 import { AnyObject } from '@/types/global';
 import axios from 'axios';
-import qs from 'query-string';
 
 export interface {{ properCase name }}Record {
   id: number;
@@ -23,9 +22,6 @@ export interface {{ properCase name }}ListRes {
 export function query{{ properCase name }}List(params: {{ properCase name }}Params) {
   return axios.get<{{ properCase name }}ListRes>('{{ pluralize name }}', {
     params,
-    paramsSerializer: (obj) => {
-      return qs.stringify(obj);
-    },
   });
 }
 

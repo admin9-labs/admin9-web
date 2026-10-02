@@ -1,4 +1,16 @@
 export default {
+  'system.files.createGroup': '新建分组',
+  'system.files.deleteGroup': '删除分组',
+  'system.files.move': '移动至分组',
+  'system.files.allGroups': '全部分组',
+  'system.files.group': '文件分组',
+  'system.files.groupName': '分组名称',
+  'system.files.parentGroup': '上级分组',
+  'system.files.rootGroup': '无上级（一级分组）',
+  'system.files.ungrouped': '未分组',
+  'system.files.confirmDeleteGroup': '确定删除当前分组吗？分组内必须没有文件和子分组。',
+  'system.files.partialMove': '已移动 {count} 个文件，其余文件移动失败。',
+
   'menu.system.files': '文件管理',
   'system.files.title': '文件管理',
   'system.files.field.name': '文件名',

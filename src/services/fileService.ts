@@ -6,7 +6,19 @@ import type {
   FileType as UiFileType,
   FileUploadOptions,
 } from '@admin9-labs/admin9-ui';
-import { deleteFile, queryFileList, uploadFile, type FileRecord, type FileType } from '@/api/system/files';
+import {
+  createFileDirectory,
+  deleteFile,
+  deleteFileByUrl,
+  queryFileDirectories,
+  queryFileList,
+  updateFileDirectory,
+  updateFileDirectoryByUrl,
+  uploadFile,
+  type FileRecord,
+  type FileType,
+} from '@/api/system/files';
+import { fileReferenceUrl } from '@/utils/file-reference';
 
 export const BACKEND_FILE_TYPES: readonly FileType[] = ['image', 'document', 'video', 'audio', 'other'];
 const ALLOWED_EXTENSIONS: Record<FileType, readonly string[]> = {
@@ -36,7 +48,7 @@ export function toFileItem(file: FileRecord): FileItem {
     id: String(file.id),
     name: file.name,
     type: file.type,
-    groupId: null,
+    groupId: file.directory_id == null ? null : String(file.directory_id),
     url: file.url,
     size: file.size,
     mime: file.mime_type,
@@ -73,40 +85,71 @@ export function validateFileUpload(file: File, fileTypes: FileUploadOptions['fil
   }
 }
 
-export async function removeFiles(
-  ids: readonly string[],
-  deleteRequest: (id: number) => Promise<unknown> = deleteFile
-): Promise<string[]> {
+function directoryId(groupId: string | null | undefined): number | undefined {
+  if (groupId == null) return undefined;
+  return fileId(groupId);
+}
+
+async function performFileOperations(ids: readonly string[], request: (id: string) => Promise<unknown>): Promise<string[]> {
   const results = await Promise.allSettled(
     ids.map(async (id) => {
-      await deleteRequest(fileId(id));
+      await request(id);
       return id;
     })
   );
   const succeeded = results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []));
   const firstFailure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
-  if (succeeded.length === 0 && firstFailure) {
-    throw firstFailure.reason;
-  }
+  if (!succeeded.length && firstFailure) throw firstFailure.reason;
   return succeeded;
 }
 
+export async function removeFiles(
+  ids: readonly string[],
+  deleteRequest: (id: number) => Promise<unknown> = deleteFile
+): Promise<string[]> {
+  return performFileOperations(ids, (id) => deleteRequest(fileId(id)));
+}
+
 const fileService: FilePickerAdapter = {
+  async listGroups() {
+    const response = await queryFileDirectories();
+    return response.data.map((directory) => ({
+      id: String(directory.id),
+      name: directory.name,
+      parentId: directory.parent_id == null ? null : String(directory.parent_id),
+    }));
+  },
+  async createGroup(options) {
+    const response = await createFileDirectory({ name: options.name, parent_id: directoryId(options.parentId) ?? null });
+    const { directory } = response.data;
+    return {
+      id: String(directory.id),
+      name: directory.name,
+      parentId: directory.parent_id == null ? null : String(directory.parent_id),
+    };
+  },
+  async moveFiles(options) {
+    const directory = { directory_id: directoryId(options.groupId) ?? null };
+    return performFileOperations(options.ids, (id) => {
+      const url = fileReferenceUrl(id);
+      return url === undefined ? updateFileDirectory(fileId(id), directory) : updateFileDirectoryByUrl({ ...directory, url });
+    });
+  },
   async list(params: FileListParams): Promise<FileListResult> {
     const fileTypes = params.fileTypes && [
       ...new Set(params.fileTypes.filter((type): type is FileType => BACKEND_FILE_TYPES.includes(type as FileType))),
     ];
-    if (params.groupId != null || params.fileType === 'archive' || fileTypes?.length === 0) {
+    if (params.fileType === 'archive' || fileTypes?.length === 0) {
       return { list: [], pagination: { page: params.page, pageSize: params.pageSize, total: 0, hasMore: false } };
-    }
-    if (fileTypes && fileTypes.length > 1 && fileTypes.length < BACKEND_FILE_TYPES.length) {
-      throw new Error('The current backend supports only a single file type or all file types');
     }
     const response = await queryFileList({
       page: params.page,
       per_page: params.pageSize,
       search: params.keyword || undefined,
-      type: params.fileType ?? (fileTypes?.length === 1 ? fileTypes[0] : undefined),
+      type: params.fileType,
+      types: params.fileType ? undefined : fileTypes,
+      directory_id: directoryId(params.groupId),
+      ungrouped: params.groupId === null || undefined,
     });
     return {
       list: response.data.map(toFileItem),
@@ -119,12 +162,20 @@ const fileService: FilePickerAdapter = {
     };
   },
   async upload(options: FileUploadOptions) {
-    if (options.groupId !== null) throw new Error('The current backend does not support file groups');
     validateFileUpload(options.file, options.fileTypes);
-    const response = await uploadFile(options.file, { onProgress: options.onProgress, signal: options.signal });
+    const response = await uploadFile(options.file, {
+      directoryId: directoryId(options.groupId),
+      allowedTypes: options.fileTypes.filter((type): type is FileType => type !== 'archive'),
+      onProgress: options.onProgress,
+      signal: options.signal,
+    });
     return toFileItem(response.data.file);
   },
-  deleteFiles: removeFiles,
+  deleteFiles: (ids) =>
+    performFileOperations(ids, (id) => {
+      const url = fileReferenceUrl(id);
+      return url === undefined ? deleteFile(fileId(id)) : deleteFileByUrl({ url });
+    }),
 };
 
 export default fileService;

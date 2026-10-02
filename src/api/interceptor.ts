@@ -184,6 +184,7 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
       return body;
     },
     async (axiosError: AxiosError<HttpResponse>) => {
+      if (axios.isCancel(axiosError as unknown)) return Promise.reject(axiosError);
       const config = axiosError.config as RetriableRequestConfig | undefined;
       const current = runtime.getSessionSnapshot();
       const decision = sessionRetryDecision(

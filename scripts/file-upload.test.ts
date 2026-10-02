@@ -50,6 +50,7 @@ test('upload progress stays optional outside a browser environment', () => {
 test('file adapter maps the public URL without exposing a storage path', () => {
   const item = toFileItem({
     id: 9,
+    directory_id: null,
     name: 'image.png',
     type: 'image',
     mime_type: 'image/png',
@@ -71,6 +72,7 @@ test('file adapter safely preserves null URLs for pending and failed files', () 
   (['pending', 'failed'] as const).forEach((status) => {
     const item = toFileItem({
       id: status === 'pending' ? 10 : 11,
+      directory_id: null,
       name: `${status}.pdf`,
       type: 'document',
       mime_type: 'application/pdf',
@@ -139,7 +141,15 @@ test('file listing maps a single allowed type and preserves backend pagination',
     assert.deepEqual(request.mock.calls[0].arguments, [
       '/admin/files',
       {
-        params: { page: 2, per_page: 15, search: 'cover', type: 'image' },
+        params: {
+          page: 2,
+          per_page: 15,
+          search: 'cover',
+          type: undefined,
+          types: ['image'],
+          directory_id: undefined,
+          ungrouped: true,
+        },
       },
     ]);
     assert.deepEqual(result.pagination, { page: 2, pageSize: 15, total: 31, hasMore: true });
@@ -150,31 +160,31 @@ test('file listing maps a single allowed type and preserves backend pagination',
   }
 });
 
-test('empty, unsupported and nonexistent-group queries do not request unrelated files', async () => {
+test('empty and unsupported type queries do not request unrelated files', async () => {
   const request = mock.method(axios, 'get');
   try {
     await Promise.all(
-      [{ fileTypes: [] }, { fileTypes: ['archive'] as const }, { groupId: '1' }].map(async (filter) => {
+      [{ fileTypes: [] }, { fileTypes: ['archive'] as const }].map(async (filter) => {
         const result = await fileService.list({ page: 1, pageSize: 15, ...filter });
         assert.deepEqual(result.list, []);
         assert.equal(result.pagination.total, 0);
       })
     );
-    await assert.rejects(fileService.list({ page: 1, pageSize: 15, fileTypes: ['image', 'video'] }), /single file type/);
+    await assert.rejects(fileService.list({ page: 1, pageSize: 15, groupId: 'invalid' }), /Invalid file ID/);
     assert.equal(request.mock.callCount(), 0);
   } finally {
     request.mock.restore();
   }
 });
 
-test('upload rejects disallowed types and unsupported groups before sending a request', async () => {
+test('upload rejects disallowed types and invalid groups before sending a request', async () => {
   const request = mock.method(axios, 'post');
   const file = { name: 'document.txt', size: 8 } as File;
   const { upload } = fileService;
   assert.ok(upload);
   try {
     await assert.rejects(upload({ file, fileTypes: ['image'], groupId: null }), { code: 'unsupported-file-type' });
-    await assert.rejects(upload({ file, fileTypes: ['document'], groupId: '1' }), /does not support file groups/);
+    await assert.rejects(upload({ file, fileTypes: ['document'], groupId: 'invalid' }), /Invalid file ID/);
     assert.equal(request.mock.callCount(), 0);
   } finally {
     request.mock.restore();

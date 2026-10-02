@@ -3,3555 +3,4880 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
-  "/admin/activity-logs": {
-    get: operations["admin.activity-logs.index"];
-  };
-  "/admin/auth/login": {
-    post: operations["admin.auth.login"];
-  };
-  "/admin/auth/logout": {
-    post: operations["admin.auth.logout"];
-  };
-  "/admin/auth/me": {
-    get: operations["admin.auth.me"];
-  };
-  "/admin/auth/password": {
-    put: operations["admin.auth.password.update"];
-  };
-  "/admin/auth/refresh": {
-    post: operations["admin.auth.refresh"];
-  };
-  "/admin/dictionary-items": {
-    /** Display a listing of the resource */
-    get: operations["admin.dictionary-items.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.dictionary-items.store"];
-  };
-  "/admin/dictionary-items/{dictionaryItem}": {
-    /** Display the specified resource */
-    get: operations["admin.dictionary-items.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.dictionary-items.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.dictionary-items.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The dictionary item ID */
-          dictionaryItem: number;
+    "/admin/activity-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdateDictionaryItemRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                dictionary_item: components["schemas"]["DictionaryItemResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        get: operations["admin.activity-logs.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/dictionary-types": {
-    /** Display a listing of the resource */
-    get: operations["admin.dictionary-types.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.dictionary-types.store"];
-  };
-  "/admin/dictionary-types/{dictionaryType}": {
-    /** Display the specified resource */
-    get: operations["admin.dictionary-types.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.dictionary-types.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.dictionary-types.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The dictionary type ID */
-          dictionaryType: number;
+    "/admin/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdateDictionaryTypeRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                dictionary_type: components["schemas"]["DictionaryTypeResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        get?: never;
+        put?: never;
+        post: operations["admin.auth.login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/files": {
-    get: operations["admin.files.index"];
-    post: operations["admin.files.store"];
-  };
-  "/admin/files/{file}": {
-    delete: operations["admin.files.destroy"];
-  };
-  "/admin/login-logs": {
-    get: operations["admin.login-logs.index"];
-  };
-  "/admin/members": {
-    get: operations["admin.members.index"];
-    post: operations["admin.members.store"];
-  };
-  "/admin/members/{member}": {
-    get: operations["admin.members.show"];
-    put: operations["admin.members.update"];
-  };
-  "/admin/members/{member}/invalidate-sessions": {
-    post: operations["admin.members.invalidate-sessions"];
-  };
-  "/admin/members/{member}/password": {
-    put: operations["admin.members.reset-password"];
-  };
-  "/admin/members/{member}/status": {
-    put: operations["admin.members.update-status"];
-  };
-  "/admin/menus": {
-    /** Return the complete bounded admin menu catalog for management UIs */
-    get: operations["admin.menus.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.menus.store"];
-  };
-  "/admin/menus/{menu}": {
-    /** Display the specified resource */
-    get: operations["admin.menus.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.menus.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.menus.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The menu ID */
-          menu: number;
+    "/admin/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdateMenuRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                menu: components["schemas"]["MenuResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        get?: never;
+        put?: never;
+        post: operations["admin.auth.logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/menus/tree": {
-    /** Return the complete bounded visible menu tree for admin shell navigation */
-    get: operations["admin.menus.tree"];
-  };
-  "/admin/permissions": {
-    /** Return the complete bounded RBAC permission catalog for configuration UIs */
-    get: operations["admin.permissions.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.permissions.store"];
-  };
-  "/admin/permissions/{permission}": {
-    /** Display the specified resource */
-    get: operations["admin.permissions.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.permissions.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.permissions.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The permission ID */
-          permission: number;
+    "/admin/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdatePermissionRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                permission: components["schemas"]["PermissionResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        get: operations["admin.auth.me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/roles": {
-    /** Return the complete bounded admin role catalog for assignment UIs */
-    get: operations["admin.roles.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.roles.store"];
-  };
-  "/admin/roles/{role}": {
-    /** Display the specified resource */
-    get: operations["admin.roles.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.roles.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.roles.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The role ID */
-          role: number;
+    "/admin/auth/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdateRoleRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                role: components["schemas"]["RoleResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        get?: never;
+        put: operations["admin.auth.password.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/roles/{role}/permissions": {
-    put: operations["admin.roles.permissions.update"];
-  };
-  "/admin/system-configs": {
-    /** Display a listing of the resource */
-    get: operations["admin.system-configs.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.system-configs.store"];
-  };
-  "/admin/system-configs/{systemConfig}": {
-    /** Display the specified resource */
-    get: operations["admin.system-configs.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.system-configs.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.system-configs.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The system config ID */
-          systemConfig: number;
+    "/admin/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdateSystemConfigRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                system_config: components["schemas"]["SystemConfigResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        get?: never;
+        put?: never;
+        post: operations["admin.auth.refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/system-settings": {
-    get: operations["admin.system-settings.show"];
-  };
-  "/admin/system-settings/basic": {
-    put: operations["admin.system-settings.basic.update"];
-  };
-  "/admin/system-settings/branding": {
-    put: operations["admin.system-settings.branding.update"];
-  };
-  "/admin/users": {
-    /** Display a listing of the resource */
-    get: operations["admin.users.index"];
-    /** Store a newly created resource in storage */
-    post: operations["admin.users.store"];
-  };
-  "/admin/users/{user}": {
-    /** Display the specified resource */
-    get: operations["admin.users.show"];
-    /** Update the specified resource in storage */
-    put: operations["admin.users.update"];
-    /** Remove the specified resource from storage */
-    delete: operations["admin.users.destroy"];
-    /** Update the specified resource in storage */
-    patch: {
-      parameters: {
-        path: {
-          /** @description The user ID */
-          user: number;
+    "/admin/dictionary-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      requestBody?: {
-        content: {
-          "application/json": components["schemas"]["UpdateUserRequest"];
-        };
-      };
-      responses: {
-        200: {
-          headers: {
-            /** @description Request correlation identifier. Matches the response body request_id. */
-            "X-Request-Id"?: string;
-          };
-          content: {
-            "application/json": {
-              /** @description Business status code, 0 = success */
-              code: number;
-              data: {
-                user: components["schemas"]["UserResource"];
-              };
-              message: string;
-              /** @description UUID7 for request tracing */
-              request_id: string;
-              /** @description Whether the request was successful */
-              success: boolean;
-            };
-          };
-        };
-        401: components["responses"]["ApiUnauthorizedResponse"];
-        403: components["responses"]["ApiForbiddenResponse"];
-        404: components["responses"]["ApiNotFoundResponse"];
-        413: components["responses"]["ApiContentTooLargeResponse"];
-        422: components["responses"]["ApiValidationErrorResponse"];
-        500: components["responses"]["ApiServerErrorResponse"];
-      };
+        /** Display a listing of the resource */
+        get: operations["admin.dictionary-items.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.dictionary-items.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-  };
-  "/admin/users/{user}/password": {
-    put: operations["admin.users.password.update"];
-  };
-  "/admin/users/{user}/roles": {
-    put: operations["admin.users.roles.update"];
-  };
-  "/api/auth/login": {
-    post: operations["member.auth.login"];
-  };
-  "/api/auth/logout": {
-    post: operations["member.auth.logout"];
-  };
-  "/api/auth/me": {
-    get: operations["member.auth.me"];
-  };
-  "/api/auth/password": {
-    put: operations["member.auth.password.update"];
-  };
-  "/api/auth/refresh": {
-    post: operations["member.auth.refresh"];
-  };
-  "/api/system-settings/public": {
-    get: operations["system-settings.public"];
-  };
+    "/admin/dictionary-items/{dictionaryItem}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.dictionary-items.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.dictionary-items.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.dictionary-items.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The dictionary item ID */
+                    dictionaryItem: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateDictionaryItemRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                dictionary_item: components["schemas"]["DictionaryItemResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/dictionary-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a listing of the resource */
+        get: operations["admin.dictionary-types.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.dictionary-types.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/dictionary-types/{dictionaryType}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.dictionary-types.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.dictionary-types.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.dictionary-types.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The dictionary type ID */
+                    dictionaryType: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateDictionaryTypeRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/file-directories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.file-directories.index"];
+        put?: never;
+        post: operations["admin.file-directories.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/file-directories/{fileDirectory}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["admin.file-directories.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.files.index"];
+        put?: never;
+        post: operations["admin.files.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/files/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.files.update"];
+        post?: never;
+        delete: operations["admin.files.destroy"];
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The file ID */
+                    file: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateFileRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: Record<string, never>;
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/files/by-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.files.by-url.update"];
+        post?: never;
+        delete: operations["admin.files.by-url.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/login-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.login-logs.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.members.index"];
+        put?: never;
+        post: operations["admin.members.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{member}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.members.show"];
+        put: operations["admin.members.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{member}/invalidate-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin.members.invalidate-sessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{member}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.members.reset-password"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{member}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.members.update-status"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/menus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Return the complete bounded admin menu catalog for management UIs */
+        get: operations["admin.menus.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.menus.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/menus/{menu}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.menus.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.menus.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.menus.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The menu ID */
+                    menu: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateMenuRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                menu: components["schemas"]["MenuResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/menus/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Return the complete bounded visible menu tree for admin shell navigation */
+        get: operations["admin.menus.tree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Return the complete bounded RBAC permission catalog for configuration UIs */
+        get: operations["admin.permissions.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.permissions.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/permissions/{permission}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.permissions.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.permissions.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.permissions.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The permission ID */
+                    permission: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdatePermissionRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                permission: components["schemas"]["PermissionResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Return the complete bounded admin role catalog for assignment UIs */
+        get: operations["admin.roles.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.roles.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/roles/{role}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.roles.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.roles.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.roles.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The role ID */
+                    role: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateRoleRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                role: components["schemas"]["RoleResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/roles/{role}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.roles.permissions.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/system-configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a listing of the resource */
+        get: operations["admin.system-configs.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.system-configs.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/system-configs/{systemConfig}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.system-configs.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.system-configs.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.system-configs.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The system config ID */
+                    systemConfig: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateSystemConfigRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                system_config: components["schemas"]["SystemConfigResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/system-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin.system-settings.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/system-settings/basic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.system-settings.basic.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/system-settings/branding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.system-settings.branding.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a listing of the resource */
+        get: operations["admin.users.index"];
+        put?: never;
+        /** Store a newly created resource in storage */
+        post: operations["admin.users.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified resource */
+        get: operations["admin.users.show"];
+        /** Update the specified resource in storage */
+        put: operations["admin.users.update"];
+        post?: never;
+        /** Remove the specified resource from storage */
+        delete: operations["admin.users.destroy"];
+        options?: never;
+        head?: never;
+        /** Update the specified resource in storage */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The user ID */
+                    user: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateUserRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        /** @description Request correlation identifier. Matches the response body request_id. */
+                        "X-Request-Id"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description Business status code, 0 = success */
+                            code: number;
+                            data: {
+                                user: components["schemas"]["UserResource"];
+                            };
+                            message: string;
+                            /** @description UUID7 for request tracing */
+                            request_id: string;
+                            /** @description Whether the request was successful */
+                            success: boolean;
+                        };
+                    };
+                };
+                401: components["responses"]["ApiUnauthorizedResponse"];
+                403: components["responses"]["ApiForbiddenResponse"];
+                404: components["responses"]["ApiNotFoundResponse"];
+                413: components["responses"]["ApiContentTooLargeResponse"];
+                422: components["responses"]["ApiValidationErrorResponse"];
+                500: components["responses"]["ApiServerErrorResponse"];
+            };
+        };
+        trace?: never;
+    };
+    "/admin/users/{user}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.users.password.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["admin.users.roles.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["member.auth.login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["member.auth.logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["member.auth.me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["member.auth.password.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh a member token or recover its committed replacement within 30 seconds
+         * @description Retries return the same replacement with its remaining expires_in and do not
+         *     extend the replacement or session lifetime. Recovery ends on revocation or
+         *     when the replacement is rotated.
+         */
+        post: operations["member.auth.refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["member.auth.sessions.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/system-settings/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["system-settings.public"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
-
 export type webhooks = Record<string, never>;
-
 export interface components {
-  schemas: {
-    /** ActivityLogResource */
-    ActivityLogResource: {
-      /** Format: int64 */
-      causer_id: number | null;
-      causer_type: string | null;
-      created_at: string | null;
-      description: string;
-      event: string | null;
-      /** Format: int64 */
-      id: number;
-      log_name: string | null;
-      properties: {
-        [key: string]: unknown;
-      };
-      /** Format: int64 */
-      subject_id: number | null;
-      subject_type: string | null;
-    };
-    /** App.Http.Requests.Admin.Auth.ChangePasswordRequest */
-    "App.Http.Requests.Admin.Auth.ChangePasswordRequest": {
-      current_password: string;
-      password: string;
-      password_confirmation: string;
-    };
-    /** App.Http.Requests.Admin.Auth.LoginRequest */
-    "App.Http.Requests.Admin.Auth.LoginRequest": {
-      /** Format: email */
-      email: string;
-      password: string;
-    };
-    /** App.Http.Resources.Admin.MemberResource */
-    "App.Http.Resources.Admin.MemberResource": {
-      created_at: string;
-      /** Format: email */
-      email: string | null;
-      /** Format: int64 */
-      id: number;
-      is_active: boolean;
-      last_login_at: string | null;
-      last_login_ip: string | null;
-      mobile: string | null;
-      name: string;
-      updated_at: string;
-    };
-    /** ChangePasswordRequest */
-    ChangePasswordRequest: {
-      current_password: string;
-      password: string;
-      password_confirmation: string;
-    };
-    /** DictionaryItemResource */
-    DictionaryItemResource: {
-      code: string;
-      created_at: string | null;
-      description: string | null;
-      dictionary_type_id: number;
-      id: number;
-      is_active: boolean;
-      meta: {
-        [key: string]: unknown;
-      } | null;
-      name: string;
-      sort: number;
-      type?: components["schemas"]["DictionaryTypeResource"];
-      updated_at: string | null;
-      value: string | null;
-    };
-    /** DictionaryTypeResource */
-    DictionaryTypeResource: {
-      code: string;
-      created_at: string | null;
-      description: string | null;
-      id: number;
-      is_active: boolean;
-      items?: components["schemas"]["DictionaryItemResource"][];
-      items_count?: number;
-      name: string;
-      sort: number;
-      updated_at: string | null;
-    };
-    /** FileResource */
-    FileResource: {
-      created_at: string;
-      extension: string;
-      height: number | null;
-      /** Format: int64 */
-      id: number;
-      mime_type: string;
-      name: string;
-      /** Format: int64 */
-      size: number;
-      /** @enum {string} */
-      status: "pending" | "ready" | "failed";
-      /** @enum {string} */
-      type: "image" | "document" | "video" | "audio" | "other";
-      /** Format: uri */
-      url: string | null;
-      width: number | null;
-    };
-    /** LoginLogResource */
-    LoginLogResource: {
-      account: string | null;
-      context: {
-        [key: string]: unknown;
-      };
-      created_at: string | null;
-      event: string;
-      failure_reason: string | null;
-      guard: string;
-      /** Format: int64 */
-      id: number;
-      ip_address: string | null;
-      request_id: string | null;
-      /** Format: int64 */
-      subject_id: number | null;
-      subject_type: string | null;
-      successful: boolean;
-      user_agent: string | null;
-    };
-    /** LoginRequest */
-    LoginRequest: {
-      account: string;
-      password: string;
-    };
-    /** MemberResource */
-    MemberResource: {
-      email: string | null;
-      id: number;
-      is_active: boolean;
-      last_login_at: string | null;
-      mobile: string | null;
-      name: string | null;
-    };
-    /** MenuResource */
-    MenuResource: {
-      children?: components["schemas"]["MenuResource"][];
-      code: string;
-      component: string | null;
-      created_at: string | null;
-      icon: string | null;
-      /** Format: int64 */
-      id: number;
-      is_active: boolean;
-      is_visible: boolean;
-      name: string;
-      /** Format: int64 */
-      parent_id: number | null;
-      path: string | null;
-      permission_ids: number[];
-      permission_names: string[];
-      permissions: components["schemas"]["PermissionResource"][];
-      sort: number;
-      type: string;
-      updated_at: string | null;
-    };
-    /** PermissionResource */
-    PermissionResource: {
-      created_at: string | null;
-      description: string | null;
-      display_name: string | null;
-      group: string | null;
-      guard_name: string;
-      id: number;
-      is_active: boolean;
-      is_system: boolean;
-      name: string;
-      sort: number;
-      updated_at: string | null;
-    };
-    /** ResetMemberPasswordRequest */
-    ResetMemberPasswordRequest: {
-      password: string;
-      password_confirmation: string;
-    };
-    /** ResetUserPasswordRequest */
-    ResetUserPasswordRequest: {
-      password: string;
-      password_confirmation: string;
-    };
-    /** RoleResource */
-    RoleResource: {
-      created_at: string | null;
-      guard_name: string;
-      /** Format: int64 */
-      id: number;
-      name: string;
-      permissions?: components["schemas"]["PermissionResource"][];
-      updated_at: string | null;
-    };
-    /** StoreDictionaryItemRequest */
-    StoreDictionaryItemRequest: {
-      code: string;
-      description?: string | null;
-      dictionary_type_id: number;
-      is_active?: boolean;
-      meta?: {
-        [key: string]: unknown;
-      } | null;
-      name: string;
-      sort?: number;
-      value?: string | null;
-    };
-    /** StoreDictionaryTypeRequest */
-    StoreDictionaryTypeRequest: {
-      code: string;
-      description?: string | null;
-      is_active?: boolean;
-      name: string;
-      sort?: number;
-    };
-    /** StoreFileRequest */
-    StoreFileRequest: {
-      /**
-       * Format: binary
-       * @description Allowed formats: image (JPG, JPEG, PNG, WEBP, GIF; max 5 MiB); document (PDF, TXT, CSV; max 20 MiB); video (MP4; max 100 MiB); audio (MP3, WAV; max 20 MiB); other (ZIP; max 20 MiB). The filename extension, detected MIME type, and inspected structure must match.
-       */
-      file: string;
-    };
-    /** StoreMemberRequest */
-    StoreMemberRequest: ({
-      /** Format: email */
-      email?: string | null;
-      is_active?: boolean;
-      mobile?: string | null;
-      name: string;
-      password: string;
-      password_confirmation: string;
-    }) & ({
-      /** Format: email */
-      email: string;
-    } | {
-      mobile: string;
-    });
-    /** StoreMenuRequest */
-    StoreMenuRequest: {
-      code: string;
-      component?: string | null;
-      icon?: string | null;
-      is_active?: boolean;
-      is_visible?: boolean;
-      name: string;
-      parent_id?: number | null;
-      path?: string | null;
-      permission_ids?: number[];
-      sort?: number;
-      /** @enum {string} */
-      type?: "directory" | "page" | "button";
-    };
-    /** StorePermissionRequest */
-    StorePermissionRequest: {
-      description?: string | null;
-      display_name?: string | null;
-      group?: string | null;
-      is_active?: boolean;
-      name: string;
-      sort?: number;
-    };
-    /** StoreRoleRequest */
-    StoreRoleRequest: {
-      name: string;
-      permissions?: string[];
-    };
-    /** StoreSystemConfigRequest */
-    StoreSystemConfigRequest: {
-      config_group?: string;
-      description?: string | null;
-      is_active?: boolean;
-      is_public?: boolean;
-      key: string;
-      name: string;
-      sort?: number;
-      /** @enum {string} */
-      type?: "string" | "text" | "integer" | "boolean" | "json";
-      value?: string | null;
-    };
-    /** StoreUserRequest */
-    StoreUserRequest: {
-      /** Format: email */
-      email: string;
-      is_active?: boolean;
-      name: string;
-      password: string;
-    };
-    /** SyncRolePermissionsRequest */
-    SyncRolePermissionsRequest: {
-      permissions: string[];
-    };
-    /** SyncUserRolesRequest */
-    SyncUserRolesRequest: {
-      roles: string[];
-    };
-    /** SystemConfigResource */
-    SystemConfigResource: {
-      config_group: string;
-      created_at: string | null;
-      description: string | null;
-      id: number;
-      is_active: boolean;
-      is_public: boolean;
-      key: string;
-      name: string;
-      sort: number;
-      type: string;
-      updated_at: string | null;
-      value: string | number | boolean | {
-        [key: string]: unknown;
-      } | unknown[] | null;
-    };
-    /** SystemSettingsResource */
-    SystemSettingsResource: {
-      basic: {
-        copyright: string | null;
-        icp_filing_number: string | null;
-        system_name: string | null;
-      };
-      branding: {
-        /** Format: uri */
-        favicon_url: string | null;
-        /** Format: uri */
-        login_background_url: string | null;
-        /** Format: uri */
-        login_logo_url: string | null;
-        /** Format: uri */
-        navigation_logo_url: string | null;
-      };
-    };
-    /** UpdateBasicSystemSettingsRequest */
-    UpdateBasicSystemSettingsRequest: {
-      copyright: string | null;
-      icp_filing_number: string | null;
-      system_name: string;
-    };
-    /** UpdateBrandingSystemSettingsRequest */
-    UpdateBrandingSystemSettingsRequest: {
-      /** Format: uri */
-      favicon_url: string | null;
-      /** Format: uri */
-      login_background_url: string | null;
-      /** Format: uri */
-      login_logo_url: string | null;
-      /** Format: uri */
-      navigation_logo_url: string | null;
-    };
-    /** UpdateDictionaryItemRequest */
-    UpdateDictionaryItemRequest: {
-      code?: string;
-      description?: string | null;
-      dictionary_type_id?: number;
-      is_active?: boolean;
-      meta?: {
-        [key: string]: unknown;
-      } | null;
-      name?: string;
-      sort?: number;
-      value?: string | null;
-    };
-    /** UpdateDictionaryTypeRequest */
-    UpdateDictionaryTypeRequest: {
-      code?: string;
-      description?: string | null;
-      is_active?: boolean;
-      name?: string;
-      sort?: number;
-    };
-    /** UpdateMemberRequest */
-    UpdateMemberRequest: {
-      /** Format: email */
-      email?: string | null;
-      mobile?: string | null;
-      name?: string;
-    };
-    /** UpdateMemberStatusRequest */
-    UpdateMemberStatusRequest: {
-      is_active: boolean;
-    };
-    /** UpdateMenuRequest */
-    UpdateMenuRequest: {
-      code?: string;
-      component?: string | null;
-      icon?: string | null;
-      is_active?: boolean;
-      is_visible?: boolean;
-      name?: string;
-      parent_id?: number | null;
-      path?: string | null;
-      permission_ids?: number[];
-      sort?: number;
-      /** @enum {string} */
-      type?: "directory" | "page" | "button";
-    };
-    /** UpdatePermissionRequest */
-    UpdatePermissionRequest: {
-      description?: string | null;
-      display_name?: string | null;
-      group?: string | null;
-      is_active?: boolean;
-      name?: string;
-      sort?: number;
-    };
-    /** UpdateRoleRequest */
-    UpdateRoleRequest: {
-      name?: string;
-      permissions?: string[];
-    };
-    /** UpdateSystemConfigRequest */
-    UpdateSystemConfigRequest: {
-      config_group?: string;
-      description?: string | null;
-      is_active?: boolean;
-      is_public?: boolean;
-      key?: string;
-      name?: string;
-      sort?: number;
-      /** @enum {string} */
-      type?: "string" | "text" | "integer" | "boolean" | "json";
-      value?: string | null;
-    };
-    /** UpdateUserRequest */
-    UpdateUserRequest: {
-      /** Format: email */
-      email?: string;
-      is_active?: boolean;
-      name?: string;
-    };
-    /** UserResource */
-    UserResource: {
-      created_at: string | null;
-      email: string;
-      id: number;
-      is_active: boolean;
-      last_login_at: string | null;
-      last_login_ip: string | null;
-      name: string;
-      roles?: components["schemas"]["RoleResource"][];
-      updated_at: string | null;
-    };
-  };
-  responses: {
-    /** @description Content Too Large */
-    ApiContentTooLargeResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 413;
-          data: Record<string, never>;
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+    schemas: {
+        /** ActivityLogResource */
+        ActivityLogResource: {
+            /** Format: int64 */
+            causer_id: number | null;
+            causer_type: string | null;
+            created_at: string | null;
+            description: string;
+            event: string | null;
+            /** Format: int64 */
+            id: number;
+            log_name: string | null;
+            properties: {
+                [key: string]: unknown;
+            };
+            /** Format: int64 */
+            subject_id: number | null;
+            subject_type: string | null;
         };
-      };
-    };
-    /** @description Service Unavailable */
-    ApiFileDeleteFailedResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 503;
-          data: Record<string, never>;
-          /** @enum {string} */
-          error_code: "file_delete_failed";
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** App.Http.Requests.Admin.Auth.ChangePasswordRequest */
+        "App.Http.Requests.Admin.Auth.ChangePasswordRequest": {
+            current_password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password_confirmation: string;
         };
-      };
-    };
-    /** @description Forbidden */
-    ApiForbiddenResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 403;
-          data: Record<string, never>;
-          /** @enum {string} */
-          error_code?: "account_inactive";
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** App.Http.Requests.Admin.Auth.LoginRequest */
+        "App.Http.Requests.Admin.Auth.LoginRequest": {
+            /** Format: email */
+            email: string;
+            password: string;
         };
-      };
-    };
-    /** @description Conflict */
-    ApiManagedSystemSettingConflictResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 409;
-          data: Record<string, never>;
-          /** @enum {string} */
-          error_code: "managed_system_setting_immutable";
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** App.Http.Resources.Admin.MemberResource */
+        "App.Http.Resources.Admin.MemberResource": {
+            created_at: string;
+            /** Format: email */
+            email: string | null;
+            /** Format: int64 */
+            id: number;
+            is_active: boolean;
+            last_login_at: string | null;
+            last_login_ip: string | null;
+            mobile: string | null;
+            name: string;
+            updated_at: string;
         };
-      };
-    };
-    /** @description Not Found */
-    ApiNotFoundResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 404;
-          data: Record<string, never>;
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** ChangePasswordRequest */
+        ChangePasswordRequest: {
+            current_password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password_confirmation: string;
         };
-      };
-    };
-    /** @description Too Many Requests */
-    ApiRateLimitResponse: {
-      headers: {
-        /** @description Seconds until the client may retry. */
-        "Retry-After"?: number;
-        /** @description Maximum requests allowed in the current window. */
-        "X-RateLimit-Limit"?: number;
-        /** @description Requests remaining in the current window. */
-        "X-RateLimit-Remaining"?: number;
-        /** @description Unix timestamp when the current window resets. */
-        "X-RateLimit-Reset"?: number;
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 429;
-          data: Record<string, never>;
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** DictionaryItemResource */
+        DictionaryItemResource: {
+            code: string;
+            created_at: string | null;
+            description: string | null;
+            dictionary_type_id: number;
+            id: number;
+            is_active: boolean;
+            meta: {
+                [key: string]: unknown;
+            } | null;
+            name: string;
+            sort: number;
+            type?: components["schemas"]["DictionaryTypeResource"];
+            updated_at: string | null;
+            value: string | null;
         };
-      };
-    };
-    /** @description Internal Server Error */
-    ApiServerErrorResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 500;
-          data: Record<string, never>;
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** DictionaryTypeResource */
+        DictionaryTypeResource: {
+            code: string;
+            created_at: string | null;
+            description: string | null;
+            id: number;
+            is_active: boolean;
+            items?: components["schemas"]["DictionaryItemResource"][];
+            items_count?: number;
+            name: string;
+            sort: number;
+            updated_at: string | null;
         };
-      };
-    };
-    /** @description Service Unavailable */
-    ApiServiceUnavailableResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 503;
-          data: Record<string, never>;
-          /** @enum {string} */
-          error_code: "file_delete_failed";
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** FileDirectoryResource */
+        FileDirectoryResource: {
+            created_at: string | null;
+            id: number;
+            name: string;
+            parent_id: number | null;
+            updated_at: string | null;
         };
-      };
-    };
-    /** @description Unauthorized */
-    ApiUnauthorizedResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 401;
-          data: Record<string, never>;
-          errors: Record<string, never>;
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** FileResource */
+        FileResource: {
+            created_at: string;
+            /** Format: int64 */
+            directory_id: number | null;
+            extension: string;
+            height: number | null;
+            /** Format: int64 */
+            id: number;
+            mime_type: string;
+            name: string;
+            /** Format: int64 */
+            size: number;
+            /** @enum {string} */
+            status: "pending" | "ready" | "failed";
+            /** @enum {string} */
+            type: "image" | "document" | "video" | "audio" | "other";
+            /** Format: uri */
+            url: string | null;
+            width: number | null;
         };
-      };
-    };
-    /** @description Unprocessable Content */
-    ApiValidationErrorResponse: {
-      headers: {
-        /** @description Request correlation identifier. Matches the response body request_id. */
-        "X-Request-Id"?: string;
-      };
-      content: {
-        "application/json": {
-          /** @constant */
-          code: 422;
-          data: Record<string, never>;
-          errors: {
-            [key: string]: string[];
-          };
-          message: string;
-          /** Format: uuid */
-          request_id: string;
-          /** @enum {boolean} */
-          success: false;
+        /** LoginLogResource */
+        LoginLogResource: {
+            account: string | null;
+            context: {
+                [key: string]: unknown;
+            };
+            created_at: string | null;
+            event: string;
+            failure_reason: string | null;
+            guard: string;
+            /** Format: int64 */
+            id: number;
+            ip_address: string | null;
+            request_id: string | null;
+            /** Format: int64 */
+            subject_id: number | null;
+            subject_type: string | null;
+            successful: boolean;
+            user_agent: string | null;
         };
-      };
+        /** LoginRequest */
+        LoginRequest: {
+            account: string;
+            password: string;
+        };
+        /** MemberResource */
+        MemberResource: {
+            email: string | null;
+            id: number;
+            is_active: boolean;
+            last_login_at: string | null;
+            mobile: string | null;
+            name: string | null;
+        };
+        /** MenuResource */
+        MenuResource: {
+            children?: components["schemas"]["MenuResource"][];
+            code: string;
+            component: string | null;
+            created_at: string | null;
+            icon: string | null;
+            /** Format: int64 */
+            id: number;
+            is_active: boolean;
+            is_visible: boolean;
+            name: string;
+            /** Format: int64 */
+            parent_id: number | null;
+            path: string | null;
+            permission_ids: number[];
+            permission_names: string[];
+            permissions: components["schemas"]["PermissionResource"][];
+            sort: number;
+            type: string;
+            updated_at: string | null;
+        };
+        /** PermissionResource */
+        PermissionResource: {
+            created_at: string | null;
+            description: string | null;
+            display_name: string | null;
+            group: string | null;
+            guard_name: string;
+            id: number;
+            is_active: boolean;
+            is_system: boolean;
+            name: string;
+            sort: number;
+            updated_at: string | null;
+        };
+        /** ResetMemberPasswordRequest */
+        ResetMemberPasswordRequest: {
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password_confirmation: string;
+        };
+        /** ResetUserPasswordRequest */
+        ResetUserPasswordRequest: {
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password_confirmation: string;
+        };
+        /** RoleResource */
+        RoleResource: {
+            created_at: string | null;
+            guard_name: string;
+            /** Format: int64 */
+            id: number;
+            name: string;
+            permissions?: components["schemas"]["PermissionResource"][];
+            updated_at: string | null;
+        };
+        /** StoreDictionaryItemRequest */
+        StoreDictionaryItemRequest: {
+            code: string;
+            description?: string | null;
+            dictionary_type_id: number;
+            is_active?: boolean;
+            meta?: {
+                [key: string]: unknown;
+            } | null;
+            name: string;
+            sort?: number;
+            value?: string | null;
+        };
+        /** StoreDictionaryTypeRequest */
+        StoreDictionaryTypeRequest: {
+            code: string;
+            description?: string | null;
+            is_active?: boolean;
+            name: string;
+            sort?: number;
+        };
+        /** StoreFileDirectoryRequest */
+        StoreFileDirectoryRequest: {
+            name: string;
+            parent_id?: number | null;
+        };
+        /** StoreFileRequest */
+        StoreFileRequest: {
+            allowed_types?: ("image" | "document" | "video" | "audio" | "other")[];
+            directory_id?: number | null;
+            /**
+             * Format: binary
+             * @description Allowed formats: image (JPG, JPEG, PNG, WEBP, GIF; max 5 MiB); document (PDF, TXT, CSV; max 20 MiB); video (MP4; max 100 MiB); audio (MP3, WAV; max 20 MiB); other (ZIP; max 20 MiB). The filename extension, detected MIME type, and inspected structure must match.
+             */
+            file: string;
+        };
+        /** StoreMemberRequest */
+        StoreMemberRequest: {
+            /** Format: email */
+            email?: string | null;
+            is_active?: boolean;
+            mobile?: string | null;
+            name: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password_confirmation: string;
+        } & ({
+            /** Format: email */
+            email: string;
+        } | {
+            mobile: string;
+        });
+        /** StoreMenuRequest */
+        StoreMenuRequest: {
+            code: string;
+            component?: string | null;
+            icon?: string | null;
+            is_active?: boolean;
+            is_visible?: boolean;
+            name: string;
+            parent_id?: number | null;
+            path?: string | null;
+            permission_ids?: number[];
+            sort?: number;
+            /** @enum {string} */
+            type?: "directory" | "page" | "button";
+        };
+        /** StorePermissionRequest */
+        StorePermissionRequest: {
+            description?: string | null;
+            display_name?: string | null;
+            group?: string | null;
+            is_active?: boolean;
+            name: string;
+            sort?: number;
+        };
+        /** StoreRoleRequest */
+        StoreRoleRequest: {
+            name: string;
+            permissions?: string[];
+        };
+        /** StoreSystemConfigRequest */
+        StoreSystemConfigRequest: {
+            config_group?: string;
+            description?: string | null;
+            is_active?: boolean;
+            is_public?: boolean;
+            key: string;
+            name: string;
+            sort?: number;
+            /** @enum {string} */
+            type?: "string" | "text" | "integer" | "boolean" | "json";
+            value?: string | null;
+        };
+        /** StoreUserRequest */
+        StoreUserRequest: {
+            /** Format: email */
+            email: string;
+            is_active?: boolean;
+            name: string;
+            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
+            password: string;
+        };
+        /** SyncRolePermissionsRequest */
+        SyncRolePermissionsRequest: {
+            permissions: string[];
+        };
+        /** SyncUserRolesRequest */
+        SyncUserRolesRequest: {
+            roles: string[];
+        };
+        /** SystemConfigResource */
+        SystemConfigResource: {
+            config_group: string;
+            created_at: string | null;
+            description: string | null;
+            id: number;
+            is_active: boolean;
+            is_public: boolean;
+            key: string;
+            name: string;
+            sort: number;
+            type: string;
+            updated_at: string | null;
+            value: string | number | boolean | {
+                [key: string]: unknown;
+            } | unknown[] | null;
+        };
+        /** SystemSettingsResource */
+        SystemSettingsResource: {
+            basic: {
+                copyright: string | null;
+                icp_filing_number: string | null;
+                system_name: string | null;
+            };
+            branding: {
+                /** Format: uri */
+                favicon_url: string | null;
+                /** Format: uri */
+                login_background_url: string | null;
+                /** Format: uri */
+                login_logo_url: string | null;
+                /** Format: uri */
+                navigation_logo_url: string | null;
+            };
+        };
+        /** UpdateBasicSystemSettingsRequest */
+        UpdateBasicSystemSettingsRequest: {
+            copyright: string | null;
+            icp_filing_number: string | null;
+            system_name: string;
+        };
+        /** UpdateBrandingSystemSettingsRequest */
+        UpdateBrandingSystemSettingsRequest: {
+            /** Format: uri */
+            favicon_url: string | null;
+            /** Format: uri */
+            login_background_url: string | null;
+            /** Format: uri */
+            login_logo_url: string | null;
+            /** Format: uri */
+            navigation_logo_url: string | null;
+        };
+        /** UpdateDictionaryItemRequest */
+        UpdateDictionaryItemRequest: {
+            code?: string;
+            description?: string | null;
+            dictionary_type_id?: number;
+            is_active?: boolean;
+            meta?: {
+                [key: string]: unknown;
+            } | null;
+            name?: string;
+            sort?: number;
+            value?: string | null;
+        };
+        /** UpdateDictionaryTypeRequest */
+        UpdateDictionaryTypeRequest: {
+            code?: string;
+            description?: string | null;
+            is_active?: boolean;
+            name?: string;
+            sort?: number;
+        };
+        /** UpdateFileByUrlRequest */
+        UpdateFileByUrlRequest: {
+            directory_id: number | null;
+            url: string;
+        };
+        /** UpdateFileRequest */
+        UpdateFileRequest: {
+            directory_id: number | null;
+        };
+        /** UpdateMemberRequest */
+        UpdateMemberRequest: {
+            /** Format: email */
+            email?: string | null;
+            mobile?: string | null;
+            name?: string;
+        };
+        /** UpdateMemberStatusRequest */
+        UpdateMemberStatusRequest: {
+            is_active: boolean;
+        };
+        /** UpdateMenuRequest */
+        UpdateMenuRequest: {
+            code?: string;
+            component?: string | null;
+            icon?: string | null;
+            is_active?: boolean;
+            is_visible?: boolean;
+            name?: string;
+            parent_id?: number | null;
+            path?: string | null;
+            permission_ids?: number[];
+            sort?: number;
+            /** @enum {string} */
+            type?: "directory" | "page" | "button";
+        };
+        /** UpdatePermissionRequest */
+        UpdatePermissionRequest: {
+            description?: string | null;
+            display_name?: string | null;
+            group?: string | null;
+            is_active?: boolean;
+            name?: string;
+            sort?: number;
+        };
+        /** UpdateRoleRequest */
+        UpdateRoleRequest: {
+            name?: string;
+            permissions?: string[];
+        };
+        /** UpdateSystemConfigRequest */
+        UpdateSystemConfigRequest: {
+            config_group?: string;
+            description?: string | null;
+            is_active?: boolean;
+            is_public?: boolean;
+            key?: string;
+            name?: string;
+            sort?: number;
+            /** @enum {string} */
+            type?: "string" | "text" | "integer" | "boolean" | "json";
+            value?: string | null;
+        };
+        /** UpdateUserRequest */
+        UpdateUserRequest: {
+            /** Format: email */
+            email?: string;
+            is_active?: boolean;
+            name?: string;
+        };
+        /** UserResource */
+        UserResource: {
+            created_at: string | null;
+            email: string;
+            id: number;
+            is_active: boolean;
+            last_login_at: string | null;
+            last_login_ip: string | null;
+            name: string;
+            roles?: components["schemas"]["RoleResource"][];
+            updated_at: string | null;
+        };
     };
-  };
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: {
+        /** @description Content Too Large */
+        ApiContentTooLargeResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 413;
+                    data: Record<string, never>;
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Service Unavailable */
+        ApiFileDeleteFailedResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 503;
+                    data: Record<string, never>;
+                    /** @enum {string} */
+                    error_code: "file_delete_failed";
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Conflict */
+        ApiFileDirectoryConflictResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 409;
+                    data: Record<string, never>;
+                    /** @enum {string} */
+                    error_code: "file_directory_not_empty";
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Forbidden */
+        ApiForbiddenResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 403;
+                    data: Record<string, never>;
+                    /** @enum {string} */
+                    error_code?: "account_inactive";
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Conflict */
+        ApiManagedSystemSettingConflictResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 409;
+                    data: Record<string, never>;
+                    /** @enum {string} */
+                    error_code: "managed_system_setting_immutable";
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Not Found */
+        ApiNotFoundResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 404;
+                    data: Record<string, never>;
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Too Many Requests */
+        ApiRateLimitResponse: {
+            headers: {
+                /** @description Seconds until the client may retry. */
+                "Retry-After"?: number;
+                /** @description Maximum requests allowed in the current window. */
+                "X-RateLimit-Limit"?: number;
+                /** @description Requests remaining in the current window. */
+                "X-RateLimit-Remaining"?: number;
+                /** @description Unix timestamp when the current window resets. */
+                "X-RateLimit-Reset"?: number;
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 429;
+                    data: Record<string, never>;
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Internal Server Error */
+        ApiServerErrorResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 500;
+                    data: Record<string, never>;
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Service Unavailable */
+        ApiServiceUnavailableResponse: {
+            headers: {
+                /** @description Seconds until the client may retry. */
+                "Retry-After"?: number;
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 503;
+                    data: Record<string, never>;
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Unauthorized */
+        ApiUnauthorizedResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 401;
+                    data: Record<string, never>;
+                    errors: Record<string, never>;
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+        /** @description Unprocessable Content */
+        ApiValidationErrorResponse: {
+            headers: {
+                /** @description Request correlation identifier. Matches the response body request_id. */
+                "X-Request-Id"?: string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @constant */
+                    code: 422;
+                    data: Record<string, never>;
+                    errors: {
+                        [key: string]: string[];
+                    };
+                    message: string;
+                    /** Format: uuid */
+                    request_id: string;
+                    /** @enum {boolean} */
+                    success: false;
+                };
+            };
+        };
+    };
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
-
 export type $defs = Record<string, never>;
-
-export type external = Record<string, never>;
-
 export interface operations {
-
-  "admin.activity-logs.index": {
-    parameters: {
-      query?: {
-        log_name?: string;
-        event?: string;
-        subject_type?: string;
-        subject_id?: number;
-        causer_id?: number;
-        created_at?: string[];
-        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
-        sorts?: string;
-        /** @description Items per page. */
-        page_size?: number;
-        /** @description Page number. */
-        page?: number;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["ActivityLogResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+    "admin.activity-logs.index": {
+        parameters: {
+            query?: {
+                causer_id?: number;
+                created_at?: string[];
+                event?: string;
+                log_name?: string;
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page. */
+                page_size?: number;
+                /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
+                sorts?: string;
+                subject_id?: number;
+                subject_type?: string;
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.auth.login": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["App.Http.Requests.Admin.Auth.LoginRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              access_token: string;
-              expires_in: number;
-              permission_names: string[];
-              /** @constant */
-              token_type: "bearer";
-              user: components["schemas"]["UserResource"];
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["ActivityLogResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  "admin.auth.logout": {
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.auth.login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.auth.me": {
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              permission_names: string[];
-              user: components["schemas"]["UserResource"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["App.Http.Requests.Admin.Auth.LoginRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.auth.password.update": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["App.Http.Requests.Admin.Auth.ChangePasswordRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.auth.refresh": {
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              access_token: string;
-              expires_in: number;
-              permission_names: string[];
-              /** @constant */
-              token_type: "bearer";
-              user: components["schemas"]["UserResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            access_token: string;
+                            expires_in: number;
+                            permission_names: string[];
+                            /** @constant */
+                            token_type: "bearer";
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display a listing of the resource */
-  "admin.dictionary-items.index": {
-    parameters: {
-      query?: {
-        dictionary_type_id?: string;
-        type_code?: string;
-        code?: string;
-        name?: string;
-        value?: string;
-        is_active?: string;
-        keyword?: string;
-        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, value, sort, created_at, updated_at. */
-        sorts?: string;
-        /** @description Items per page. */
-        page_size?: number;
-        /** @description Page number. */
-        page?: number;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.auth.logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["DictionaryItemResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Store a newly created resource in storage */
-  "admin.dictionary-items.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreDictionaryItemRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.auth.me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              dictionary_item: components["schemas"]["DictionaryItemResource"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            permission_names: string[];
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display the specified resource */
-  "admin.dictionary-items.show": {
-    parameters: {
-      path: {
-        /** @description The dictionary item ID */
-        dictionaryItem: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.auth.password.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              dictionary_item: components["schemas"]["DictionaryItemResource"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["App.Http.Requests.Admin.Auth.ChangePasswordRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Update the specified resource in storage */
-  "admin.dictionary-items.update": {
-    parameters: {
-      path: {
-        /** @description The dictionary item ID */
-        dictionaryItem: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateDictionaryItemRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              dictionary_item: components["schemas"]["DictionaryItemResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Remove the specified resource from storage */
-  "admin.dictionary-items.destroy": {
-    parameters: {
-      path: {
-        /** @description The dictionary item ID */
-        dictionaryItem: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.auth.refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Display a listing of the resource */
-  "admin.dictionary-types.index": {
-    parameters: {
-      query?: {
-        code?: string;
-        name?: string;
-        is_active?: string;
-        keyword?: string;
-        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, sort, created_at, updated_at. */
-        sorts?: string;
-        /** @description Items per page. */
-        page_size?: number;
-        /** @description Page number. */
-        page?: number;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["DictionaryTypeResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            access_token: string;
+                            expires_in: number;
+                            permission_names: string[];
+                            /** @constant */
+                            token_type: "bearer";
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+            503: components["responses"]["ApiServiceUnavailableResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Store a newly created resource in storage */
-  "admin.dictionary-types.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreDictionaryTypeRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              dictionary_type: components["schemas"]["DictionaryTypeResource"];
+    "admin.dictionary-items.index": {
+        parameters: {
+            query?: {
+                code?: string;
+                dictionary_type_id?: string;
+                is_active?: string;
+                keyword?: string;
+                name?: string;
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page. */
+                page_size?: number;
+                /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, value, sort, created_at, updated_at. */
+                sorts?: string;
+                type_code?: string;
+                value?: string;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Display the specified resource */
-  "admin.dictionary-types.show": {
-    parameters: {
-      path: {
-        /** @description The dictionary type ID */
-        dictionaryType: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              dictionary_type: components["schemas"]["DictionaryTypeResource"];
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["DictionaryItemResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Update the specified resource in storage */
-  "admin.dictionary-types.update": {
-    parameters: {
-      path: {
-        /** @description The dictionary type ID */
-        dictionaryType: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateDictionaryTypeRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.dictionary-items.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              dictionary_type: components["schemas"]["DictionaryTypeResource"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreDictionaryItemRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Remove the specified resource from storage */
-  "admin.dictionary-types.destroy": {
-    parameters: {
-      path: {
-        /** @description The dictionary type ID */
-        dictionaryType: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.files.index": {
-    parameters: {
-      query?: {
-        page?: number;
-        per_page?: number;
-        search?: string | null;
-        type?: "image" | "document" | "video" | "audio" | "other";
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["FileResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            dictionary_item: components["schemas"]["DictionaryItemResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  "admin.files.store": {
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["StoreFileRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              file: components["schemas"]["FileResource"];
+    "admin.dictionary-items.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dictionary item ID */
+                dictionaryItem: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.files.destroy": {
-    parameters: {
-      path: {
-        /** @description The file ID */
-        file: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-      503: components["responses"]["ApiFileDeleteFailedResponse"];
-    };
-  };
-  "admin.login-logs.index": {
-    parameters: {
-      query?: {
-        guard?: string;
-        event?: string;
-        successful?: string;
-        account?: string;
-        subject_id?: number;
-        ip_address?: string;
-        created_at?: string[];
-        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
-        sorts?: string;
-        /** @description Items per page. */
-        page_size?: number;
-        /** @description Page number. */
-        page?: number;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["LoginLogResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            dictionary_item: components["schemas"]["DictionaryItemResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  "admin.members.index": {
-    parameters: {
-      query?: {
-        page?: number;
-        per_page?: number;
-        search?: string | null;
-        is_active?: boolean;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["App.Http.Resources.Admin.MemberResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+    "admin.dictionary-items.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dictionary item ID */
+                dictionaryItem: number;
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.members.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreMemberRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateDictionaryItemRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.members.show": {
-    parameters: {
-      path: {
-        /** @description The member ID */
-        member: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            dictionary_item: components["schemas"]["DictionaryItemResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  "admin.members.update": {
-    parameters: {
-      path: {
-        /** @description The member ID */
-        member: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateMemberRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+    "admin.dictionary-items.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dictionary item ID */
+                dictionaryItem: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.members.invalidate-sessions": {
-    parameters: {
-      path: {
-        /** @description The member ID */
-        member: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  "admin.members.reset-password": {
-    parameters: {
-      path: {
-        /** @description The member ID */
-        member: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ResetMemberPasswordRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+    "admin.dictionary-types.index": {
+        parameters: {
+            query?: {
+                code?: string;
+                is_active?: string;
+                keyword?: string;
+                name?: string;
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page. */
+                page_size?: number;
+                /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, sort, created_at, updated_at. */
+                sorts?: string;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.members.update-status": {
-    parameters: {
-      path: {
-        /** @description The member ID */
-        member: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateMemberStatusRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["DictionaryTypeResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Return the complete bounded admin menu catalog for management UIs */
-  "admin.menus.index": {
-    responses: {
-      /** @description Array of `MenuResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.dictionary-types.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["MenuResource"][];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Store a newly created resource in storage */
-  "admin.menus.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreMenuRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              menu: components["schemas"]["MenuResource"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreDictionaryTypeRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Display the specified resource */
-  "admin.menus.show": {
-    parameters: {
-      path: {
-        /** @description The menu ID */
-        menu: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              menu: components["schemas"]["MenuResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Update the specified resource in storage */
-  "admin.menus.update": {
-    parameters: {
-      path: {
-        /** @description The menu ID */
-        menu: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateMenuRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              menu: components["schemas"]["MenuResource"];
+    "admin.dictionary-types.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dictionary type ID */
+                dictionaryType: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Remove the specified resource from storage */
-  "admin.menus.destroy": {
-    parameters: {
-      path: {
-        /** @description The menu ID */
-        menu: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Return the complete bounded visible menu tree for admin shell navigation */
-  "admin.menus.tree": {
-    responses: {
-      /** @description Array of `MenuResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["MenuResource"][];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Return the complete bounded RBAC permission catalog for configuration UIs */
-  "admin.permissions.index": {
-    responses: {
-      /** @description Array of `PermissionResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["PermissionResource"][];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Store a newly created resource in storage */
-  "admin.permissions.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StorePermissionRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              permission: components["schemas"]["PermissionResource"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display the specified resource */
-  "admin.permissions.show": {
-    parameters: {
-      path: {
-        /** @description The permission ID */
-        permission: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              permission: components["schemas"]["PermissionResource"];
+    "admin.dictionary-types.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dictionary type ID */
+                dictionaryType: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Update the specified resource in storage */
-  "admin.permissions.update": {
-    parameters: {
-      path: {
-        /** @description The permission ID */
-        permission: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdatePermissionRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              permission: components["schemas"]["PermissionResource"];
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateDictionaryTypeRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Remove the specified resource from storage */
-  "admin.permissions.destroy": {
-    parameters: {
-      path: {
-        /** @description The permission ID */
-        permission: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Return the complete bounded admin role catalog for assignment UIs */
-  "admin.roles.index": {
-    responses: {
-      /** @description Array of `RoleResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["RoleResource"][];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Store a newly created resource in storage */
-  "admin.roles.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreRoleRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              role: components["schemas"]["RoleResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display the specified resource */
-  "admin.roles.show": {
-    parameters: {
-      path: {
-        /** @description The role ID */
-        role: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              role: components["schemas"]["RoleResource"];
+    "admin.dictionary-types.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The dictionary type ID */
+                dictionaryType: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Update the specified resource in storage */
-  "admin.roles.update": {
-    parameters: {
-      path: {
-        /** @description The role ID */
-        role: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateRoleRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              role: components["schemas"]["RoleResource"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Remove the specified resource from storage */
-  "admin.roles.destroy": {
-    parameters: {
-      path: {
-        /** @description The role ID */
-        role: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.file-directories.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.roles.permissions.update": {
-    parameters: {
-      path: {
-        /** @description The role ID */
-        role: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SyncRolePermissionsRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              role: components["schemas"]["RoleResource"];
+        requestBody?: never;
+        responses: {
+            /** @description Array of `FileDirectoryResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["FileDirectoryResource"][];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display a listing of the resource */
-  "admin.system-configs.index": {
-    parameters: {
-      query?: {
-        key?: string;
-        name?: string;
-        config_group?: string;
-        type?: string;
-        is_public?: string;
-        is_active?: string;
-        keyword?: string;
-        /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, key, type, config_group, sort, created_at, updated_at. */
-        sorts?: string;
-        /** @description Items per page. */
-        page_size?: number;
-        /** @description Page number. */
-        page?: number;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.file-directories.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["SystemConfigResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreFileDirectoryRequest"];
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Store a newly created resource in storage */
-  "admin.system-configs.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreSystemConfigRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              system_config: components["schemas"]["SystemConfigResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            directory: components["schemas"]["FileDirectoryResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display the specified resource */
-  "admin.system-configs.show": {
-    parameters: {
-      path: {
-        /** @description The system config ID */
-        systemConfig: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              system_config: components["schemas"]["SystemConfigResource"];
+    "admin.file-directories.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The file directory ID */
+                fileDirectory: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Update the specified resource in storage */
-  "admin.system-configs.update": {
-    parameters: {
-      path: {
-        /** @description The system config ID */
-        systemConfig: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateSystemConfigRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              system_config: components["schemas"]["SystemConfigResource"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            409: components["responses"]["ApiFileDirectoryConflictResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Remove the specified resource from storage */
-  "admin.system-configs.destroy": {
-    parameters: {
-      path: {
-        /** @description The system config ID */
-        systemConfig: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.system-settings.show": {
-    responses: {
-      /** @description `SystemSettingsResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["SystemSettingsResource"];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.system-settings.basic.update": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateBasicSystemSettingsRequest"];
-      };
-    };
-    responses: {
-      /** @description `SystemSettingsResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["SystemSettingsResource"];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.system-settings.branding.update": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateBrandingSystemSettingsRequest"];
-      };
-    };
-    responses: {
-      /** @description `SystemSettingsResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["SystemSettingsResource"];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Display a listing of the resource */
-  "admin.users.index": {
-    parameters: {
-      query?: {
-        /** @description Items per page. */
-        page_size?: number;
-        /** @description Page number. */
-        page?: number;
-      };
-    };
-    responses: {
-      /** @description Paginated list */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["UserResource"][];
-            message: string;
-            meta: {
-              /** @description Whether more pages exist */
-              has_more: boolean;
-              /** @description Current page number */
-              page: number;
-              /** @description Items per page */
-              page_size: number;
-              /** @description Pagination strategy */
-              pagination: string;
-              /** @description Total number of items */
-              total: number;
+    "admin.files.index": {
+        parameters: {
+            query?: {
+                directory_id?: number;
+                page?: number;
+                per_page?: number;
+                search?: string | null;
+                type?: "image" | "document" | "video" | "audio" | "other" | null;
+                "types[]"?: ("image" | "document" | "video" | "audio" | "other")[];
+                ungrouped?: boolean;
             };
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Store a newly created resource in storage */
-  "admin.users.store": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StoreUserRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              user: components["schemas"]["UserResource"];
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["FileResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Display the specified resource */
-  "admin.users.show": {
-    parameters: {
-      path: {
-        /** @description The user ID */
-        user: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.files.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              user: components["schemas"]["UserResource"];
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["StoreFileRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  /** Update the specified resource in storage */
-  "admin.users.update": {
-    parameters: {
-      path: {
-        /** @description The user ID */
-        user: number;
-      };
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["UpdateUserRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              user: components["schemas"]["UserResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            file: components["schemas"]["FileResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  /** Remove the specified resource from storage */
-  "admin.users.destroy": {
-    parameters: {
-      path: {
-        /** @description The user ID */
-        user: number;
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.users.password.update": {
-    parameters: {
-      path: {
-        /** @description The user ID */
-        user: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ResetUserPasswordRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "admin.users.roles.update": {
-    parameters: {
-      path: {
-        /** @description The user ID */
-        user: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SyncUserRolesRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              user: components["schemas"]["UserResource"];
+    "admin.files.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The file ID */
+                file: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      404: components["responses"]["ApiNotFoundResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "member.auth.login": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["LoginRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              access_token: string;
-              expires_in: number;
-              member: components["schemas"]["MemberResource"];
-              /** @constant */
-              token_type: "bearer";
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFileRequest"];
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "member.auth.logout": {
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "member.auth.me": {
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              member: components["schemas"]["MemberResource"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
     };
-  };
-  "member.auth.password.update": {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ChangePasswordRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: Record<string, never>;
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
-        };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      422: components["responses"]["ApiValidationErrorResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
-    };
-  };
-  "member.auth.refresh": {
-    responses: {
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
-        };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: {
-              access_token: string;
-              expires_in: number;
-              member: components["schemas"]["MemberResource"];
-              /** @constant */
-              token_type: "bearer";
+    "admin.files.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The file ID */
+                file: number;
             };
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+            cookie?: never;
         };
-      };
-      401: components["responses"]["ApiUnauthorizedResponse"];
-      403: components["responses"]["ApiForbiddenResponse"];
-      413: components["responses"]["ApiContentTooLargeResponse"];
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+            503: components["responses"]["ApiFileDeleteFailedResponse"];
+        };
     };
-  };
-  "system-settings.public": {
-    responses: {
-      /** @description `SystemSettingsResource` */
-      200: {
-        headers: {
-          /** @description Request correlation identifier. Matches the response body request_id. */
-          "X-Request-Id"?: string;
+    "admin.files.by-url.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": {
-            /** @description Business status code, 0 = success */
-            code: number;
-            data: components["schemas"]["SystemSettingsResource"];
-            message: string;
-            /** @description UUID7 for request tracing */
-            request_id: string;
-            /** @description Whether the request was successful */
-            success: boolean;
-          };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFileByUrlRequest"];
+            };
         };
-      };
-      429: components["responses"]["ApiRateLimitResponse"];
-      500: components["responses"]["ApiServerErrorResponse"];
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
     };
-  };
+    "admin.files.by-url.destroy": {
+        parameters: {
+            query: {
+                url: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+            503: components["responses"]["ApiFileDeleteFailedResponse"];
+        };
+    };
+    "admin.login-logs.index": {
+        parameters: {
+            query?: {
+                account?: string;
+                created_at?: string[];
+                event?: string;
+                guard?: string;
+                ip_address?: string;
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page. */
+                page_size?: number;
+                /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
+                sorts?: string;
+                subject_id?: number;
+                successful?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["LoginLogResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                page?: number;
+                per_page?: number;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["App.Http.Resources.Admin.MemberResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreMemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The member ID */
+                member: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The member ID */
+                member: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateMemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.invalidate-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The member ID */
+                member: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The member ID */
+                member: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetMemberPasswordRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.members.update-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The member ID */
+                member: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMemberStatusRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.menus.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `MenuResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["MenuResource"][];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.menus.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreMenuRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            menu: components["schemas"]["MenuResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.menus.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The menu ID */
+                menu: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            menu: components["schemas"]["MenuResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.menus.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The menu ID */
+                menu: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateMenuRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            menu: components["schemas"]["MenuResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.menus.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The menu ID */
+                menu: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.menus.tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `MenuResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["MenuResource"][];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.permissions.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `PermissionResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["PermissionResource"][];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.permissions.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StorePermissionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            permission: components["schemas"]["PermissionResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.permissions.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The permission ID */
+                permission: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            permission: components["schemas"]["PermissionResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.permissions.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The permission ID */
+                permission: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdatePermissionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            permission: components["schemas"]["PermissionResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.permissions.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The permission ID */
+                permission: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.roles.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `RoleResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["RoleResource"][];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.roles.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreRoleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            role: components["schemas"]["RoleResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.roles.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The role ID */
+                role: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            role: components["schemas"]["RoleResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.roles.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The role ID */
+                role: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            role: components["schemas"]["RoleResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.roles.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The role ID */
+                role: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.roles.permissions.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The role ID */
+                role: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SyncRolePermissionsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            role: components["schemas"]["RoleResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-configs.index": {
+        parameters: {
+            query?: {
+                config_group?: string;
+                is_active?: string;
+                is_public?: string;
+                key?: string;
+                keyword?: string;
+                name?: string;
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page. */
+                page_size?: number;
+                /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, key, type, config_group, sort, created_at, updated_at. */
+                sorts?: string;
+                type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["SystemConfigResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-configs.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreSystemConfigRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            system_config: components["schemas"]["SystemConfigResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-configs.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The system config ID */
+                systemConfig: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            system_config: components["schemas"]["SystemConfigResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-configs.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The system config ID */
+                systemConfig: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateSystemConfigRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            system_config: components["schemas"]["SystemConfigResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-configs.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The system config ID */
+                systemConfig: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            409: components["responses"]["ApiManagedSystemSettingConflictResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-settings.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `SystemSettingsResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["SystemSettingsResource"];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-settings.basic.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBasicSystemSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description `SystemSettingsResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["SystemSettingsResource"];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.system-settings.branding.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBrandingSystemSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description `SystemSettingsResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["SystemSettingsResource"];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.index": {
+        parameters: {
+            query?: {
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["UserResource"][];
+                        message: string;
+                        meta: {
+                            /** @description Whether more pages exist */
+                            has_more: boolean;
+                            /** @description Current page number */
+                            page: number;
+                            /** @description Items per page */
+                            page_size: number;
+                            /** @description Pagination strategy */
+                            pagination: string;
+                            /** @description Total number of items */
+                            total: number;
+                        };
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreUserRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user ID */
+                user: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user ID */
+                user: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user ID */
+                user: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.password.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user ID */
+                user: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetUserPasswordRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "admin.users.roles.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user ID */
+                user: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SyncUserRolesRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            user: components["schemas"]["UserResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            404: components["responses"]["ApiNotFoundResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "member.auth.login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            access_token: string;
+                            expires_in: number;
+                            member: components["schemas"]["MemberResource"];
+                            /** @constant */
+                            token_type: "bearer";
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "member.auth.logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "member.auth.me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            member: components["schemas"]["MemberResource"];
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "member.auth.password.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            422: components["responses"]["ApiValidationErrorResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "member.auth.refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: {
+                            access_token: string;
+                            expires_in: number;
+                            member: components["schemas"]["MemberResource"];
+                            /** @constant */
+                            token_type: "bearer";
+                        };
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            413: components["responses"]["ApiContentTooLargeResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+            503: components["responses"]["ApiServiceUnavailableResponse"];
+        };
+    };
+    "member.auth.sessions.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: Record<string, never>;
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["ApiUnauthorizedResponse"];
+            403: components["responses"]["ApiForbiddenResponse"];
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
+    "system-settings.public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `SystemSettingsResource` */
+            200: {
+                headers: {
+                    /** @description Request correlation identifier. Matches the response body request_id. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Business status code, 0 = success */
+                        code: number;
+                        data: components["schemas"]["SystemSettingsResource"];
+                        message: string;
+                        /** @description UUID7 for request tracing */
+                        request_id: string;
+                        /** @description Whether the request was successful */
+                        success: boolean;
+                    };
+                };
+            };
+            429: components["responses"]["ApiRateLimitResponse"];
+            500: components["responses"]["ApiServerErrorResponse"];
+        };
+    };
 }

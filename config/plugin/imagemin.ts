@@ -1,34 +1,30 @@
 /**
  * Image resource files used to compress the output of the production environment
  * 图片压缩
- * https://github.com/anncwb/vite-plugin-imagemin
+ * https://github.com/FatehAK/vite-plugin-image-optimizer
  */
-import viteImagemin from 'vite-plugin-imagemin';
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 export default function configImageminPlugin() {
-  const imageminPlugin = viteImagemin({
-    gifsicle: {
-      optimizationLevel: 7,
+  const imageminPlugin = ViteImageOptimizer({
+    gif: {
       interlaced: false,
     },
-    optipng: {
-      optimizationLevel: 7,
+    png: {
+      quality: 90,
+      compressionLevel: 9,
     },
-    mozjpeg: {
+    jpeg: {
       quality: 20,
     },
-    pngquant: {
-      quality: [0.8, 0.9],
-      speed: 4,
+    jpg: {
+      quality: 20,
     },
-    svgo: {
+    svg: {
       plugins: [
         {
-          name: 'removeViewBox',
-        },
-        {
-          name: 'removeEmptyAttrs',
-          active: false,
+          name: 'preset-default',
+          params: { overrides: { removeEmptyAttrs: false } },
         },
       ],
     },

@@ -1,4 +1,16 @@
 export default {
+  'system.files.createGroup': 'Create group',
+  'system.files.deleteGroup': 'Delete group',
+  'system.files.move': 'Move to group',
+  'system.files.allGroups': 'All groups',
+  'system.files.group': 'File group',
+  'system.files.groupName': 'Group name',
+  'system.files.parentGroup': 'Parent group',
+  'system.files.rootGroup': 'None (root group)',
+  'system.files.ungrouped': 'Ungrouped',
+  'system.files.confirmDeleteGroup': 'Delete the current group? It must contain no files or child groups.',
+  'system.files.partialMove': 'Moved {count} files. The remaining files could not be moved.',
+
   'menu.system.files': 'File Management',
   'system.files.title': 'File Management',
   'system.files.field.name': 'File name',
