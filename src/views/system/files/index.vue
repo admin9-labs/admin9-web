@@ -1,72 +1,174 @@
 <template>
   <div v-permission="['system.file.view']" class="page-container">
     <Grid :title="$t('system.files.title')">
-      <AFileManager
-        :service="fileService"
-        :can-upload="canUploadFiles"
-        :can-delete="canDeleteFiles"
-        :can-move="false"
-        :can-manage-groups="false"
-        :accept="fileAccept(currentFileType)"
-        @file-type-change="handleFileTypeChange"
-      >
-        <template #item="{ item, available, selected, view }">
-          <article class="file-record" :class="{ 'is-selected': selected, 'is-unavailable': !available }" :data-view="view">
-            <div class="file-record__name" :title="item.name">{{ item.name }}</div>
-            <dl class="file-record__metadata">
-              <div
-                ><dt>{{ $t('system.files.field.type') }}</dt
-                ><dd>{{ item.type }}</dd></div
-              >
-              <div
-                ><dt>{{ $t('system.files.field.mime') }}</dt
-                ><dd>{{ item.mime || '-' }}</dd></div
-              >
-              <div
-                ><dt>{{ $t('system.files.field.extension') }}</dt
-                ><dd>{{ item.extension || '-' }}</dd></div
-              >
-              <div
-                ><dt>{{ $t('system.files.field.size') }}</dt
-                ><dd>{{ formatSize(item.size) }}</dd></div
-              >
-              <div
-                ><dt>{{ $t('system.files.field.status') }}</dt
-                ><dd>{{ item.status || 'ready' }}</dd></div
-              >
-              <div
-                ><dt>{{ $t('system.files.field.createdAt') }}</dt
-                ><dd>{{ item.createdAt || '-' }}</dd></div
-              >
-              <div class="file-record__url"
-                ><dt>{{ $t('system.files.field.url') }}</dt
-                ><dd
-                  ><a v-if="item.url" :href="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a
-                  ><span v-else>-</span></dd
-                ></div
-              >
-            </dl>
-          </article>
+      <GridToolbar @refresh="fetchData">
+        <template #prepend>
+          <a-space wrap>
+            <AFileUploader
+              v-if="canUploadFiles"
+              :service="fileService"
+              :file-types="BACKEND_FILE_TYPES"
+              :accept="fileAccept()"
+              @success="handleUploadSuccess"
+            />
+            <a-button v-if="canDeleteFiles" status="danger" :disabled="!selectedKeys.length || loading" @click="handleDelete">
+              <template #icon><icon-delete /></template>
+              {{ $t('common.action.delete') }}
+            </a-button>
+            <a-button v-if="canDeleteFiles && selectedKeys.length" type="text" @click="selectedKeys = []">
+              {{ $t('system.files.clearSelection', { count: selectedKeys.length }) }}
+            </a-button>
+          </a-space>
         </template>
-      </AFileManager>
+        <a-space class="file-filters" wrap>
+          <a-select
+            v-model="currentFileType"
+            :options="fileTypeOptions"
+            :placeholder="$t('system.files.allTypes')"
+            :aria-label="$t('system.files.field.type')"
+            :style="{ width: '180px' }"
+            allow-clear
+            @change="handleSearch"
+          />
+          <a-input-search
+            v-model="keyword"
+            :placeholder="$t('system.files.search')"
+            :aria-label="$t('system.files.search')"
+            :style="{ width: '260px' }"
+            :max-length="255"
+            allow-clear
+            @search="handleSearch"
+            @press-enter="handleSearch"
+            @clear="handleSearch"
+          />
+        </a-space>
+      </GridToolbar>
+      <GridTable
+        v-model:selected-keys="selectedKeys"
+        :loading="loading"
+        :data="tableData"
+        :columns="columns"
+        :pagination="pagination"
+        :row-selection="canDeleteFiles ? { type: 'checkbox', showCheckedAll: true } : undefined"
+        :scroll="{ x: 1480 }"
+        @page-change="onPageChange"
+      >
+        <template #type="{ record }">{{ $t(`system.files.type.${record.type}`) }}</template>
+        <template #size="{ record }">{{ formatSize(record.size) }}</template>
+        <template #url="{ record }">
+          <a
+            v-if="record.url"
+            class="file-url"
+            :href="record.url"
+            :title="record.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ record.url }}
+          </a>
+          <span v-else>-</span>
+        </template>
+      </GridTable>
     </Grid>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import { AFileManager, type FileType } from '@admin9-labs/admin9-ui';
+  import { computed, onMounted, onBeforeUnmount, reactive, ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+  import { AFileUploader, type FileItem } from '@admin9-labs/admin9-ui';
+  import { useI18n } from 'vue-i18n';
+  import type { FileType } from '@/api/system/files';
+  import { useLoading, useModal } from '@/hooks';
   import usePermission from '@/hooks/permission';
-  import { fileAccept, fileService } from '@/services/fileService';
+  import { BACKEND_FILE_TYPES, fileAccept, fileService, removeFiles } from '@/services/fileService';
 
   defineOptions({ name: 'SystemFiles' });
 
+  const { t } = useI18n();
+  const { confirmDelete } = useModal();
+  const { loading, setLoading } = useLoading(false);
   const { hasPermission } = usePermission();
   const canUploadFiles = computed(() => hasPermission('system.file.create'));
   const canDeleteFiles = computed(() => hasPermission('system.file.delete'));
   const currentFileType = ref<FileType>();
-  const handleFileTypeChange = (fileType: FileType | undefined) => {
-    currentFileType.value = fileType;
+  const keyword = ref('');
+  const tableData = ref<FileItem[]>([]);
+  const selectedKeys = ref<(string | number)[]>([]);
+  const fileTypeOptions = computed(() =>
+    BACKEND_FILE_TYPES.map((type) => ({ value: type, label: t(`system.files.type.${type}`) }))
+  );
+  const pagination = reactive({ current: 1, pageSize: 15, total: 0, showTotal: true, showPageSize: false });
+  let requestId = 0;
+
+  const columns = computed(() => [
+    { title: t('system.files.field.name'), dataIndex: 'name', width: 200, ellipsis: true, tooltip: true },
+    { title: t('system.files.field.type'), slotName: 'type', width: 100 },
+    { title: t('system.files.field.mime'), dataIndex: 'mime', width: 160, ellipsis: true, tooltip: true },
+    { title: t('system.files.field.extension'), dataIndex: 'extension', width: 100 },
+    { title: t('system.files.field.size'), slotName: 'size', width: 100 },
+    { title: t('system.files.field.status'), dataIndex: 'status', width: 100 },
+    { title: t('system.files.field.createdAt'), dataIndex: 'createdAt', width: 180 },
+    { title: t('system.files.field.url'), slotName: 'url', width: 300 },
+  ]);
+
+  const fetchData = async () => {
+    requestId += 1;
+    const activeRequest = requestId;
+    setLoading(true);
+    try {
+      const result = await fileService.list({
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+        keyword: keyword.value,
+        fileType: currentFileType.value,
+      });
+      if (activeRequest !== requestId) return;
+      tableData.value = result.list;
+      pagination.current = result.pagination.page;
+      pagination.pageSize = result.pagination.pageSize;
+      pagination.total = result.pagination.total;
+    } catch {
+      if (activeRequest === requestId) {
+        tableData.value = [];
+        pagination.total = 0;
+      }
+    } finally {
+      if (activeRequest === requestId) setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    selectedKeys.value = [];
+    pagination.current = 1;
+    fetchData();
+  };
+
+  const onPageChange = (page: number) => {
+    pagination.current = page;
+    fetchData();
+  };
+
+  const handleUploadSuccess = () => {
+    pagination.current = 1;
+    fetchData();
+  };
+
+  const handleDelete = () => {
+    const ids = selectedKeys.value.map(String);
+    if (!canDeleteFiles.value || !ids.length) return;
+    confirmDelete({
+      content: t('system.files.confirmDelete', { count: ids.length }),
+      onDelete: async () => {
+        const deleted = await removeFiles(ids);
+        selectedKeys.value = selectedKeys.value.filter((id) => !deleted.includes(String(id)));
+        pagination.total = Math.max(0, pagination.total - deleted.length);
+        pagination.current = Math.min(pagination.current, Math.max(1, Math.ceil(pagination.total / pagination.pageSize)));
+        if (deleted.length < ids.length) Message.warning(t('system.files.partialDelete', { count: deleted.length }));
+        else Message.success(t('common.message.success', { action: t('common.action.delete') }));
+      },
+      onSuccess: fetchData,
+    });
   };
 
   const formatSize = (size?: number) => {
@@ -76,61 +178,23 @@
     if (size < 1024 ** 3) return `${(size / 1024 ** 2).toFixed(1)} MB`;
     return `${(size / 1024 ** 3).toFixed(1)} GB`;
   };
+
+  onMounted(fetchData);
+  onBeforeUnmount(() => {
+    requestId += 1;
+  });
 </script>
 
 <style lang="less" scoped>
-  :deep([data-file-type='archive']) {
-    display: none;
+  .file-filters {
+    margin-top: 12px;
   }
 
-  .file-record {
-    min-width: 0;
-    padding: 12px;
-    background: var(--color-bg-2);
-    border: 1px solid var(--color-neutral-3);
-    border-radius: 4px;
-
-    &.is-unavailable {
-      opacity: 0.68;
-    }
-
-    &__name {
-      overflow: hidden;
-      font-weight: 600;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    &__metadata {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px 12px;
-      margin: 10px 0 0;
-      font-size: 12px;
-    }
-
-    &__metadata div {
-      min-width: 0;
-    }
-
-    dt {
-      color: var(--color-text-3);
-    }
-
-    dd {
-      margin: 2px 0 0;
-      overflow: hidden;
-      color: var(--color-text-1);
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    &__url {
-      grid-column: 1 / -1;
-    }
-
-    &__url a {
-      color: rgb(var(--primary-6));
-    }
+  .file-url {
+    display: block;
+    overflow: hidden;
+    color: rgb(var(--primary-6));
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 </style>

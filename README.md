@@ -1,6 +1,6 @@
 # Admin9 Web
 
-Admin9 管理后台前端，基于 [arco-design-pro-vite-simple](https://github.com/qiyue2015/arco-design-pro-vite-simple)，使用 Vue 3、TypeScript、Vite 和 Arco Design，对接 Laravel 后端 `../admin9-api-laravel`。
+Admin9 管理后台前端，基于 [arco-design-pro-vite-simple](https://github.com/qiyue2015/arco-design-pro-vite-simple)，使用 Vue 3、TypeScript、Vite、Arco Design 和 [Admin9 UI](https://github.com/admin9-labs/admin9-ui)，对接 Laravel 后端 `../admin9-api-laravel`。
 
 ## 本地开发
 
