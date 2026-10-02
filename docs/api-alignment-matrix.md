@@ -3,7 +3,7 @@
 ## 基线与口径
 
 - Web 基线：`0d5e0f8 + 文件分组适配补丁`。
-- API 基线：本地集成 #13–#19，包含分组文件管理、会员会话与刷新恢复。
+- API 基线：Laravel #20 已合并提交 `9c2fd37b839d91a55d76b6df4bfb3d9dc423bccd`，完整整合 #13–#19，包含分组文件管理、会员会话与刷新恢复。
 - 契约文件：`../admin9-api-laravel/docs/api.json`，SHA-256
   `55a91dafcb0e85c7831541655242c93c4f41305587acc0ccfcdbae5ddbd67e54`。
 - OpenAPI 有 45 个 path、80 个 method/path operation；其中 72 个 operationId 与实际命名路由集合一致，
