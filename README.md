@@ -4,7 +4,7 @@ Admin9 管理后台前端，基于 [arco-design-pro-vite-simple](https://github.
 
 ## 本地开发
 
-Node.js 版本要求为 `>=22.0.0`，推荐使用 `.node-version` 中的 22.23.2；CI 使用该固定版本。pnpm 使用 `package.json` 固定的 10.34.6，并启动 Laravel 后端。
+Node.js 版本要求为 `^22.13.0 || >=24.0.0`（22.13.0 及以上的 22.x，或 24.0.0 及以上版本），推荐使用 `.node-version` 中的 22.23.2；CI 使用该固定版本。pnpm 使用 `package.json` 固定的 10.34.6，并启动 Laravel 后端。
 
 ```bash
 corepack enable
