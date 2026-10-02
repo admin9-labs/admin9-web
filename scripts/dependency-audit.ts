@@ -1,6 +1,4 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,35 +15,21 @@ interface AuditReport {
   error?: unknown;
 }
 
-const websocketAdvisories = new Set(['GHSA-vrm6-8vpv-qv8q', 'GHSA-v9p9-hfj2-hcw8', 'GHSA-vxpw-j846-p89q']);
-
-export default function unreviewedAdvisories(report: AuditReport, generatorVersion: string): Advisory[] {
+export default function unreviewedAdvisories(report: AuditReport): Advisory[] {
   if (report.error || !report.advisories || !report.metadata?.vulnerabilities) {
     throw new Error('Dependency audit did not return a complete report');
   }
-  const highRisk = Object.values(report.advisories).filter((advisory) => ['high', 'critical'].includes(advisory.severity));
-  const { high, critical } = report.metadata.vulnerabilities;
-  if (!Number.isInteger(high) || !Number.isInteger(critical) || highRisk.length !== high + critical) {
-    throw new Error('Dependency audit high/critical totals do not match its findings');
-  }
-
-  return highRisk.filter((advisory) => {
-    // The pinned local-file generator uses Node's fetch, never Undici WebSocket.
-    // Scope the exception to this version and sole consumer, not the package globally.
-    const reviewed =
-      generatorVersion === '6.7.6' &&
-      advisory.severity === 'high' &&
-      advisory.module_name === 'undici' &&
-      websocketAdvisories.has(advisory.github_advisory_id) &&
-      advisory.findings.length > 0 &&
-      advisory.findings.every(
-        (finding) =>
-          finding.version === '5.29.0' &&
-          finding.paths.length > 0 &&
-          finding.paths.every((consumer) => consumer === '.>openapi-typescript>undici')
-      );
-    return !reviewed;
+  const advisories = Object.values(report.advisories);
+  ['info', 'low', 'moderate', 'high', 'critical'].forEach((severity) => {
+    const count = report.metadata.vulnerabilities[severity];
+    const findings = advisories
+      .filter((advisory) => advisory.severity === severity)
+      .reduce((total, advisory) => total + advisory.findings.length, 0);
+    if (!Number.isInteger(count) || count < 0 || findings !== count) {
+      throw new Error(`Dependency audit ${severity} totals do not match its findings`);
+    }
   });
+  return advisories;
 }
 
 function main() {
@@ -55,16 +39,14 @@ function main() {
   if (result.error || result.signal || ![0, 1].includes(result.status ?? -1) || !result.stdout.trim()) {
     throw result.error ?? new Error(result.stderr || 'Dependency audit failed');
   }
-  const require = createRequire(import.meta.url);
-  const generator = JSON.parse(readFileSync(require.resolve('openapi-typescript/package.json'), 'utf8'));
   const report = JSON.parse(result.stdout) as AuditReport;
-  const unreviewed = unreviewedAdvisories(report, generator.version);
-  process.stdout.write(`Audit totals (before scoped exceptions): ${JSON.stringify(report.metadata.vulnerabilities)}\n`);
+  const unreviewed = unreviewedAdvisories(report);
+  process.stdout.write(`Audit totals: ${JSON.stringify(report.metadata.vulnerabilities)}\n`);
   if (unreviewed.length) {
     process.stderr.write(`${JSON.stringify(unreviewed, null, 2)}\n`);
     process.exitCode = 1;
   } else {
-    process.stdout.write('No unreviewed high/critical advisories. See docs/dependency-security.md for scoped exceptions.\n');
+    process.stdout.write('No dependency advisories at any severity.\n');
   }
 }
 

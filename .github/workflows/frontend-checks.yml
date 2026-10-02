@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Audit dependencies against reviewed usage
+      - name: Audit dependencies at every severity
         run: pnpm audit:dependencies
 
       - name: Test application behavior

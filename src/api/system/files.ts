@@ -3,7 +3,7 @@ import type { components, operations } from '@/api/generated/admin-api';
 import supportsXhrUploadProgress from '@/utils/file-upload';
 
 export type FileRecord = components['schemas']['FileResource'];
-export type FileType = Exclude<NonNullable<operations['admin.files.index']['parameters']['query']>['type'], undefined>;
+export type FileType = NonNullable<NonNullable<operations['admin.files.index']['parameters']['query']>['type']>;
 type FileListQuery = NonNullable<operations['admin.files.index']['parameters']['query']>;
 export type FileListParams = Omit<FileListQuery, 'types[]'> & { types?: FileListQuery['types[]'] };
 export type FileDirectoryRecord = components['schemas']['FileDirectoryResource'];

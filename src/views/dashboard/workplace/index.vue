@@ -52,6 +52,8 @@
   import GuideItem from './components/guide-item.vue';
   import ProductAdvance from './components/product-advance.vue';
 
+  defineOptions({ name: 'Dashboard' });
+
   const products = [
     {
       title: '性能优越',
@@ -113,31 +115,25 @@
   ];
 </script>
 
-<script lang="ts">
-  export default {
-    name: 'Dashboard', // If you want the include property of keep-alive to take effect, you must name the component
-  };
-</script>
-
 <style lang="less" scoped>
   .container {
-    margin: 0 auto;
-    max-width: 1240px;
     min-width: 1000px;
+    max-width: 1240px;
     padding: 32px;
+    margin: 0 auto;
   }
 
   .question {
     a {
-      color: var(--color-text-2);
       display: block;
+      padding: 0;
+      margin-bottom: 8px;
       font-size: 13px;
       line-height: 22px;
-      margin-bottom: 8px;
-      padding: 0;
+      color: var(--color-text-2);
+      text-decoration: none;
       background-color: transparent;
       border-radius: var(--border-radius-small);
-      text-decoration: none;
       transition: all 0.1s linear;
     }
   }
