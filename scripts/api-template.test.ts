@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import test from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import axios from 'axios';
 import ts from 'typescript';
@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 const plopRequire = createRequire(require.resolve('plop/package.json'));
 
 test('generated API clients preserve pagination and string values with native Axios encoding', async () => {
-  const { default: nodePlop } = await import(plopRequire.resolve('node-plop'));
+  const { default: nodePlop } = await import(pathToFileURL(plopRequire.resolve('node-plop')).href);
   const plop = await nodePlop(path.join(workspaceRoot, 'plopfile.mjs'));
   const template = readFileSync(path.join(workspaceRoot, 'plop-templates/view/api.hbs'), 'utf8');
   const rendered = plop.renderString(template, { name: 'fixture' });
