@@ -9,9 +9,12 @@ Node.js 版本要求为 `^22.13.0 || >=24.0.0`（22.13.0 及以上的 22.x，或
 ```bash
 corepack enable
 pnpm install --frozen-lockfile
+cp .env.example .env.development
 ```
 
 按需修改 `.env.development`：`VITE_API_BASE_URL` 为后端 API 根地址（包含 `/api`），留空时使用同源 `/api`；`VITE_QQ_MAP_KEY` 为腾讯地图密钥。
+
+环境配置使用 `.env.[mode]`，仅 `.env.example` 纳入版本管理。`VITE_API_BASE_URL` 包含 `/api`，留空使用同源 `/api`；生产配置可由 CI 注入。
 
 ```bash
 pnpm dev

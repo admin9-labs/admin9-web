@@ -212,16 +212,9 @@ test('the API alignment matrix classifies every OpenAPI operation exactly once',
   assert.deepEqual([...documented].sort(), [...operationIds].sort());
 });
 
-test('the Axios API prefix defaults to /api and deployed environments include /api', () => {
+test('the Axios API prefix defaults to /api', () => {
   const interceptor = readFileSync(path.join(workspaceRoot, 'src/api/interceptor.ts'), 'utf8');
   assert.match(interceptor, /VITE_API_BASE_URL\?\.trim\(\) \|\| ['"]\/api['"]/);
-
-  ['.env.production', '.env.staging'].forEach((fileName) => {
-    const source = readFileSync(path.join(workspaceRoot, fileName), 'utf8');
-    const value = source.match(/^VITE_API_BASE_URL\s*=\s*['"]?([^'"\s]+)['"]?\s*$/m)?.[1];
-    assert.ok(value, `${fileName} must define VITE_API_BASE_URL`);
-    assert.equal(new URL(value).pathname.replace(/\/$/, ''), '/api', `${fileName} must target the backend /api prefix`);
-  });
 });
 
 test('login failures preserve an existing session and refreshes synchronize identity and menus', () => {
