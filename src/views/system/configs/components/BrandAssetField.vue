@@ -41,11 +41,9 @@
 <style lang="less" scoped>
   .brand-asset-field {
     display: grid;
-    grid-template-columns: 168px minmax(0, 1fr);
-    gap: 20px;
-    align-items: center;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--color-border-2);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    min-width: 0;
   }
 
   .asset-preview {
@@ -74,14 +72,7 @@
     object-fit: cover;
   }
 
-  @media (width <= 767px) {
-    .brand-asset-field {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .asset-preview {
-      width: 100%;
-    }
+  .asset-content {
+    min-width: 0;
   }
 </style>
