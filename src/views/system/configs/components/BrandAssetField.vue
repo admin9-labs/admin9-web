@@ -1,31 +1,34 @@
 <template>
-  <div class="brand-asset-field">
-    <div class="asset-preview" :class="{ background: variant === 'background' }">
-      <BrandImage :src="asset.url || fallback" :fallback="fallback" :alt="label" />
-    </div>
-    <div class="asset-content">
-      <a-form-item :label="label" :field="field" :extra="description">
-        <a-input
-          :model-value="asset.url ?? ''"
-          :disabled="readonly"
-          :max-length="2048"
-          allow-clear
-          :placeholder="$t('system.config.brand.urlPlaceholder')"
-          @update:model-value="emit('update:asset', { url: $event || null })"
-        />
-      </a-form-item>
-    </div>
-  </div>
+  <a-form-item :label="label" :field="field" :extra="description">
+    <a-form-item no-style :validate-trigger="[]">
+      <AImagePicker
+        :model-value="selectedFile"
+        :service="fileService"
+        :display-mode="variant === 'background' ? 'landscape' : 'square'"
+        :fit="variant === 'background' ? 'cover' : 'contain'"
+        :readonly="readonly || !hasPermission('system.file.view')"
+        :can-upload="hasPermission('system.file.create')"
+        :can-create-group="hasPermission('system.file.create')"
+        :can-delete-files="hasPermission('system.file.delete')"
+        :can-move-files="hasPermission('system.file.update')"
+        :accept="fileAccept('image')"
+        @change="selectFile"
+      />
+    </a-form-item>
+  </a-form-item>
 </template>
 
 <script lang="ts" setup>
+  import { computed, nextTick, onBeforeUnmount } from 'vue';
+  import { AImagePicker, type FileItem } from '@admin9-labs/admin9-ui';
   import type { BrandAsset } from '@/config/system-settings';
-  import BrandImage from '@/components/brand-image/index.vue';
+  import usePermission from '@/hooks/permission';
+  import { fileAccept, fileService } from '@/services/fileService';
+  import { fileReferenceId } from '@/utils/file-reference';
 
-  withDefaults(
+  const props = withDefaults(
     defineProps<{
       asset: BrandAsset;
-      fallback: string;
       label: string;
       field: string;
       description?: string;
@@ -35,44 +38,34 @@
     { description: '', variant: 'logo', readonly: false }
   );
 
-  const emit = defineEmits<{ (event: 'update:asset', value: BrandAsset): void }>();
+  const emit = defineEmits<{
+    (event: 'update:asset', value: BrandAsset): void;
+    (event: 'change', field: string): void;
+  }>();
+  const { hasPermission } = usePermission();
+  const selectedFile = computed<FileItem | undefined>(() =>
+    props.asset.url
+      ? {
+          id: fileReferenceId(props.asset.url),
+          name: props.asset.url.split('/').pop() || props.label,
+          type: 'image',
+          groupId: null,
+          url: props.asset.url,
+          status: 'ready',
+        }
+      : undefined
+  );
+  let active = true;
+  onBeforeUnmount(() => {
+    active = false;
+  });
+  const selectFile = async (value: FileItem | FileItem[] | undefined) => {
+    if (props.readonly || !hasPermission('system.file.view')) return;
+    const file = Array.isArray(value) ? value[0] : value;
+    const url = file?.type === 'image' ? file.url : null;
+    if (url === (props.asset.url || null)) return;
+    emit('update:asset', { url });
+    await nextTick();
+    if (active && (props.asset.url || null) === url) emit('change', props.field);
+  };
 </script>
-
-<style lang="less" scoped>
-  .brand-asset-field {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    min-width: 0;
-  }
-
-  .asset-preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 168px;
-    height: 88px;
-    overflow: hidden;
-    background: var(--color-fill-2);
-    border: 1px solid var(--color-border-2);
-    border-radius: 6px;
-  }
-
-  .asset-preview img {
-    max-width: 136px;
-    max-height: 56px;
-    object-fit: contain;
-  }
-
-  .asset-preview.background img {
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    max-height: none;
-    object-fit: cover;
-  }
-
-  .asset-content {
-    min-width: 0;
-  }
-</style>

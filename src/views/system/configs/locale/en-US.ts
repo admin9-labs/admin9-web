@@ -26,12 +26,11 @@ export default {
   'system.config.placeholders.copyright': 'Hidden when empty',
   'system.config.placeholders.icpFilingNumber': 'Hidden when empty',
   'system.config.descriptions.navigationLogo':
-    'Shown in the admin navigation. The built-in logo is used when the URL is empty or unavailable.',
+    'Shown in the admin navigation. The built-in logo is used when the image is not configured or unavailable.',
   'system.config.descriptions.loginLogo':
-    'Shown on the login page. The built-in logo is used when the URL is empty or unavailable.',
+    'Shown on the login page. The built-in logo is used when the image is not configured or unavailable.',
   'system.config.descriptions.loginBackground': 'Full-page login background. A landscape image is recommended.',
   'system.config.descriptions.favicon': 'Shown in browser tabs. A square image is recommended.',
-  'system.config.brand.urlPlaceholder': 'Enter a valid HTTP(S) URL or leave empty',
   'system.config.readonly': 'Your account has view-only access to system settings.',
   'system.config.loadError': 'System settings could not be loaded. Built-in defaults are shown.',
   'system.config.retry': 'Reload',

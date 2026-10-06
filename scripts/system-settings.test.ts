@@ -144,12 +144,13 @@ test('save handlers acquire their lock before the first asynchronous operation',
   assert.doesNotMatch(saveBrand, /navigation_logo_path/);
 });
 
-test('brand editor accepts direct URLs without File API coupling', () => {
+test('brand editor uses the shared image picker while persisting URL fields', () => {
   assert.match(settingsPageSource, /ref="brandFormRef"/);
   assert.match(settingsPageSource, /:rules="brandRules"/);
-  assert.match(brandAssetFieldSource, /:model-value="asset\.url \?\? ''"/);
-  assert.match(brandAssetFieldSource, /:max-length="2048"/);
-  assert.doesNotMatch(brandAssetFieldSource, /AFilePicker|FileItem|asset\.path/);
+  assert.match(brandAssetFieldSource, /import \{ AImagePicker, type FileItem \} from '@admin9-labs\/admin9-ui'/);
+  assert.match(brandAssetFieldSource, /:service="fileService"/);
+  assert.match(brandAssetFieldSource, /:readonly="readonly \|\| !hasPermission\('system.file.view'\)"/);
+  assert.doesNotMatch(brandAssetFieldSource, /<a-input|BrandImage|asset\.path/);
 });
 
 test('dynamic favicons do not retain the built-in SVG MIME hint', () => {

@@ -78,21 +78,21 @@
                 <div class="setting-section-body">
                   <BrandAssetField
                     :asset="brandForm.navigationLogo"
-                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.navigationLogo.url || ''"
                     :label="$t('system.config.fields.navigationLogo')"
                     field="navigationLogo.url"
                     :description="$t('system.config.descriptions.navigationLogo')"
                     :readonly="!canEdit"
+                    @change="brandFormRef?.validateField($event)"
                     @update:asset="brandForm.navigationLogo = $event"
                   />
                   <BrandAssetField
                     :asset="brandForm.favicon"
-                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.favicon.url || ''"
                     :label="$t('system.config.fields.favicon')"
                     field="favicon.url"
                     :description="$t('system.config.descriptions.favicon')"
                     variant="favicon"
                     :readonly="!canEdit"
+                    @change="brandFormRef?.validateField($event)"
                     @update:asset="brandForm.favicon = $event"
                   />
                 </div>
@@ -105,21 +105,21 @@
                 <div class="setting-section-body">
                   <BrandAssetField
                     :asset="brandForm.loginLogo"
-                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginLogo.url || ''"
                     :label="$t('system.config.fields.loginLogo')"
                     field="loginLogo.url"
                     :description="$t('system.config.descriptions.loginLogo')"
                     :readonly="!canEdit"
+                    @change="brandFormRef?.validateField($event)"
                     @update:asset="brandForm.loginLogo = $event"
                   />
                   <BrandAssetField
                     :asset="brandForm.loginBackground"
-                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginBackground.url || ''"
                     :label="$t('system.config.fields.loginBackground')"
                     field="loginBackground.url"
                     :description="$t('system.config.descriptions.loginBackground')"
                     variant="background"
                     :readonly="!canEdit"
+                    @change="brandFormRef?.validateField($event)"
                     @update:asset="brandForm.loginBackground = $event"
                   />
                 </div>
@@ -154,7 +154,6 @@
     type SystemSettingsResource,
   } from '@/api/system/settings';
   import {
-    DEFAULT_BRAND_SYSTEM_SETTINGS,
     isValidBrandUrl,
     normalizeBrandUrl,
     type BasicSystemSettings,
