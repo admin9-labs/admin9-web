@@ -22,8 +22,9 @@ CI 对所有等级的公告阻断，无豁免。审计失败、报告不完整�
 - Vue 最低版本提高到 3.5.42，锁定 3.5.43，修复随 Vue 引入的 `@vue/server-renderer` 属性名 CR 注入问题。
 - `source-map-js` 覆盖到 1.2.2，修复 indexed source map offset 导致的事件循环阻塞。
 - `postcss-selector-parser` 的受影响 6.x/7.x 版本统一覆盖到 7.1.6。6.x 没有该公告的修复版本，因此本次跨主版本升级；重点验证 Tailwind、postcss-nested 和 eslint-plugin-vue 的调用兼容性。
+- 工作流固定 Ubuntu 24.04，并以 SHA 固定 checkout v7.0.1、setup-node v7.0.0 和 pnpm/action-setup v6.1.0。这些 Action 自身使用 Node 24；项目测试与构建仍使用 `.node-version` 的 Node 22.23.2。
 
-使用 Node 22.23.2 / pnpm 10.34.6 验证：冻结安装、89 个单元测试（含 API 契约测试和 braces 深度限制回归）、OpenAPI 生成检查、生产构建、ESLint 和 Stylelint 均通过。ESLint 有 1 条 warning，Stylelint 有 112 条 warning，均无 error。
+使用 Node 22.23.2 / pnpm 10.34.6 验证：冻结安装、89 个单元测试（含 API 契约测试和 braces 深度限制回归）、OpenAPI 生成检查、生产构建、ESLint 和 Stylelint 均通过。ESLint 无 warning，Stylelint 有 112 条 warning，均无 error。
 
 额外验证 Tailwind/PostCSS 的嵌套选择器、group/peer、响应式及任意选择器变体、`@apply`，并确认 Vue SSR 拒绝包含 CR 的属性名。生产构建的登录页渲染和空表单校验通过 ego-browser 检查。
 
