@@ -42,8 +42,8 @@ importers:
   .:
     dependencies:
       '@admin9-labs/admin9-ui':
-        specifier: ^0.28.0
-        version: 0.28.0(@arco-design/web-vue@2.58.0(vue@3.5.43(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@9.14.5(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))
+        specifier: ^0.28.1
+        version: 0.28.1(@arco-design/web-vue@2.58.0(vue@3.5.43(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@9.14.5(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))
       '@arco-design/web-vue':
         specifier: ^2.58.0
         version: 2.58.0(vue@3.5.43(typescript@5.9.3))
@@ -234,8 +234,8 @@ importers:
 
 packages:
 
-  '@admin9-labs/admin9-ui@0.28.0':
-    resolution: {integrity: sha512-rFmZYVQLjUK6+ODGs5fohDDwMpIfMNsqSwIxa81f6h+BLcOMW6JU7THOOBMZGSiBtnccvaB1v3Oz1Exs0QO/Jg==}
+  '@admin9-labs/admin9-ui@0.28.1':
+    resolution: {integrity: sha512-kCuCIIqYwD9E+trwSacpsJVtoNQTvW7lXy/80PsmqSUjeoUeuork7B1tpYfah7fdNPPq03ILA5MDQVo1n9Mv4Q==}
     peerDependencies:
       '@arco-design/web-vue': ^2.57.0
       vue: ^3.5.0
@@ -4812,7 +4812,7 @@ packages:
 
 snapshots:
 
-  '@admin9-labs/admin9-ui@0.28.0(@arco-design/web-vue@2.58.0(vue@3.5.43(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@9.14.5(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))':
+  '@admin9-labs/admin9-ui@0.28.1(@arco-design/web-vue@2.58.0(vue@3.5.43(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@9.14.5(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))':
     dependencies:
       '@arco-design/web-vue': 2.58.0(vue@3.5.43(typescript@5.9.3))
       '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
