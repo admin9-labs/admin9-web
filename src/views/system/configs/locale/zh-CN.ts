@@ -1,4 +1,16 @@
 export default {
+  'system.config.sections.identity.title': '系统标识',
+  'system.config.sections.identity.description': '设置系统展示的名称',
+  'system.config.sections.copyright.title': '版权与备案',
+  'system.config.sections.copyright.description': '配置页面展示的版权信息和备案号',
+  'system.config.sections.navigation.title': '后台标识',
+  'system.config.sections.navigation.description': '设置后台导航和浏览器标签页的品牌标识',
+  'system.config.sections.login.title': '登录页视觉',
+  'system.config.sections.login.description': '设置登录页使用的 Logo 和背景图',
+  'system.config.save.basic': '保存基础信息',
+  'system.config.save.brand': '保存品牌设置',
+  'system.config.unsavedChanges': '当前标签有未保存修改',
+
   'menu.system.config': '系统设置',
   'system.config.title': '系统设置',
   'system.config.tabs.basic': '基础信息',

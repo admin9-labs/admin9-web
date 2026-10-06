@@ -14,100 +14,122 @@
       <a-spin :loading="loading" class="settings-loading">
         <a-tabs :active-key="activeTab" type="line" @change="handleTabChange">
           <a-tab-pane key="basic" :title="$t('system.config.tabs.basic')">
-            <a-form
-              ref="basicFormRef"
-              :model="basicForm"
-              :rules="basicRules"
-              layout="vertical"
-              class="settings-form basic-form"
-            >
-              <a-form-item :label="$t('system.config.fields.systemName')" field="systemName">
-                <a-input
-                  v-model="basicForm.systemName"
-                  :disabled="!canEdit"
-                  :max-length="100"
-                  :placeholder="$t('system.config.placeholders.systemName')"
-                  show-word-limit
-                />
-              </a-form-item>
-              <a-form-item :label="$t('system.config.fields.copyright')" field="copyright">
-                <a-input
-                  v-model="basicForm.copyright"
-                  :disabled="!canEdit"
-                  :max-length="1000"
-                  :placeholder="$t('system.config.placeholders.copyright')"
-                  show-word-limit
-                />
-              </a-form-item>
-              <a-form-item :label="$t('system.config.fields.icpFilingNumber')" field="icpFilingNumber">
-                <a-input
-                  v-model="basicForm.icpFilingNumber"
-                  :disabled="!canEdit"
-                  :max-length="100"
-                  :placeholder="$t('system.config.placeholders.icpFilingNumber')"
-                  show-word-limit
-                />
-              </a-form-item>
+            <a-form ref="basicFormRef" :model="basicForm" :rules="basicRules" layout="vertical" class="settings-form">
+              <section class="setting-section">
+                <div class="setting-section-meta">
+                  <h3>{{ $t('system.config.sections.identity.title') }}</h3>
+                  <p>{{ $t('system.config.sections.identity.description') }}</p>
+                </div>
+                <div class="setting-section-body">
+                  <a-form-item :label="$t('system.config.fields.systemName')" field="systemName">
+                    <a-input
+                      v-model="basicForm.systemName"
+                      :disabled="!canEdit"
+                      :max-length="100"
+                      :placeholder="$t('system.config.placeholders.systemName')"
+                      show-word-limit
+                    />
+                  </a-form-item>
+                </div>
+              </section>
+              <section class="setting-section">
+                <div class="setting-section-meta">
+                  <h3>{{ $t('system.config.sections.copyright.title') }}</h3>
+                  <p>{{ $t('system.config.sections.copyright.description') }}</p>
+                </div>
+                <div class="setting-section-body">
+                  <a-form-item :label="$t('system.config.fields.copyright')" field="copyright">
+                    <a-input
+                      v-model="basicForm.copyright"
+                      :disabled="!canEdit"
+                      :max-length="1000"
+                      :placeholder="$t('system.config.placeholders.copyright')"
+                      show-word-limit
+                    />
+                  </a-form-item>
+                  <a-form-item :label="$t('system.config.fields.icpFilingNumber')" field="icpFilingNumber">
+                    <a-input
+                      v-model="basicForm.icpFilingNumber"
+                      :disabled="!canEdit"
+                      :max-length="100"
+                      :placeholder="$t('system.config.placeholders.icpFilingNumber')"
+                      show-word-limit
+                    />
+                  </a-form-item>
+                </div>
+              </section>
               <div v-if="canUpdate" class="form-actions">
                 <a-button type="primary" :loading="basicSaving" :disabled="!canEdit || !basicDirty" @click="saveBasic">
                   <template #icon><icon-save /></template>
-                  {{ $t('common.action.save') }}
+                  {{ $t('system.config.save.basic') }}
                 </a-button>
+                <span v-if="settingsLoaded && basicDirty" class="save-state">{{ $t('system.config.unsavedChanges') }}</span>
               </div>
             </a-form>
           </a-tab-pane>
 
           <a-tab-pane key="brand" :title="$t('system.config.tabs.brand')">
-            <a-form
-              ref="brandFormRef"
-              :model="brandForm"
-              :rules="brandRules"
-              layout="vertical"
-              class="settings-form brand-form"
-            >
-              <BrandAssetField
-                :asset="brandForm.navigationLogo"
-                :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.navigationLogo.url || ''"
-                :label="$t('system.config.fields.navigationLogo')"
-                field="navigationLogo.url"
-                :description="$t('system.config.descriptions.navigationLogo')"
-                :readonly="!canEdit"
-                @update:asset="brandForm.navigationLogo = $event"
-              />
-              <BrandAssetField
-                :asset="brandForm.loginLogo"
-                :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginLogo.url || ''"
-                :label="$t('system.config.fields.loginLogo')"
-                field="loginLogo.url"
-                :description="$t('system.config.descriptions.loginLogo')"
-                :readonly="!canEdit"
-                @update:asset="brandForm.loginLogo = $event"
-              />
-              <BrandAssetField
-                :asset="brandForm.loginBackground"
-                :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginBackground.url || ''"
-                :label="$t('system.config.fields.loginBackground')"
-                field="loginBackground.url"
-                :description="$t('system.config.descriptions.loginBackground')"
-                variant="background"
-                :readonly="!canEdit"
-                @update:asset="brandForm.loginBackground = $event"
-              />
-              <BrandAssetField
-                :asset="brandForm.favicon"
-                :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.favicon.url || ''"
-                :label="$t('system.config.fields.favicon')"
-                field="favicon.url"
-                :description="$t('system.config.descriptions.favicon')"
-                variant="favicon"
-                :readonly="!canEdit"
-                @update:asset="brandForm.favicon = $event"
-              />
+            <a-form ref="brandFormRef" :model="brandForm" :rules="brandRules" layout="vertical" class="settings-form">
+              <section class="setting-section">
+                <div class="setting-section-meta">
+                  <h3>{{ $t('system.config.sections.navigation.title') }}</h3>
+                  <p>{{ $t('system.config.sections.navigation.description') }}</p>
+                </div>
+                <div class="setting-section-body">
+                  <BrandAssetField
+                    :asset="brandForm.navigationLogo"
+                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.navigationLogo.url || ''"
+                    :label="$t('system.config.fields.navigationLogo')"
+                    field="navigationLogo.url"
+                    :description="$t('system.config.descriptions.navigationLogo')"
+                    :readonly="!canEdit"
+                    @update:asset="brandForm.navigationLogo = $event"
+                  />
+                  <BrandAssetField
+                    :asset="brandForm.favicon"
+                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.favicon.url || ''"
+                    :label="$t('system.config.fields.favicon')"
+                    field="favicon.url"
+                    :description="$t('system.config.descriptions.favicon')"
+                    variant="favicon"
+                    :readonly="!canEdit"
+                    @update:asset="brandForm.favicon = $event"
+                  />
+                </div>
+              </section>
+              <section class="setting-section">
+                <div class="setting-section-meta">
+                  <h3>{{ $t('system.config.sections.login.title') }}</h3>
+                  <p>{{ $t('system.config.sections.login.description') }}</p>
+                </div>
+                <div class="setting-section-body">
+                  <BrandAssetField
+                    :asset="brandForm.loginLogo"
+                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginLogo.url || ''"
+                    :label="$t('system.config.fields.loginLogo')"
+                    field="loginLogo.url"
+                    :description="$t('system.config.descriptions.loginLogo')"
+                    :readonly="!canEdit"
+                    @update:asset="brandForm.loginLogo = $event"
+                  />
+                  <BrandAssetField
+                    :asset="brandForm.loginBackground"
+                    :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.loginBackground.url || ''"
+                    :label="$t('system.config.fields.loginBackground')"
+                    field="loginBackground.url"
+                    :description="$t('system.config.descriptions.loginBackground')"
+                    variant="background"
+                    :readonly="!canEdit"
+                    @update:asset="brandForm.loginBackground = $event"
+                  />
+                </div>
+              </section>
               <div v-if="canUpdate" class="form-actions">
                 <a-button type="primary" :loading="brandSaving" :disabled="!canEdit || !brandDirty" @click="saveBrand">
                   <template #icon><icon-save /></template>
-                  {{ $t('common.action.save') }}
+                  {{ $t('system.config.save.brand') }}
                 </a-button>
+                <span v-if="settingsLoaded && brandDirty" class="save-state">{{ $t('system.config.unsavedChanges') }}</span>
               </div>
             </a-form>
           </a-tab-pane>
@@ -308,21 +330,92 @@
   }
 
   .settings-form {
-    max-width: 760px;
-    padding: 16px 0 4px;
+    max-width: 1180px;
+    padding: 20px 0 4px;
+    margin: 0 auto;
   }
 
-  .basic-form {
-    max-width: 640px;
+  .setting-section {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--color-border-2);
   }
 
-  .brand-form {
-    max-width: 860px;
+  .setting-section-meta {
+    h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 22px;
+      color: var(--color-text-1);
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 20px;
+      color: var(--color-text-3);
+    }
+  }
+
+  .setting-section-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+    min-width: 0;
+
+    :deep(.arco-form-item) {
+      min-width: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  .save-state {
+    font-size: 13px;
+    color: var(--color-text-3);
   }
 
   .form-actions {
     display: flex;
-    justify-content: flex-end;
-    padding-top: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 28px 0 0 272px;
+  }
+
+  @media (width <= 1199px) {
+    .setting-section {
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .form-actions {
+      padding-left: 204px;
+    }
+  }
+
+  @media (width <= 991px) {
+    .setting-section {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .form-actions {
+      padding-left: 0;
+    }
+  }
+
+  @media (width <= 767px) {
+    .settings-form {
+      padding-top: 0;
+    }
+
+    .setting-section-body {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

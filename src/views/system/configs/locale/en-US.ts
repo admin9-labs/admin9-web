@@ -1,4 +1,16 @@
 export default {
+  'system.config.sections.identity.title': 'System identity',
+  'system.config.sections.identity.description': 'Set the name displayed by the system.',
+  'system.config.sections.copyright.title': 'Copyright and registration',
+  'system.config.sections.copyright.description': 'Set the copyright and registration details shown on pages.',
+  'system.config.sections.navigation.title': 'Admin identity',
+  'system.config.sections.navigation.description': 'Set the branding for admin navigation and browser tabs.',
+  'system.config.sections.login.title': 'Login appearance',
+  'system.config.sections.login.description': 'Set the logo and background shown on the login page.',
+  'system.config.save.basic': 'Save basic information',
+  'system.config.save.brand': 'Save branding',
+  'system.config.unsavedChanges': 'This tab has unsaved changes',
+
   'menu.system.config': 'System Settings',
   'system.config.title': 'System Settings',
   'system.config.tabs.basic': 'Basic Information',
