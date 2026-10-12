@@ -7,6 +7,8 @@ import { filterLocalAdminMenus, isCurrentMenuRequest } from '@/utils/admin-menu'
 import { getSessionSnapshot } from '@/utils/auth';
 import { AppState, type AppSettings } from './types';
 
+const pendingServerMenuLoads = new WeakMap<object, Promise<void>>();
+
 const useAppStore = defineStore('app', {
   state: (): AppState => ({
     ...defaultSettings,
@@ -41,7 +43,11 @@ const useAppStore = defineStore('app', {
       this.hideMenu = value;
     },
     async fetchServerMenuConfig() {
-      if (this.serverMenuStatus === 'loading') return;
+      if (this.serverMenuStatus === 'loading') {
+        await pendingServerMenuLoads.get(this);
+        if (this.serverMenuStatus === 'loading') await this.fetchServerMenuConfig();
+        return;
+      }
       const requestId = this.serverMenuRequestId + 1;
       const requestSession = getSessionSnapshot();
       this.serverMenuRequestId = requestId;
@@ -57,7 +63,6 @@ const useAppStore = defineStore('app', {
         } catch (error) {
           const currentSession = getSessionSnapshot();
           if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, currentSession)) {
-            this.serverMenu = [];
             this.serverMenuStatus = 'error';
             throw error;
           }
@@ -80,7 +85,13 @@ const useAppStore = defineStore('app', {
         await fetchForSession(nextRequestId, currentSession);
       };
 
-      await fetchForSession(requestId, requestSession);
+      const pendingLoad = fetchForSession(requestId, requestSession);
+      pendingServerMenuLoads.set(this, pendingLoad);
+      try {
+        await pendingLoad;
+      } finally {
+        if (pendingServerMenuLoads.get(this) === pendingLoad) pendingServerMenuLoads.delete(this);
+      }
     },
     clearServerMenu() {
       this.serverMenuRequestId += 1;

@@ -226,7 +226,8 @@ test('login failures preserve an existing session and refreshes synchronize iden
   assert.match(userStore, /if \(authenticatedSession\) [\s\S]*logoutCallBack\(authenticatedSession\)/);
   assert.match(interceptor, /responseData\.permission_names/);
   assert.match(interceptor, /setIdentity\(responseData/);
-  assert.match(interceptor, /clearServerMenu\(\)/);
+  assert.match(interceptor, /fetchServerMenuConfig\(\)/);
+  assert.doesNotMatch(interceptor, /clearServerMenu\(\)/);
   assert.match(interceptor, /admin9SuppressErrorNotification: true/);
   assert.match(interceptor, /requestPath\(config\) === ['"]\/admin\/auth\/login['"]/);
   assert.match(interceptor, /router\.replace\(\{ name: ['"]login['"] \}\)/);

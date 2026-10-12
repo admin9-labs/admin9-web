@@ -46,7 +46,8 @@ export interface ApiInterceptorUserStore {
 }
 
 export interface ApiInterceptorAppStore {
-  clearServerMenu(): void;
+  menuFromServer: boolean;
+  fetchServerMenuConfig(): Promise<void>;
 }
 
 export interface ApiInterceptorRouter {
@@ -108,7 +109,11 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
     const { appStore, userStore } = await runtime.loadStores();
     if (!responseData.permission_names) return false;
     if (!userStore.setIdentity(responseData, session)) return false;
-    appStore.clearServerMenu();
+    if (appStore.menuFromServer) {
+      appStore.fetchServerMenuConfig().catch(() => {
+        // Menu loading reports its own errors and must not block refreshed requests.
+      });
+    }
     return true;
   };
 

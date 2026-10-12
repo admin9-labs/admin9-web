@@ -8,7 +8,7 @@ export default function setupPermissionGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     const appStore = useAppStore();
     const isWhiteListed = WHITE_LIST.some((route) => route.name === to.name);
-    if (appStore.menuFromServer && !isWhiteListed && appStore.serverMenuStatus === 'idle') {
+    if (appStore.menuFromServer && !isWhiteListed && appStore.serverMenuStatus !== 'ready') {
       try {
         await appStore.fetchServerMenuConfig();
       } catch {
