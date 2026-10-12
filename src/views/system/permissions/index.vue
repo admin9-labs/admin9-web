@@ -1,15 +1,15 @@
 <template>
   <div class="page-container">
-    <Grid :title="$t('menu.system.permission')">
+    <div class="filter-card">
+      <a-input-search
+        v-model="keyword"
+        class="permission-search"
+        :placeholder="$t('system.permission.search.placeholder')"
+        allow-clear
+      />
+    </div>
+    <Grid>
       <GridToolbar @refresh="fetchData">
-        <template #prepend>
-          <a-input-search
-            v-model="keyword"
-            class="permission-search"
-            :placeholder="$t('system.permission.search.placeholder')"
-            allow-clear
-          />
-        </template>
         <template #append>
           <a-button v-permission="['system.permission.create']" type="primary" @click="handleCreate">
             <template #icon><icon-plus /></template>
@@ -168,15 +168,15 @@
   }
 
   .permission-name {
-    font-size: 12px;
     font-family: monospace;
+    font-size: 12px;
   }
 
   .permission-description {
     display: block;
     overflow: hidden;
-    white-space: nowrap;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   @media (width <= 576px) {

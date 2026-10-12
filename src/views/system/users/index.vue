@@ -1,6 +1,6 @@
 <template>
   <div v-permission="['system.user.view']" class="page-container">
-    <Grid :title="$t('menu.system.user')">
+    <Grid>
       <GridToolbar @refresh="fetchData">
         <template #prepend>
           <a-button v-permission="['system.user.create']" type="primary" @click="handleCreate">

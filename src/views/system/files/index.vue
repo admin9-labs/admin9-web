@@ -1,6 +1,6 @@
 <template>
   <div v-permission="['system.file.view']" class="page-container">
-    <Grid :title="$t('system.files.title')">
+    <Grid>
       <GridToolbar @refresh="refresh">
         <template #prepend>
           <a-space wrap>
@@ -324,8 +324,8 @@
   .file-url {
     display: block;
     overflow: hidden;
+    text-overflow: ellipsis;
     color: rgb(var(--primary-6));
     white-space: nowrap;
-    text-overflow: ellipsis;
   }
 </style>

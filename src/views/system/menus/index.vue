@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Grid :title="$t('menu.system.menu')">
+    <Grid>
       <GridToolbar @refresh="fetchData">
         <template #prepend>
           <a-tooltip v-if="canCreateMenu" :content="$t('common.action.create')">
@@ -244,8 +244,8 @@
 
   .menu-icon {
     flex-shrink: 0;
-    color: var(--color-text-3);
     font-size: 16px;
+    color: var(--color-text-3);
   }
 
   .menu-name-copy {
@@ -258,9 +258,9 @@
   }
 
   .menu-name-code {
-    color: var(--color-text-3);
     font-size: 12px;
     line-height: 1.4;
+    color: var(--color-text-3);
     overflow-wrap: anywhere;
   }
 
@@ -286,8 +286,8 @@
   }
 
   .menu-component {
-    color: var(--color-text-3);
     font-size: 12px;
+    color: var(--color-text-3);
     overflow-wrap: anywhere;
   }
 

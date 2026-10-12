@@ -1,7 +1,7 @@
 <template>
   <a-layout class="layout" :class="{ mobile: appStore.hideMenu }">
     <div v-if="navbar" class="layout-navbar">
-      <NavBar />
+      <NavBar :menu-width="renderMenu && !hideMenu ? menuWidth : undefined" :breadcrumb-items="breadcrumbItems" />
     </div>
     <a-layout>
       <a-layout>
@@ -33,6 +33,9 @@
           <Menu />
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
+          <div v-if="showBreadcrumbBar" class="layout-breadcrumb">
+            <Breadcrumb :items="breadcrumbItems" />
+          </div>
           <TabBar v-if="appStore.tabBar" />
           <a-layout-content>
             <PageLayout />
@@ -49,6 +52,7 @@
   import { useRouter, useRoute } from 'vue-router';
   import { useAppStore, useUserStore } from '@/store';
   import NavBar from '@/components/navbar/index.vue';
+  import Breadcrumb from '@/components/breadcrumb/index.vue';
   import Menu from '@/components/menu/index.vue';
   import Footer from '@/components/footer/index.vue';
   import TabBar from '@/components/tab-bar/index.vue';
@@ -65,7 +69,8 @@
   useResponsive(true);
   const navbarHeight = `60px`;
   const navbar = computed(() => appStore.navbar);
-  const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
+  const topMenu = computed(() => appStore.menu && appStore.topMenu);
+  const renderMenu = computed(() => appStore.menu && !topMenu.value);
   const hideMenu = computed(() => appStore.hideMenu);
   const footer = computed(() => appStore.footer);
   const menuWidth = computed(() => {
@@ -74,6 +79,13 @@
   const collapsed = computed(() => {
     return appStore.menuCollapse;
   });
+  const breadcrumbItems = computed(() => {
+    const items = route.matched
+      .map((record) => record.meta.locale)
+      .filter((locale): locale is string => typeof locale === 'string');
+    return appStore.device === 'mobile' ? items.slice(-1) : items;
+  });
+  const showBreadcrumbBar = computed(() => breadcrumbItems.value.length > 0 && (!navbar.value || topMenu.value));
   const paddingStyle = computed(() => {
     const paddingLeft = renderMenu.value && !hideMenu.value ? { paddingLeft: `${menuWidth.value}px` } : {};
     const paddingTop = navbar.value ? { paddingTop: navbarHeight } : {};
@@ -134,13 +146,24 @@
       display: block;
       width: 1px;
       height: 100%;
-      background-color: var(--color-border);
       content: '';
+      background-color: var(--color-border);
     }
 
     > :deep(.arco-layout-sider-children) {
       overflow-y: hidden;
     }
+  }
+
+  .layout-breadcrumb {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 40px;
+    padding: 0 20px;
+    overflow: hidden;
+    background-color: var(--color-bg-2);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .menu-wrapper {

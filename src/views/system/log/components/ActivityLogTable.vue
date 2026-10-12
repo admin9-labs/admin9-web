@@ -1,89 +1,89 @@
 <template>
   <div class="log-table">
-    <GridToolbar @refresh="fetchData">
-      <div class="log-filter-row">
-        <a-space wrap>
-          <a-input
-            v-model="filters.log_name"
-            :placeholder="$t('system.log.filter.logName')"
-            allow-clear
-            class="log-filter-input"
-            @press-enter="handleSearch"
-          />
-          <a-input
-            v-model="filters.event"
-            :placeholder="$t('system.log.filter.event')"
-            allow-clear
-            class="log-filter-input"
-            @press-enter="handleSearch"
-          />
-          <a-input
-            v-model="filters.subject_type"
-            :placeholder="$t('system.log.filter.subjectType')"
-            allow-clear
-            class="log-filter-input log-filter-input-wide"
-            @press-enter="handleSearch"
-          />
-          <a-input-number
-            v-model="filters.subject_id"
-            :placeholder="$t('system.log.filter.subjectId')"
-            :min="1"
-            :precision="0"
-            allow-clear
-            hide-button
-            class="log-filter-input"
-            @press-enter="handleSearch"
-          />
-          <a-input-number
-            v-model="filters.causer_id"
-            :placeholder="$t('system.log.filter.causerId')"
-            :min="1"
-            :precision="0"
-            allow-clear
-            hide-button
-            class="log-filter-input"
-            @press-enter="handleSearch"
-          />
-          <a-range-picker
-            v-model="filters.created_at"
-            :placeholder="[$t('system.log.filter.startDate'), $t('system.log.filter.endDate')]"
-            value-format="YYYY-MM-DD"
-            allow-clear
-            class="log-date-filter"
-          />
-          <a-button type="primary" @click="handleSearch">
-            <template #icon><icon-search /></template>
-            {{ $t('common.action.search') }}
-          </a-button>
-          <a-button @click="handleReset">
-            <template #icon><icon-undo /></template>
-            {{ $t('common.action.reset') }}
-          </a-button>
-        </a-space>
-      </div>
-    </GridToolbar>
-
-    <GridTable
-      :loading="loading"
-      :data="tableData"
-      :columns="columns"
-      :pagination="pagination"
-      :scroll="{ x: 1260 }"
-      @page-change="onPageChange"
-      @page-size-change="onPageSizeChange"
-    >
-      <template #createdAt="{ record }">
-        <a-link @click="openDetail(record)">{{ record.created_at ?? '-' }}</a-link>
-      </template>
-      <template #logName="{ record }">
-        <a-tag v-if="record.log_name" size="small">{{ record.log_name }}</a-tag>
-        <span v-else>-</span>
-      </template>
-      <template #event="{ record }">
-        <a-tag v-if="record.event" size="small">{{ record.event }}</a-tag>
-        <span v-else>-</span>
-      </template>
-    </GridTable>
+    <div class="filter-card">
+      <a-space wrap>
+        <a-input
+          v-model="filters.log_name"
+          :placeholder="$t('system.log.filter.logName')"
+          allow-clear
+          class="log-filter-input"
+          @press-enter="handleSearch"
+        />
+        <a-input
+          v-model="filters.event"
+          :placeholder="$t('system.log.filter.event')"
+          allow-clear
+          class="log-filter-input"
+          @press-enter="handleSearch"
+        />
+        <a-input
+          v-model="filters.subject_type"
+          :placeholder="$t('system.log.filter.subjectType')"
+          allow-clear
+          class="log-filter-input log-filter-input-wide"
+          @press-enter="handleSearch"
+        />
+        <a-input-number
+          v-model="filters.subject_id"
+          :placeholder="$t('system.log.filter.subjectId')"
+          :min="1"
+          :precision="0"
+          allow-clear
+          hide-button
+          class="log-filter-input"
+          @press-enter="handleSearch"
+        />
+        <a-input-number
+          v-model="filters.causer_id"
+          :placeholder="$t('system.log.filter.causerId')"
+          :min="1"
+          :precision="0"
+          allow-clear
+          hide-button
+          class="log-filter-input"
+          @press-enter="handleSearch"
+        />
+        <a-range-picker
+          v-model="filters.created_at"
+          :placeholder="[$t('system.log.filter.startDate'), $t('system.log.filter.endDate')]"
+          value-format="YYYY-MM-DD"
+          allow-clear
+          class="log-date-filter"
+        />
+        <a-button type="primary" @click="handleSearch">
+          <template #icon><icon-search /></template>
+          {{ $t('common.action.search') }}
+        </a-button>
+        <a-button @click="handleReset">
+          <template #icon><icon-undo /></template>
+          {{ $t('common.action.reset') }}
+        </a-button>
+      </a-space>
+    </div>
+    <Grid>
+      <GridToolbar @refresh="fetchData" />
+      <GridTable
+        :loading="loading"
+        :data="tableData"
+        :columns="columns"
+        :pagination="pagination"
+        :scroll="{ x: 1260 }"
+        @page-change="onPageChange"
+        @page-size-change="onPageSizeChange"
+      >
+        <template #createdAt="{ record }">
+          <a-link @click="openDetail(record)">{{ record.created_at ?? '-' }}</a-link>
+        </template>
+        <template #logName="{ record }">
+          <a-tag v-if="record.log_name" size="small">{{ record.log_name }}</a-tag>
+          <span v-else>-</span>
+        </template>
+        <template #event="{ record }">
+          <a-tag v-if="record.event" size="small">{{ record.event }}</a-tag>
+          <span v-else>-</span>
+        </template>
+      </GridTable>
+    </Grid>
 
     <a-drawer
       :visible="drawerVisible"
@@ -262,8 +262,11 @@
 </script>
 
 <style scoped>
-  .log-filter-row {
-    margin-top: 12px;
+  .log-table {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
   }
 
   .log-filter-input {
@@ -280,13 +283,13 @@
 
   .log-json {
     max-height: 360px;
-    margin: 0;
     padding: 12px;
+    margin: 0;
     overflow: auto;
     font-size: 13px;
     line-height: 1.6;
-    white-space: pre-wrap;
     overflow-wrap: anywhere;
+    white-space: pre-wrap;
     background-color: var(--color-fill-2);
     border-radius: 4px;
   }
