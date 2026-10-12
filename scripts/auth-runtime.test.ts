@@ -184,11 +184,11 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
     },
   });
   const useAppStore = defineStore(`auth-runtime-app-${harnessSequence}`, {
-    state: () => ({ menuStatus: 'ready', clearCount: 0 }),
+    state: () => ({ menuFromServer: true, menuStatus: 'ready', fetchCount: 0 }),
     actions: {
-      clearServerMenu() {
-        this.menuStatus = 'idle';
-        this.clearCount += 1;
+      async fetchServerMenuConfig() {
+        this.fetchCount += 1;
+        this.menuStatus = 'ready';
       },
     },
   });
@@ -316,9 +316,39 @@ test('concurrent 401 responses share one refresh and replay with the refreshed t
   assert.equal(harness.sessionState.snapshot().token, 'token-a-refreshed');
   assert.equal(harness.userStore.identityName, 'Account A refreshed');
   assert.equal(harness.userStore.identitySetCount, 1);
-  assert.equal(harness.appStore.clearCount, 1);
+  assert.equal(harness.appStore.fetchCount, 1);
   assert.equal(harness.router.currentRoute.value.name, 'protected');
   harness.cleanup();
+});
+
+(['pending', 'failed', 'local'] as const).forEach((menuMode) => {
+  test(`a ${menuMode} menu does not block requests after a successful token refresh`, { timeout: 5000 }, async () => {
+    const harness = await createHarness();
+    const menuResponse = createDeferred();
+    let menuLoads = 0;
+    harness.appStore.menuFromServer = menuMode !== 'local';
+    harness.appStore.fetchServerMenuConfig = async () => {
+      menuLoads += 1;
+      if (menuMode === 'failed') throw new Error('Menu unavailable');
+      await menuResponse.promise;
+    };
+    harness.setHandler((config) => {
+      if (config.url === '/admin/auth/refresh') return success(refreshIdentity('token-a-refreshed'));
+      if (authHeader(config) === 'Bearer token-a-refreshed') return success({ value: 'replayed' });
+      return failure(401, 'Unauthenticated');
+    });
+
+    try {
+      const response = (await harness.client.get('/admin/data')) as unknown as { data: { value: string } };
+      assert.equal(response.data.value, 'replayed');
+      assert.equal(menuLoads, menuMode === 'local' ? 0 : 1);
+      assert.equal(harness.userStore.logoutCount, 0);
+      assert.equal(harness.router.currentRoute.value.name, 'protected');
+    } finally {
+      menuResponse.resolve();
+      harness.cleanup();
+    }
+  });
 });
 
 test('terminal refresh failure clears Pinia state and redirects to login', async () => {
@@ -481,7 +511,7 @@ test('ordinary 403 preserves the session, Pinia identity, and protected route', 
   assert.deepEqual(harness.sessionState.snapshot(), harness.authenticated);
   assert.equal(harness.userStore.identityName, 'Account A');
   assert.equal(harness.userStore.logoutCount, 0);
-  assert.equal(harness.appStore.clearCount, 0);
+  assert.equal(harness.appStore.fetchCount, 0);
   assert.equal(harness.router.currentRoute.value.name, 'protected');
   assert.equal(harness.notifications.length, 1);
   harness.cleanup();
@@ -559,7 +589,7 @@ test('a late account A refresh never replays with account B credentials', { time
   assert.equal(replayedWithAccountB, 0);
   assert.deepEqual(harness.sessionState.snapshot(), accountB);
   assert.equal(harness.userStore.identityName, 'Account B');
-  assert.equal(harness.appStore.clearCount, 0);
+  assert.equal(harness.appStore.fetchCount, 0);
   assert.equal(harness.router.currentRoute.value.name, 'protected');
   harness.cleanup();
 });

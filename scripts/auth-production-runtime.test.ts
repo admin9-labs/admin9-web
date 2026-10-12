@@ -6,8 +6,39 @@ import axios from 'axios';
 import type { AxiosAdapter, AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { Pinia } from 'pinia';
 import { createApp } from 'vue';
+import NProgress from 'nprogress';
+import { Message } from '@arco-design/web-vue';
 import { createServer } from 'vite';
 import type { StorageLike } from '../src/utils/auth-session';
+import type { AdminMenu } from '../src/api/user';
+
+const userMenu: AdminMenu = {
+  id: 2,
+  parent_id: 1,
+  code: 'system.users',
+  name: 'Users',
+  type: 'page',
+  path: null,
+  component: null,
+  icon: null,
+  permission_ids: [],
+  permission_names: [],
+  permissions: [],
+  sort: 0,
+  is_visible: true,
+  is_active: true,
+  children: [],
+  created_at: null,
+  updated_at: null,
+};
+const systemMenu: AdminMenu = {
+  ...userMenu,
+  id: 1,
+  parent_id: null,
+  code: 'system',
+  type: 'directory',
+  children: [userMenu],
+};
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -30,9 +61,9 @@ interface AdapterResult {
   data: unknown;
 }
 
-function createAdapter(handler: (config: AxiosRequestConfig) => AdapterResult): AxiosAdapter {
+function createAdapter(handler: (config: AxiosRequestConfig) => AdapterResult | Promise<AdapterResult>): AxiosAdapter {
   return async (config) => {
-    const result = handler(config);
+    const result = await handler(config);
     const response: AxiosResponse = {
       config,
       data: result.data,
@@ -98,15 +129,13 @@ test(
       server: { middlewareMode: true },
     });
     const originalAdapter = axios.defaults.adapter;
+    const originalMessageError = Message.error;
+    Message.error = () => ({ close: () => undefined });
 
     try {
       const storeModule = (await vite.ssrLoadModule('/src/store/index.ts')) as {
         default: Pinia;
-        useAppStore: () => {
-          clearServerMenu(): void;
-          serverMenuRequestId: number;
-          serverMenuStatus: string;
-        };
+        useAppStore: typeof import('../src/store/modules/app').default;
         useUserStore: () => {
           email: string;
           identityLoaded: boolean;
@@ -127,12 +156,25 @@ test(
       assert.ok(authenticated);
       const userStore = storeModule.useUserStore();
       const appStore = storeModule.useAppStore();
+      appStore.serverMenu = [{ name: 'previous-menu', path: '/previous', meta: {} } as never];
       appStore.serverMenuRequestId = 5;
       appStore.serverMenuStatus = 'ready';
 
       let refreshRequests = 0;
+      let menuRequests = 0;
       let replays = 0;
-      axios.defaults.adapter = createAdapter((config) => {
+      let releaseMenu!: () => void;
+      const menuResponse = new Promise<void>((resolve) => {
+        releaseMenu = resolve;
+      });
+      let menuLoaded!: () => void;
+      const menuLoad = new Promise<void>((resolve) => {
+        menuLoaded = resolve;
+      });
+      appStore.$onAction(({ name, after }) => {
+        if (name === 'fetchServerMenuConfig') after(menuLoaded);
+      });
+      axios.defaults.adapter = createAdapter(async (config) => {
         if (config.url === '/admin/auth/refresh') {
           refreshRequests += 1;
           return success({
@@ -153,6 +195,13 @@ test(
             permission_names: ['system.user.view'],
           });
         }
+        if (config.url === '/admin/menus/tree') {
+          menuRequests += 1;
+          if (authHeader(config) === 'Bearer production-token-a') return failure(401, 'Unauthenticated');
+          assert.equal(authHeader(config), 'Bearer production-token-a-refreshed');
+          await menuResponse;
+          return success([systemMenu]);
+        }
         if (authHeader(config) === 'Bearer production-token-a-refreshed') {
           replays += 1;
           return success({ value: 'production-replay' });
@@ -169,11 +218,145 @@ test(
       assert.equal(userStore.identitySessionToken, 'production-token-a-refreshed');
       assert.equal(userStore.email, 'admin@admin9.dev');
       assert.deepEqual(userStore.permissionNames, ['system.user.view']);
-      assert.equal(appStore.serverMenuStatus, 'idle');
+      assert.equal(menuRequests, 1);
+      assert.equal(appStore.serverMenuStatus, 'loading');
+      assert.equal(appStore.serverMenu[0]?.name, 'previous-menu');
+
+      const { default: setupPermissionGuard } = await vite.ssrLoadModule('/src/router/guard/permission.ts');
+      const { appRoutes } = await vite.ssrLoadModule('/src/router/routes/index.ts');
+      const systemRoute = (appRoutes as Array<{ name: string; meta: object; children: unknown[] }>).find(
+        (route) => route.name === 'system'
+      );
+      assert.ok(systemRoute);
+      let guard!: (to: unknown, from: unknown, next: (destination: unknown) => void) => Promise<void>;
+      setupPermissionGuard({
+        beforeEach: (callback: typeof guard) => {
+          guard = callback;
+        },
+      });
+      const originalDone = NProgress.done;
+      NProgress.done = () => NProgress;
+      let navigationCompleted = false;
+      try {
+        const directoryNavigation = guard(
+          { name: 'system', meta: systemRoute.meta, matched: [systemRoute] },
+          {},
+          (destination) => {
+            navigationCompleted = true;
+            assert.equal(destination, undefined);
+          }
+        );
+        await Promise.resolve();
+        assert.equal(navigationCompleted, false);
+        releaseMenu();
+        await directoryNavigation;
+      } finally {
+        NProgress.done = originalDone;
+      }
+      assert.equal(navigationCompleted, true);
+      await menuLoad;
+      assert.equal(appStore.serverMenuStatus, 'ready');
+      assert.equal(appStore.serverMenu[0]?.name, 'system');
+      assert.equal(appStore.serverMenu[0]?.children[0]?.name, 'SystemUser');
       assert.equal(appStore.serverMenuRequestId, 6);
+
+      // An initial menu load can itself trigger refresh; it must finish without being invalidated.
+      assert.ok(auth.setToken('production-token-a', auth.getSessionSnapshot().generation));
+      appStore.clearServerMenu();
+      await appStore.fetchServerMenuConfig();
+      assert.equal(refreshRequests, 2);
+      assert.equal(menuRequests, 4);
+      assert.equal(appStore.serverMenuStatus, 'ready');
+      assert.equal(appStore.serverMenu[0]?.children[0]?.name, 'SystemUser');
+
+      // A temporary menu failure keeps the current menu and the next navigation retries it.
+      let recoveryRequests = 0;
+      axios.defaults.adapter = createAdapter((config) => {
+        if (config.url === '/admin/menus/tree') {
+          recoveryRequests += 1;
+          return recoveryRequests === 1 ? failure(503, 'Unavailable') : success([systemMenu]);
+        }
+        return failure(500, 'Unexpected request');
+      });
+      await assert.rejects(appStore.fetchServerMenuConfig());
+      assert.equal(appStore.serverMenuStatus, 'error');
+      assert.equal(appStore.serverMenu[0]?.name, 'system');
+      const userRoute = (systemRoute.children as Array<{ name: string; meta: object }>).find(
+        (route) => route.name === 'SystemUser'
+      );
+      assert.ok(userRoute);
+      NProgress.done = () => NProgress;
+      try {
+        await guard(
+          { name: 'SystemUser', meta: userRoute.meta, matched: [{ ...userRoute, children: [] }] },
+          {},
+          () => undefined
+        );
+      } finally {
+        NProgress.done = originalDone;
+      }
+      assert.equal(recoveryRequests, 2);
+      assert.equal(appStore.serverMenuStatus, 'ready');
+
+      // A menu edit invalidates the request started by token refresh before applying its response.
+      let releaseOutdatedMenu!: () => void;
+      const outdatedMenuResponse = new Promise<void>((resolve) => {
+        releaseOutdatedMenu = resolve;
+      });
+      let outdatedMenuStarted!: () => void;
+      const outdatedMenuRequest = new Promise<void>((resolve) => {
+        outdatedMenuStarted = resolve;
+      });
+      let mutationMenuRequests = 0;
+      axios.defaults.adapter = createAdapter(async (config) => {
+        if (config.url !== '/admin/menus/tree') return failure(500, 'Unexpected request');
+        mutationMenuRequests += 1;
+        if (mutationMenuRequests === 1) {
+          outdatedMenuStarted();
+          await outdatedMenuResponse;
+          return success([systemMenu]);
+        }
+        return success([]);
+      });
+      const outdatedMenuLoad = appStore.fetchServerMenuConfig();
+      await outdatedMenuRequest;
+      appStore.clearServerMenu();
+      await appStore.fetchServerMenuConfig();
+      releaseOutdatedMenu();
+      await outdatedMenuLoad;
+      assert.equal(mutationMenuRequests, 2);
+      assert.equal(appStore.serverMenuStatus, 'ready');
+      assert.deepEqual(appStore.serverMenu, []);
+
+      // A menu response from the previous account must not replace the next account's menu.
+      let releaseStaleMenu!: () => void;
+      const staleMenuResponse = new Promise<void>((resolve) => {
+        releaseStaleMenu = resolve;
+      });
+      let staleMenuStarted!: () => void;
+      const staleMenuRequest = new Promise<void>((resolve) => {
+        staleMenuStarted = resolve;
+      });
+      axios.defaults.adapter = createAdapter(async (config) => {
+        assert.equal(authHeader(config), 'Bearer production-token-a-refreshed');
+        staleMenuStarted();
+        await staleMenuResponse;
+        return success([systemMenu]);
+      });
+      const staleMenuLoad = appStore.fetchServerMenuConfig();
+      await staleMenuRequest;
+      assert.equal(userStore.logoutCallBack(), true);
+      assert.ok(auth.setToken('production-token-b', auth.getSessionSnapshot().generation));
+      appStore.serverMenu = [{ name: 'account-b-menu', path: '/account-b', meta: {} } as never];
+      appStore.serverMenuStatus = 'ready';
+      releaseStaleMenu();
+      await staleMenuLoad;
+      assert.equal(appStore.serverMenu[0]?.name, 'account-b-menu');
+      assert.equal(appStore.serverMenuStatus, 'ready');
       assert.equal(userStore.logoutCallBack(), true);
     } finally {
       axios.defaults.adapter = originalAdapter;
+      Message.error = originalMessageError;
       await vite.close();
     }
   }
