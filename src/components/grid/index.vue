@@ -1,5 +1,5 @@
 <template>
-  <a-card class="grid-card" v-bind="{ ...attrs }">
+  <a-card class="grid-card" :class="{ 'grid-card-untitled': !attrs.title }" v-bind="{ ...attrs }">
     <template v-if="attrs.title" #title>
       <span>{{ attrs.title }}</span>
       <a-tooltip v-if="slots.tooltip" position="right">
@@ -31,16 +31,22 @@
 
 <style lang="less" scoped>
   .grid-card {
-    @apply h-full;
-    border-radius: 4px;
+    min-width: 0;
     border: none;
+    border-radius: 4px;
+
     & > :deep(.arco-card-header) {
       height: auto;
       padding: 20px;
       border: none;
     }
+
     & > :deep(.arco-card-body) {
-      padding: 0 20px 20px 20px;
+      padding: 0 20px 20px;
+    }
+
+    &.grid-card-untitled > :deep(.arco-card-body) {
+      padding-top: 20px;
     }
 
     :deep(.arco-card-header-title) {

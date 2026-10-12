@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Grid :title="$t('menu.system.role')">
+    <Grid>
       <GridToolbar @refresh="refreshData">
         <template #append>
           <a-tooltip v-if="canCreateRole" :content="createRoleTooltip">

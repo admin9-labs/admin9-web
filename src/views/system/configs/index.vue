@@ -1,6 +1,6 @@
 <template>
   <div v-permission="['system.config.view']" class="page-container">
-    <Grid :title="$t('system.config.title')">
+    <Grid>
       <a-alert v-if="loadError" type="warning" class="settings-alert">
         {{ $t('system.config.loadError') }}
         <template #action>

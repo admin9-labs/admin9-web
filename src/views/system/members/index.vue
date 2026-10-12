@@ -1,27 +1,27 @@
 <template>
   <div v-permission="['system.member.view']" class="page-container">
-    <Grid :title="$t('menu.system.member')">
+    <div class="filter-card">
+      <a-space wrap>
+        <a-input-search
+          v-model="search"
+          :placeholder="$t('system.member.search.placeholder')"
+          allow-clear
+          @clear="handleSearch"
+          @search="handleSearch"
+          @press-enter="handleSearch"
+        />
+        <a-select
+          v-model="isActive"
+          :options="statusOptions"
+          :placeholder="$t('system.member.filter.all')"
+          allow-clear
+          class="status-filter"
+          @change="handleSearch"
+        />
+      </a-space>
+    </div>
+    <Grid>
       <GridToolbar @refresh="fetchData">
-        <template #prepend>
-          <a-space>
-            <a-input-search
-              v-model="search"
-              :placeholder="$t('system.member.search.placeholder')"
-              allow-clear
-              @clear="handleSearch"
-              @search="handleSearch"
-              @press-enter="handleSearch"
-            />
-            <a-select
-              v-model="isActive"
-              :options="statusOptions"
-              :placeholder="$t('system.member.filter.all')"
-              allow-clear
-              class="status-filter"
-              @change="handleSearch"
-            />
-          </a-space>
-        </template>
         <template #append>
           <a-button v-permission="['system.member.create']" type="primary" @click="formModalRef?.onCreate()"
             ><template #icon><icon-plus /></template>{{ $t('common.action.create') }}</a-button

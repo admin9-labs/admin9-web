@@ -1,14 +1,20 @@
 <template>
   <div class="navbar">
-    <div class="left-side">
-      <a-space>
+    <div
+      class="left-side"
+      :class="{ 'with-menu-divider': props.menuWidth !== undefined, 'collapsed': sideMenuCollapsed }"
+      :style="leftSideStyle"
+    >
+      <a-space class="brand-content">
         <BrandImage
           class="site-logo"
           :src="systemSettingsStore.navigationLogoUrl"
           :fallback="DEFAULT_BRAND_SYSTEM_SETTINGS.navigationLogo.url || ''"
           :alt="systemSettingsStore.systemName"
         />
-        <div v-if="appStore.device !== 'mobile'" class="font-brand site-name">{{ systemSettingsStore.systemName }}</div>
+        <div v-if="appStore.device !== 'mobile' && !sideMenuCollapsed" class="font-brand site-name">
+          {{ systemSettingsStore.systemName }}
+        </div>
         <icon-menu-fold
           v-if="!topMenu && appStore.device === 'mobile'"
           style="font-size: 22px; cursor: pointer"
@@ -16,8 +22,9 @@
         />
       </a-space>
     </div>
-    <div class="center-side">
+    <div class="center-side" :class="{ 'breadcrumb-mode': !topMenu }">
       <Menu v-if="topMenu" />
+      <Breadcrumb v-if="!topMenu && props.breadcrumbItems.length" :items="props.breadcrumbItems" class="navbar-breadcrumb" />
     </div>
     <ul class="right-side">
       <li>
@@ -84,8 +91,14 @@
   import { useAppStore, useSystemSettingsStore } from '@/store';
   import { DEFAULT_BRAND_SYSTEM_SETTINGS } from '@/config/system-settings';
   import BrandImage from '@/components/brand-image/index.vue';
+  import Breadcrumb from '@/components/breadcrumb/index.vue';
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
+
+  const props = defineProps<{
+    menuWidth?: number;
+    breadcrumbItems: string[];
+  }>();
 
   const appStore = useAppStore();
   const systemSettingsStore = useSystemSettingsStore();
@@ -95,6 +108,10 @@
     return appStore.theme;
   });
   const topMenu = computed(() => appStore.topMenu && appStore.menu);
+  const sideMenuCollapsed = computed(() => props.menuWidth !== undefined && appStore.menuCollapse);
+  const leftSideStyle = computed(() => {
+    return props.menuWidth === undefined ? undefined : { width: `${props.menuWidth}px` };
+  });
   const isDark = useDark({
     selector: 'body',
     attribute: 'arco-theme',
@@ -129,13 +146,15 @@
   }
 
   .left-side {
+    position: relative;
     display: flex;
     align-items: center;
     padding-left: 20px;
+    transition: width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
 
     .site-name {
-      color: var(--color-text-1);
       font-size: 20px;
+      color: var(--color-text-1);
     }
 
     .site-logo {
@@ -143,10 +162,75 @@
       height: 32px;
       object-fit: contain;
     }
+
+    &.with-menu-divider {
+      flex-shrink: 0;
+
+      .brand-content {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+
+        :deep(.arco-space-item) {
+          min-width: 0;
+        }
+
+        :deep(.arco-space-item:first-child) {
+          flex-shrink: 0;
+        }
+
+        .site-name {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .site-logo {
+          flex-shrink: 0;
+        }
+      }
+
+      &::after {
+        position: absolute;
+        top: 0;
+        right: -1px;
+        display: block;
+        width: 1px;
+        height: 100%;
+        content: '';
+        background-color: var(--color-border);
+      }
+    }
+
+    &.collapsed {
+      justify-content: center;
+      padding-left: 0;
+    }
   }
 
   .center-side {
     flex: 1;
+    min-width: 0;
+
+    &.breadcrumb-mode {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      overflow: hidden;
+    }
+
+    .navbar-breadcrumb {
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+
+      :deep(.arco-breadcrumb-item:last-child) {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
   }
 
   .right-side {
@@ -170,8 +254,8 @@
     }
 
     .nav-btn {
-      color: rgb(var(--gray-8));
       font-size: 16px;
+      color: rgb(var(--gray-8));
       border-color: rgb(var(--gray-2));
     }
   }

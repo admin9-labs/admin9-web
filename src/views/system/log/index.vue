@@ -1,16 +1,14 @@
 <template>
   <div class="page-container">
-    <Grid :title="$t('menu.system.log')">
-      <a-tabs v-if="availableTabs.length" v-model:active-key="activeTab">
-        <a-tab-pane v-if="canViewLoginLogs" key="login" :title="$t('system.log.tab.login')">
-          <LoginLogTable />
-        </a-tab-pane>
-        <a-tab-pane v-if="canViewActivityLogs" key="activity" :title="$t('system.log.tab.activity')">
-          <ActivityLogTable />
-        </a-tab-pane>
-      </a-tabs>
-      <a-empty v-else :description="$t('system.log.noPermission')" />
-    </Grid>
+    <a-tabs v-if="availableTabs.length" v-model:active-key="activeTab" class="log-tabs">
+      <a-tab-pane v-if="canViewLoginLogs" key="login" :title="$t('system.log.tab.login')">
+        <LoginLogTable />
+      </a-tab-pane>
+      <a-tab-pane v-if="canViewActivityLogs" key="activity" :title="$t('system.log.tab.activity')">
+        <ActivityLogTable />
+      </a-tab-pane>
+    </a-tabs>
+    <a-empty v-else :description="$t('system.log.noPermission')" />
   </div>
 </template>
 
@@ -45,3 +43,9 @@
     { immediate: true }
   );
 </script>
+
+<style scoped>
+  .log-tabs {
+    min-width: 0;
+  }
+</style>
