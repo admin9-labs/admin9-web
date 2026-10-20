@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { adminApi, publicApi } from '@/api/client';
 import type { components, operations } from '@/api/generated/admin-api';
 import type { BasicSystemSettings, BrandAsset, BrandSystemSettings } from '@/config/system-settings';
 
@@ -39,19 +39,19 @@ export function mapSystemSettings(resource: SystemSettingsResource): MappedSyste
 }
 
 export function queryPublicSystemSettings(): Promise<PublicSettingsResponse> {
-  return axios.get<unknown, PublicSettingsResponse>('/system-settings/public');
+  return publicApi.get<unknown, PublicSettingsResponse>('/system-settings/public');
 }
 
 export function queryAdminSystemSettings(): Promise<AdminSettingsResponse> {
-  return axios.get<unknown, AdminSettingsResponse>('/admin/system-settings');
+  return adminApi.get<unknown, AdminSettingsResponse>('/system-settings');
 }
 
 export function updateBasicSystemSettings(data: UpdateBasicSystemSettingsRequest): Promise<UpdateBasicSettingsResponse> {
-  return axios.put<unknown, UpdateBasicSettingsResponse>('/admin/system-settings/basic', data);
+  return adminApi.put<unknown, UpdateBasicSettingsResponse>('/system-settings/basic', data);
 }
 
 export function updateBrandingSystemSettings(
   data: UpdateBrandingSystemSettingsRequest
 ): Promise<UpdateBrandingSettingsResponse> {
-  return axios.put<unknown, UpdateBrandingSettingsResponse>('/admin/system-settings/branding', data);
+  return adminApi.put<unknown, UpdateBrandingSettingsResponse>('/system-settings/branding', data);
 }

@@ -5,6 +5,7 @@ import type { ApiOperationResponse } from '@/api/openapi';
 import { getSessionSnapshot, replaceToken } from '@/utils/auth';
 import { createApiError, formatApiErrorMessage, invalidatesAuthSession, type ApiError } from '@/utils/api-error';
 import { sessionBelongsToGeneration, sessionRetryDecision, type AuthSessionSnapshot } from '@/utils/auth-session';
+import { adminApi } from './client';
 
 export interface PaginationMeta {
   pagination: string;
@@ -69,11 +70,7 @@ function requestPath(config?: AxiosRequestConfig) {
 
 function isSilentRequest(config?: AxiosRequestConfig) {
   const retriableConfig = config as RetriableRequestConfig | undefined;
-  return (
-    requestPath(config) === '/system-settings/public' ||
-    requestPath(config) === '/admin/auth/login' ||
-    !!retriableConfig?.admin9SuppressErrorNotification
-  );
+  return requestPath(config) === '/auth/login' || !!retriableConfig?.admin9SuppressErrorNotification;
 }
 
 function requestSession(config?: RetriableRequestConfig): AuthSessionSnapshot | null {
@@ -93,7 +90,7 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
 
   const teardownRequestSession = async (config: RetriableRequestConfig | undefined, error: ApiError) => {
     const expected = requestSession(config);
-    if (!expected?.token || requestPath(config) === '/admin/auth/login') return false;
+    if (!expected?.token || requestPath(config) === '/auth/login') return false;
     const { userStore } = await runtime.loadStores();
     const cleared =
       error.status === 403 && error.errorCode === 'account_inactive'
@@ -137,7 +134,7 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
     if (refreshFlight?.key === key) return refreshFlight.promise;
 
     const promise = client
-      .post<unknown, ApiOperationResponse<'admin.auth.refresh', 200>>('/admin/auth/refresh', undefined, {
+      .post<unknown, ApiOperationResponse<'admin.auth.refresh', 200>>('/auth/refresh', undefined, {
         headers: { Authorization: `Bearer ${expected.token}` },
         admin9SessionGeneration: expected.generation,
         admin9RequestToken: expected.token,
@@ -248,5 +245,4 @@ const defaultRuntime: ApiInterceptorRuntime = {
   },
 };
 
-axios.defaults.baseURL = import.meta.env?.VITE_API_BASE_URL?.trim() || '/api';
-installApiInterceptors(axios, defaultRuntime);
+installApiInterceptors(adminApi, defaultRuntime);

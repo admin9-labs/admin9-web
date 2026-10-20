@@ -13,7 +13,7 @@ CI 对所有等级的公告阻断，无豁免。审计失败、报告不完整�
 
 - 提交 `package.json` 与 `pnpm-lock.yaml`，使用固定工具链冻结安装验证。
 - 传递依赖覆盖位于 `package.json#pnpm.overrides`，保留兼容的主版本分支。
-- OpenAPI 生成保留 `alphabetize`、路径规范化及 `defaultNonNullable: false`，契约源仍为 Laravel `docs/api.json`。
+- OpenAPI 生成保留 `alphabetize`、`defaultNonNullable: false` 和独立文档的完整路径，契约源为 Laravel `docs/admin-api.json`。
 
 ## 2026-10-06 Actions 修复与剩余问题
 

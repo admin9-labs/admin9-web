@@ -32,10 +32,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: admin9-labs/admin9-api-laravel
-          # Merged Laravel PR #20; advance with frontend contract updates.
-          ref: 9c2fd37b839d91a55d76b6df4bfb3d9dc423bccd
+          # Independent admin contract; advance with frontend contract updates.
+          ref: 113eba7d1be733db920ab62c3519e59669f1ced7
           path: admin9-api-laravel
-          sparse-checkout: docs/api.json
+          sparse-checkout: docs/admin-api.json
           sparse-checkout-cone-mode: false
           persist-credentials: false
 

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { adminApi } from '@/api/client';
 import type { components } from '@/api/generated/admin-api';
 import type { ApiOperationResponse } from '@/api/openapi';
 
@@ -71,14 +71,14 @@ function serializeLogParams(params: Record<string, unknown>) {
 }
 
 export function queryActivityLogList(params?: ActivityLogListParams) {
-  return axios.get<unknown, ActivityLogListResponse>('/admin/activity-logs', {
+  return adminApi.get<unknown, ActivityLogListResponse>('/activity-logs', {
     params,
     paramsSerializer: serializeLogParams,
   });
 }
 
 export function queryLoginLogList(params?: LoginLogListParams) {
-  return axios.get<unknown, LoginLogListResponse>('/admin/login-logs', {
+  return adminApi.get<unknown, LoginLogListResponse>('/login-logs', {
     params,
     paramsSerializer: serializeLogParams,
   });

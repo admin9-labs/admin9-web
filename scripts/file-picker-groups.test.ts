@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test, { mock } from 'node:test';
-import axios from 'axios';
+import { adminApi } from '../src/api/client';
 import { fileService } from '../src/services/fileService';
 import { fileReferenceId } from '../src/utils/file-reference';
 
@@ -17,7 +17,7 @@ const record = {
 };
 
 test('directory and allowed type filters apply before server pagination', async () => {
-  const request = mock.method(axios, 'get', async () => ({
+  const request = mock.method(adminApi, 'get', async () => ({
     data: [record],
     meta: { page: 2, page_size: 6, total: 19, has_more: true },
   }));
@@ -30,7 +30,7 @@ test('directory and allowed type filters apply before server pagination', async 
       keyword: 'cover',
     });
     assert.deepEqual(request.mock.calls[0].arguments, [
-      '/admin/files',
+      '/files',
       {
         params: {
           page: 2,
@@ -56,13 +56,13 @@ test('directory and allowed type filters apply before server pagination', async 
 });
 
 test('group adapters preserve root and child relationships and validate parent IDs', async () => {
-  const list = mock.method(axios, 'get', async () => ({
+  const list = mock.method(adminApi, 'get', async () => ({
     data: [
       { id: 1, name: 'Photos', parent_id: null },
       { id: 12, name: 'News', parent_id: 1 },
     ],
   }));
-  const create = mock.method(axios, 'post', async (_url, data) => ({
+  const create = mock.method(adminApi, 'post', async (_url, data) => ({
     data: { directory: { id: 15, name: data.name, parent_id: data.parent_id } },
   }));
   try {
@@ -81,8 +81,8 @@ test('group adapters preserve root and child relationships and validate parent I
     assert.deepEqual(
       create.mock.calls.map((call) => call.arguments),
       [
-        ['/admin/file-directories', { name: 'Child', parent_id: 1 }],
-        ['/admin/file-directories', { name: 'Root', parent_id: null }],
+        ['/file-directories', { name: 'Child', parent_id: 1 }],
+        ['/file-directories', { name: 'Root', parent_id: null }],
       ]
     );
     await assert.rejects(fileService.createGroup({ name: 'Bad', parentId: 'invalid' }), /Invalid file ID/);
@@ -94,7 +94,7 @@ test('group adapters preserve root and child relationships and validate parent I
 });
 
 test('uploads send allowed types and their destination without forcing the first type', async () => {
-  const request = mock.method(axios, 'post', async () => ({ data: { file: record } }));
+  const request = mock.method(adminApi, 'post', async () => ({ data: { file: record } }));
   try {
     assert.ok(fileService.upload);
     await fileService.upload({ file: new File(['image'], 'cover.png'), fileTypes: ['video', 'image'], groupId: '12' });
@@ -112,11 +112,11 @@ test('uploads send allowed types and their destination without forcing the first
 
 test('deletion and moving use exact URL references and preserve partial successes', async () => {
   const reference = fileReferenceId('https://files.test/storage/cover.png');
-  const remove = mock.method(axios, 'delete', async (url) => {
+  const remove = mock.method(adminApi, 'delete', async (url) => {
     if (url.endsWith('/2')) throw new Error('Forbidden');
     return {};
   });
-  const move = mock.method(axios, 'put', async (url) => {
+  const move = mock.method(adminApi, 'put', async (url) => {
     if (url.endsWith('/2')) throw new Error('Forbidden');
     return {};
   });
@@ -125,17 +125,17 @@ test('deletion and moving use exact URL references and preserve partial successe
     assert.ok(fileService.moveFiles);
     assert.deepEqual(await fileService.deleteFiles([reference, '2', '7']), [reference, '7']);
     assert.deepEqual(remove.mock.calls[0].arguments, [
-      '/admin/files/by-url',
+      '/files/by-url',
       { params: { url: 'https://files.test/storage/cover.png' } },
     ]);
     assert.deepEqual(await fileService.moveFiles({ ids: [reference, '2', '7'], groupId: '12' }), [reference, '7']);
     assert.deepEqual(move.mock.calls[0].arguments, [
-      '/admin/files/by-url',
+      '/files/by-url',
       { directory_id: 12, url: 'https://files.test/storage/cover.png' },
     ]);
-    assert.deepEqual(move.mock.calls[2].arguments, ['/admin/files/7', { directory_id: 12 }]);
+    assert.deepEqual(move.mock.calls[2].arguments, ['/files/7', { directory_id: 12 }]);
     await fileService.moveFiles({ ids: ['7'], groupId: null });
-    assert.deepEqual(move.mock.calls[3].arguments, ['/admin/files/7', { directory_id: null }]);
+    assert.deepEqual(move.mock.calls[3].arguments, ['/files/7', { directory_id: null }]);
     await assert.rejects(fileService.deleteFiles(['2']), /Forbidden/);
     await assert.rejects(fileService.moveFiles({ ids: ['7'], groupId: 'invalid' }), /Invalid file ID/);
     await assert.rejects(fileService.deleteFiles(['7suffix']), /Invalid file ID/);

@@ -7,7 +7,7 @@ Admin9 Web is the Admin9 management frontend. It is maintained on top of
 in this repository.
 
 The current objective is to integrate with the sibling `../admin9-api-laravel`
-project. Use that project's current implementation and `docs/api.json` as the
+project. Use that project's current implementation and `docs/admin-api.json` as the
 backend contract evidence. Verify inconsistencies at the backend instead of
 inferring current behavior from earlier frontend implementations.
 

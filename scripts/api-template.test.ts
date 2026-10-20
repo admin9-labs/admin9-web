@@ -33,8 +33,8 @@ test('generated API clients preserve pagination and string values with native Ax
     module: generatedModule,
     exports: generatedModule.exports,
     require: (specifier: string) => {
-      assert.equal(specifier, 'axios');
-      return client;
+      assert.equal(specifier, '@/api/client');
+      return { adminApi: client };
     },
   });
 

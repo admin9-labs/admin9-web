@@ -1,8 +1,8 @@
-import axios from 'axios';
+import { adminApi } from '@/api/client';
 import type { components, operations } from '@/api/generated/admin-api';
 import type { ApiOperationResponse } from '@/api/openapi';
 
-export type MemberRecord = components['schemas']['App.Http.Resources.Admin.MemberResource'];
+export type MemberRecord = components['schemas']['MemberResource'];
 export type MemberCreateData = components['schemas']['StoreMemberRequest'];
 export type MemberUpdateData = components['schemas']['UpdateMemberRequest'];
 export type MemberStatusData = components['schemas']['UpdateMemberStatusRequest'];
@@ -19,29 +19,29 @@ type MemberPasswordResponse = ApiOperationResponse<'admin.members.reset-password
 type MemberSessionResponse = ApiOperationResponse<'admin.members.invalidate-sessions', 200>;
 
 export function queryMemberList(params?: MemberListParams): Promise<MemberListResponse> {
-  return axios.get<unknown, MemberListResponse>('/admin/members', { params });
+  return adminApi.get<unknown, MemberListResponse>('/members', { params });
 }
 
 export function createMember(data: MemberCreateData): Promise<MemberCreateResponse> {
-  return axios.post<unknown, MemberCreateResponse>('/admin/members', data);
+  return adminApi.post<unknown, MemberCreateResponse>('/members', data);
 }
 
 export function queryMemberDetail(memberId: number): Promise<MemberDetailResponse> {
-  return axios.get<unknown, MemberDetailResponse>(`/admin/members/${memberId}`);
+  return adminApi.get<unknown, MemberDetailResponse>(`/members/${memberId}`);
 }
 
 export function updateMember(memberId: number, data: MemberUpdateData): Promise<MemberUpdateResponse> {
-  return axios.put<unknown, MemberUpdateResponse>(`/admin/members/${memberId}`, data);
+  return adminApi.put<unknown, MemberUpdateResponse>(`/members/${memberId}`, data);
 }
 
 export function updateMemberStatus(memberId: number, data: MemberStatusData): Promise<MemberStatusResponse> {
-  return axios.put<unknown, MemberStatusResponse>(`/admin/members/${memberId}/status`, data);
+  return adminApi.put<unknown, MemberStatusResponse>(`/members/${memberId}/status`, data);
 }
 
 export function resetMemberPassword(memberId: number, data: MemberPasswordData): Promise<MemberPasswordResponse> {
-  return axios.put<unknown, MemberPasswordResponse>(`/admin/members/${memberId}/password`, data);
+  return adminApi.put<unknown, MemberPasswordResponse>(`/members/${memberId}/password`, data);
 }
 
 export function invalidateMemberSessions(memberId: number): Promise<MemberSessionResponse> {
-  return axios.post<unknown, MemberSessionResponse>(`/admin/members/${memberId}/invalidate-sessions`);
+  return adminApi.post<unknown, MemberSessionResponse>(`/members/${memberId}/invalidate-sessions`);
 }

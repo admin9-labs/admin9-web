@@ -2,11 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
-import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { sourcePath as openapiPath, readOpenApiDocument, assertExpectedContract, workspaceRoot } from './openapi-document';
 
-const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const openapiPath = path.resolve(workspaceRoot, '../admin9-api-laravel/docs/api.json');
 const systemApiDirectory = path.join(workspaceRoot, 'src/api/system');
 const businessApiFiles = [
   path.join(workspaceRoot, 'src/api/user.ts'),
@@ -16,7 +14,7 @@ const businessApiFiles = [
     .map((fileName) => path.join(systemApiDirectory, fileName)),
 ];
 const axiosMethods = new Set(['get', 'post', 'put', 'patch', 'delete']);
-const publicBusinessPaths = new Set(['/system-settings/public', '/api/system-settings/public']);
+type ApiClient = 'adminApi' | 'publicApi';
 const dynamicSegment = Symbol('dynamic-segment');
 
 type RouteSegment = string | typeof dynamicSegment;
@@ -28,12 +26,13 @@ type AxiosCall = {
   filePath: string;
   line: number;
   method: string;
+  client?: ApiClient;
   segments?: RouteSegment[];
   error?: string;
 };
 
 function splitLiteralPath(value: string): string[] | undefined {
-  if ((!value.startsWith('/admin/') && !publicBusinessPaths.has(value)) || value.includes('?') || value.includes('#')) {
+  if (!value.startsWith('/') || value.startsWith('//') || value.includes('?') || value.includes('#')) {
     return undefined;
   }
   return value.split('/').slice(1);
@@ -42,9 +41,7 @@ function splitLiteralPath(value: string): string[] | undefined {
 function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[]; error?: string } {
   if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
     const segments = splitLiteralPath(expression.text);
-    return segments
-      ? { segments }
-      : { error: 'URL must be a direct /admin/* path or an approved public path without a query string or fragment' };
+    return segments ? { segments } : { error: 'URL must be a direct relative API path without a query string or fragment' };
   }
 
   if (!ts.isTemplateExpression(expression)) {
@@ -58,7 +55,7 @@ function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[];
 
   const rawSegments = splitLiteralPath(value);
   if (!rawSegments) {
-    return { error: 'URL must be a direct /admin/* path or an approved public path without a query string or fragment' };
+    return { error: 'URL must be a direct relative API path without a query string or fragment' };
   }
 
   if (rawSegments.some((segment) => segment.includes('\0') && !/^\0\d+\0$/.test(segment))) {
@@ -69,40 +66,61 @@ function parseAxiosPath(expression: ts.Expression): { segments?: RouteSegment[];
   return { segments };
 }
 
-function collectAxiosCalls(filePath: string): AxiosCall[] {
-  const sourceText = readFileSync(filePath, 'utf8');
+function collectAxiosCalls(filePath: string, sourceText = readFileSync(filePath, 'utf8')): AxiosCall[] {
   const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const clients = new Map<string, ApiClient>();
   const calls: AxiosCall[] = [];
+  sourceFile.statements.forEach((node) => {
+    if (!ts.isImportDeclaration(node) || !ts.isStringLiteral(node.moduleSpecifier) || node.importClause?.isTypeOnly) return;
+    const moduleName = node.moduleSpecifier.text;
+    const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    if (moduleName === 'axios' && node.importClause) {
+      const bindings = node.importClause.namedBindings;
+      const hasRuntimeImport =
+        node.importClause.name ||
+        (bindings && (!ts.isNamedImports(bindings) || bindings.elements.some((element) => !element.isTypeOnly)));
+      if (hasRuntimeImport)
+        calls.push({
+          filePath,
+          line: line + 1,
+          method: 'import',
+          error: 'business API modules must use adminApi or publicApi instead of global Axios',
+        });
+    }
+    const bindings = node.importClause?.namedBindings;
+    if (moduleName !== '@/api/client' || !bindings || !ts.isNamedImports(bindings)) return;
+    bindings.elements.forEach((element) => {
+      const imported = element.propertyName?.text ?? element.name.text;
+      if (!element.isTypeOnly && (imported === 'adminApi' || imported === 'publicApi'))
+        clients.set(element.name.text, imported);
+    });
+  });
 
   function visit(node: ts.Node) {
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
       ts.isIdentifier(node.expression.expression) &&
-      node.expression.expression.text === 'axios' &&
+      clients.has(node.expression.expression.text) &&
       axiosMethods.has(node.expression.name.text)
     ) {
       const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
-      const method = node.expression.name.text;
-      const firstArgument = node.arguments[0];
       calls.push({
         filePath,
         line: line + 1,
-        method,
-        ...(firstArgument ? parseAxiosPath(firstArgument) : { error: 'Axios call has no URL argument' }),
+        method: node.expression.name.text,
+        client: clients.get(node.expression.expression.text),
+        ...(node.arguments[0] ? parseAxiosPath(node.arguments[0]) : { error: 'API call has no URL argument' }),
       });
     }
     ts.forEachChild(node, visit);
   }
-
   visit(sourceFile);
   return calls;
 }
 
 function openApiPathMatches(openapiPathname: string, frontendSegments: RouteSegment[]): boolean {
-  const contractSegments = openapiPathname.split('/').slice(1);
-  const openapiSegments =
-    contractSegments[0] === 'api' && contractSegments[1] === 'admin' ? contractSegments.slice(1) : contractSegments;
+  const openapiSegments = openapiPathname.split('/').slice(1);
   if (openapiSegments.length !== frontendSegments.length) return false;
 
   return frontendSegments.every((segment, index) => {
@@ -115,45 +133,42 @@ function openApiPathMatches(openapiPathname: string, frontendSegments: RouteSegm
 function findMatchingOpenApiPath(
   paths: NonNullable<OpenApiDocument['paths']>,
   method: string,
-  segments: RouteSegment[]
+  segments: RouteSegment[],
+  client: ApiClient = 'adminApi'
 ): string | undefined {
-  return Object.entries(paths).find(
-    ([pathname, operations]) => openApiPathMatches(pathname, segments) && operations[method] !== undefined
-  )?.[0];
+  const completeSegments = [...(client === 'adminApi' ? ['api', 'admin'] : ['api']), ...segments];
+  return Object.entries(paths).find(([pathname, operations]) => {
+    const operation = operations[method] as { operationId?: string } | undefined;
+    if (!operation || !openApiPathMatches(pathname, completeSegments)) return false;
+    return client === 'publicApi' ? operation.operationId === 'system-settings.public' : pathname.startsWith('/api/admin/');
+  })?.[0];
 }
 
 test('the AST parser rejects hidden and partially dynamic URLs', () => {
   assert.match(parseAxiosPath(ts.factory.createIdentifier('USER_ENDPOINT')).error ?? '', /written directly/);
 
-  const partialSegment = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/admin/users/user-'), [
+  const partialSegment = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/users/user-'), [
     ts.factory.createTemplateSpan(ts.factory.createIdentifier('userId'), ts.factory.createTemplateTail('')),
   ]);
   assert.match(parseAxiosPath(partialSegment).error ?? '', /complete URL path segment/);
 });
 
 test('template path segments match OpenAPI parameters and methods exactly', () => {
-  const templatePath = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/admin/users/'), [
+  const templatePath = ts.factory.createTemplateExpression(ts.factory.createTemplateHead('/users/'), [
     ts.factory.createTemplateSpan(ts.factory.createIdentifier('userId'), ts.factory.createTemplateTail('/roles')),
   ]);
   const parsed = parseAxiosPath(templatePath);
   assert.ok(parsed.segments);
 
-  const paths = { '/admin/users/{user}/roles': { put: {} } };
-  assert.equal(findMatchingOpenApiPath(paths, 'put', parsed.segments), '/admin/users/{user}/roles');
+  const paths = { '/api/admin/users/{user}/roles': { put: {} } };
+  assert.equal(findMatchingOpenApiPath(paths, 'put', parsed.segments), '/api/admin/users/{user}/roles');
   assert.equal(findMatchingOpenApiPath(paths, 'post', parsed.segments), undefined);
 });
 
 test('Admin9 business API Axios calls match the backend OpenAPI contract', () => {
-  const document = JSON.parse(readFileSync(openapiPath, 'utf8')) as OpenApiDocument;
+  const document = readOpenApiDocument() as OpenApiDocument;
   assert.ok(document.paths, `OpenAPI document has no paths: ${openapiPath}`);
-  document.paths = Object.fromEntries(
-    Object.entries(document.paths).map(([pathname, operations]) => [
-      pathname.startsWith('/api/') ? pathname.slice(4) : pathname,
-      operations,
-    ])
-  );
-
-  const calls = businessApiFiles.flatMap(collectAxiosCalls);
+  const calls = businessApiFiles.flatMap((filePath) => collectAxiosCalls(filePath));
   assert.ok(calls.length > 0, 'No direct Axios calls were found in the Admin9 business API files');
 
   const errors = calls.flatMap((call) => {
@@ -162,7 +177,7 @@ test('Admin9 business API Axios calls match the backend OpenAPI contract', () =>
       return [`${location} ${call.method.toUpperCase()} cannot be checked: ${call.error}`];
     }
 
-    const matchedPath = findMatchingOpenApiPath(document.paths, call.method, call.segments);
+    const matchedPath = findMatchingOpenApiPath(document.paths, call.method, call.segments, call.client);
 
     if (!matchedPath) {
       const renderedPath = `/${call.segments
@@ -179,7 +194,7 @@ test('Admin9 business API Axios calls match the backend OpenAPI contract', () =>
 });
 
 test('the API alignment matrix classifies every OpenAPI operation exactly once', () => {
-  const document = JSON.parse(readFileSync(openapiPath, 'utf8')) as OpenApiDocument;
+  const document = readOpenApiDocument() as OpenApiDocument;
   const httpMethods = new Set(['get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'trace']);
   const methodPaths = Object.entries(document.paths ?? {}).flatMap(([pathname, operations]) =>
     Object.entries(operations).flatMap(([method]) => (httpMethods.has(method) ? [`${method.toUpperCase()} ${pathname}`] : []))
@@ -204,17 +219,10 @@ test('the API alignment matrix classifies every OpenAPI operation exactly once',
     (match) => `${match[1]} ${match[2]}`
   );
 
-  assert.equal(methodPaths.length, 80);
   assert.equal(documentedMethodPaths.length, methodPaths.length, 'each method/path operation must appear once in the matrix');
   assert.deepEqual([...documentedMethodPaths].sort(), [...methodPaths].sort());
-  assert.equal(operationIds.length, 72);
   assert.equal(documented.length, operationIds.length, 'each operationId must appear once in the matrix');
   assert.deepEqual([...documented].sort(), [...operationIds].sort());
-});
-
-test('the Axios API prefix defaults to /api', () => {
-  const interceptor = readFileSync(path.join(workspaceRoot, 'src/api/interceptor.ts'), 'utf8');
-  assert.match(interceptor, /VITE_API_BASE_URL\?\.trim\(\) \|\| ['"]\/api['"]/);
 });
 
 test('login failures preserve an existing session and refreshes synchronize identity and menus', () => {
@@ -229,7 +237,48 @@ test('login failures preserve an existing session and refreshes synchronize iden
   assert.match(interceptor, /fetchServerMenuConfig\(\)/);
   assert.doesNotMatch(interceptor, /clearServerMenu\(\)/);
   assert.match(interceptor, /admin9SuppressErrorNotification: true/);
-  assert.match(interceptor, /requestPath\(config\) === ['"]\/admin\/auth\/login['"]/);
+  assert.match(interceptor, /requestPath\(config\) === ['"]\/auth\/login['"]/);
   assert.match(interceptor, /router\.replace\(\{ name: ['"]login['"] \}\)/);
   assert.match(loginForm, /apiError\?\.errors\?\.\[field\]\?\.\[0\]/);
+});
+
+test('contract validation rejects the old title and missing required operations', () => {
+  const document = readOpenApiDocument();
+  assert.throws(() => assertExpectedContract({ ...document, info: { title: 'Admin9 API Laravel' } }), /Unexpected/);
+  const incomplete = structuredClone(document);
+  delete incomplete.paths?.['/api/admin/auth/refresh'];
+  assert.throws(() => assertExpectedContract(incomplete), /Unexpected/);
+});
+
+test('the AST checker follows client import aliases and rejects global Axios aliases', () => {
+  const calls = collectAxiosCalls(
+    'fixture.ts',
+    `
+    import { adminApi as management, publicApi as anonymous } from '@/api/client';
+    management.get('/users');
+    anonymous.get('/system-settings/public');
+  `
+  );
+  assert.deepEqual(
+    calls.map((call) => call.client),
+    ['adminApi', 'publicApi']
+  );
+  const forbidden = collectAxiosCalls('fixture.ts', `import request from 'axios'; request.get('/users');`);
+  assert.match(forbidden[0].error ?? '', /instead of global Axios/);
+});
+
+test('wrong clients, methods, prefixes, and hidden paths fail contract matching', () => {
+  const document = readOpenApiDocument();
+  assert.ok(document.paths);
+  const users = ['users'];
+  const settings = ['system-settings', 'public'];
+  assert.ok(findMatchingOpenApiPath(document.paths, 'get', users, 'adminApi'));
+  assert.equal(findMatchingOpenApiPath(document.paths, 'get', users, 'publicApi'), undefined);
+  assert.equal(findMatchingOpenApiPath(document.paths, 'get', settings, 'adminApi'), undefined);
+  assert.ok(findMatchingOpenApiPath(document.paths, 'get', settings, 'publicApi'));
+  assert.equal(findMatchingOpenApiPath(document.paths, 'post', settings, 'publicApi'), undefined);
+  assert.equal(findMatchingOpenApiPath(document.paths, 'get', ['admin', 'users'], 'adminApi'), undefined);
+  ['https://foreign.test/users', '//foreign.test/users', '/users?page=1', '/users#fragment'].forEach((value) => {
+    assert.ok(parseAxiosPath(ts.factory.createStringLiteral(value)).error);
+  });
 });

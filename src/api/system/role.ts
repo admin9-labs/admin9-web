@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { adminApi } from '@/api/client';
 import type { components } from '@/api/generated/admin-api';
 import type { PermissionRecord } from './permission';
 
@@ -21,25 +21,25 @@ interface RoleResponseData {
 }
 
 export function queryRoleList() {
-  return axios.get<RoleRecord[]>('/admin/roles');
+  return adminApi.get<RoleRecord[]>('/roles');
 }
 
 export function queryRoleDetail(roleId: number) {
-  return axios.get<RoleResponseData>(`/admin/roles/${roleId}`);
+  return adminApi.get<RoleResponseData>(`/roles/${roleId}`);
 }
 
 export function createRole(data: RoleCreateData) {
-  return axios.post<RoleResponseData>('/admin/roles', data);
+  return adminApi.post<RoleResponseData>('/roles', data);
 }
 
 export function updateRole(roleId: number, data: RoleUpdateData) {
-  return axios.put<RoleResponseData>(`/admin/roles/${roleId}`, data);
+  return adminApi.put<RoleResponseData>(`/roles/${roleId}`, data);
 }
 
 export function syncRolePermissions(roleId: number, data: RolePermissionsData) {
-  return axios.put<RoleResponseData>(`/admin/roles/${roleId}/permissions`, data);
+  return adminApi.put<RoleResponseData>(`/roles/${roleId}/permissions`, data);
 }
 
 export function deleteRole(roleId: number) {
-  return axios.delete(`/admin/roles/${roleId}`);
+  return adminApi.delete(`/roles/${roleId}`);
 }

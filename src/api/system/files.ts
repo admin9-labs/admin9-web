@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { adminApi } from '@/api/client';
 import type { components, operations } from '@/api/generated/admin-api';
 import supportsXhrUploadProgress from '@/utils/file-upload';
 
@@ -12,7 +12,7 @@ type FileUploadResponse = operations['admin.files.store']['responses'][200]['con
 type FileDeleteResponse = operations['admin.files.destroy']['responses'][200]['content']['application/json'];
 
 export function queryFileList(params: FileListParams): Promise<FileListResponse> {
-  return axios.get<unknown, FileListResponse>('/admin/files', { params });
+  return adminApi.get<unknown, FileListResponse>('/files', { params });
 }
 
 export function uploadFile(
@@ -34,43 +34,44 @@ export function uploadFile(
       }
     : undefined;
 
-  return axios.post<unknown, FileUploadResponse>('/admin/files', formData, {
+  return adminApi.post<unknown, FileUploadResponse>('/files', formData, {
     onUploadProgress,
     signal: options.signal,
   });
 }
 
 export function deleteFile(fileId: number): Promise<FileDeleteResponse> {
-  return axios.delete<unknown, FileDeleteResponse>(`/admin/files/${fileId}`);
+  return adminApi.delete<unknown, FileDeleteResponse>(`/files/${fileId}`);
 }
 
 export function queryFileDirectories() {
-  return axios.get<unknown, operations['admin.file-directories.index']['responses'][200]['content']['application/json']>(
-    '/admin/file-directories'
+  return adminApi.get<unknown, operations['admin.file-directories.index']['responses'][200]['content']['application/json']>(
+    '/file-directories'
   );
 }
 
 export function createFileDirectory(
   data: operations['admin.file-directories.store']['requestBody']['content']['application/json']
 ) {
-  return axios.post<unknown, operations['admin.file-directories.store']['responses'][200]['content']['application/json']>(
-    '/admin/file-directories',
+  return adminApi.post<unknown, operations['admin.file-directories.store']['responses'][200]['content']['application/json']>(
+    '/file-directories',
     data
   );
 }
 
 export function deleteFileDirectory(id: number) {
-  return axios.delete<unknown, operations['admin.file-directories.destroy']['responses'][200]['content']['application/json']>(
-    `/admin/file-directories/${id}`
-  );
+  return adminApi.delete<
+    unknown,
+    operations['admin.file-directories.destroy']['responses'][200]['content']['application/json']
+  >(`/file-directories/${id}`);
 }
 
 export function updateFileDirectory(
   id: number,
   data: operations['admin.files.update']['requestBody']['content']['application/json']
 ) {
-  return axios.put<unknown, operations['admin.files.update']['responses'][200]['content']['application/json']>(
-    `/admin/files/${id}`,
+  return adminApi.put<unknown, operations['admin.files.update']['responses'][200]['content']['application/json']>(
+    `/files/${id}`,
     data
   );
 }
@@ -78,15 +79,15 @@ export function updateFileDirectory(
 export function updateFileDirectoryByUrl(
   data: operations['admin.files.by-url.update']['requestBody']['content']['application/json']
 ) {
-  return axios.put<unknown, operations['admin.files.by-url.update']['responses'][200]['content']['application/json']>(
-    '/admin/files/by-url',
+  return adminApi.put<unknown, operations['admin.files.by-url.update']['responses'][200]['content']['application/json']>(
+    '/files/by-url',
     data
   );
 }
 
 export function deleteFileByUrl(data: operations['admin.files.by-url.destroy']['parameters']['query']) {
-  return axios.delete<unknown, operations['admin.files.by-url.destroy']['responses'][200]['content']['application/json']>(
-    '/admin/files/by-url',
+  return adminApi.delete<unknown, operations['admin.files.by-url.destroy']['responses'][200]['content']['application/json']>(
+    '/files/by-url',
     { params: data }
   );
 }

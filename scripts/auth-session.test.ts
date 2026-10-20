@@ -30,7 +30,7 @@ function createState() {
 }
 
 test('a late 401 replays only after same-generation token rotation', () => {
-  const request = { status: 401, retried: false, path: '/admin/auth/me', generation: 'session-1', token: 'old' };
+  const request = { status: 401, retried: false, path: '/auth/me', generation: 'session-1', token: 'old' };
 
   assert.equal(sessionRetryDecision(request, { generation: 'session-1', token: 'refreshed' }), 'replay');
   assert.equal(sessionRetryDecision(request, { generation: 'session-2', token: 'new-login' }), 'fail');
@@ -66,22 +66,19 @@ test('identity loading distinguishes transient failures from authentication loss
 
 test('the matching session refreshes once while retried requests fail', () => {
   const current = { generation: 'session-1', token: 'current' };
-  assert.equal(
-    sessionRetryDecision({ status: 401, retried: false, path: '/admin/users?current=1', ...current }, current),
-    'refresh'
-  );
-  assert.equal(sessionRetryDecision({ status: 401, retried: true, path: '/admin/users', ...current }, current), 'fail');
+  assert.equal(sessionRetryDecision({ status: 401, retried: false, path: '/users?current=1', ...current }, current), 'refresh');
+  assert.equal(sessionRetryDecision({ status: 401, retried: true, path: '/users', ...current }, current), 'fail');
 });
 
 test('login, refresh, and logout never recurse while me and password can recover', () => {
   const current = { generation: 'session-1', token: 'current' };
   const decision = (path: string) => sessionRetryDecision({ status: 401, retried: false, path, ...current }, current);
 
-  assert.equal(decision('/admin/auth/login'), 'fail');
-  assert.equal(decision('/admin/auth/refresh'), 'fail');
-  assert.equal(decision('/admin/auth/logout'), 'fail');
-  assert.equal(decision('/admin/auth/me'), 'refresh');
-  assert.equal(decision('/admin/auth/password'), 'refresh');
+  assert.equal(decision('/auth/login'), 'fail');
+  assert.equal(decision('/auth/refresh'), 'fail');
+  assert.equal(decision('/auth/logout'), 'fail');
+  assert.equal(decision('/auth/me'), 'refresh');
+  assert.equal(decision('/auth/password'), 'refresh');
 });
 
 test('a refresh cannot replace or clear a newer login session', () => {
@@ -105,10 +102,7 @@ test('a terminal response for an older generation cannot clear a newer login', (
   const newer = state.beginSession('new-login-token', older.generation);
   assert.ok(newer);
 
-  assert.equal(
-    sessionRetryDecision({ status: 401, retried: true, path: '/admin/auth/me', ...older }, state.snapshot()),
-    'fail'
-  );
+  assert.equal(sessionRetryDecision({ status: 401, retried: true, path: '/auth/me', ...older }, state.snapshot()), 'fail');
   assert.equal(state.clearSession(older), false);
   assert.deepEqual(state.snapshot(), newer);
 });

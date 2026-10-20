@@ -1,17 +1,17 @@
 # Admin9 Web API 接入矩阵
 
-契约源：`../admin9-api-laravel/docs/api.json`；基线为 Laravel #20 合并提交 `9c2fd37b839d91a55d76b6df4bfb3d9dc423bccd`，与 CI 固定版本一致。字段、权限和错误码以该契约及后端实现为准。
+契约源：`../admin9-api-laravel/docs/admin-api.json`；基线为后端独立契约提交 `113eba7d1be733db920ab62c3519e59669f1ced7`，与 CI 固定版本一致。字段、权限和错误码以该契约及后端实现为准。
 
-API root 为 `/api`，业务 client 使用 `/admin/*` 相对路径。共 45 个 path、80 个 operation、72 个 operationId；8 个 PATCH 与 PUT 等价。
+后台 client 默认基础地址为 `/api/admin`，业务调用使用 `/auth/*`、`/users` 等相对路径；公共设置 client 默认基础地址为 `/api`。独立后台文档共 39 个 path、74 个 operation、66 个 operationId；8 个 PATCH 与 PUT 等价。六个会员认证操作属于普通端文档，不属于管理前端，不纳入此矩阵。
 
 | 状态 | 数量 |
 | --- | ---: |
 | 已正确接入 | 49 |
 | 已修复契约漂移 | 12 |
 | 新补齐能力 | 7 |
-| 明确排除 | 12 |
+| 明确排除 | 6 |
 | 仍阻塞 | 0 |
-| 合计 | 80 |
+| 合计 | 74 |
 
 ## 响应约定
 
@@ -25,12 +25,6 @@ API root 为 `/api`，业务 client 使用 `/admin/*` 相对路径。共 45 个 
 
 | 状态 | Method / path | operationId | Web 接入 / 边界 |
 | --- | --- | --- | --- |
-| 明确排除 | POST `/api/auth/login` | `member.auth.login` | member guard 终端用户登录，不属于管理 Web |
-| 明确排除 | POST `/api/auth/refresh` | `member.auth.refresh` | member guard 会话刷新 |
-| 明确排除 | GET `/api/auth/me` | `member.auth.me` | member guard 当前用户 |
-| 明确排除 | PUT `/api/auth/password` | `member.auth.password.update` | member guard 改密 |
-| 明确排除 | POST `/api/auth/logout` | `member.auth.logout` | member guard 退出 |
-| 明确排除 | DELETE `/api/auth/sessions` | `member.auth.sessions.destroy` | member guard 退出全部会话 |
 | 已修复契约漂移 | POST `/api/admin/auth/login` | `admin.auth.login` | 登录表单；修复 API root 与结构化错误 |
 | 已修复契约漂移 | POST `/api/admin/auth/refresh` | `admin.auth.refresh` | single-flight；修复跨 generation 重放和 RBAC 同步 |
 | 已修复契约漂移 | GET `/api/admin/auth/me` | `admin.auth.me` | 当前管理员；瞬时 5xx 不再清有效会话 |

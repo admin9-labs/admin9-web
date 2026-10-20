@@ -62,7 +62,7 @@ export async function completeLogoutAttempt(remoteLogout: () => Promise<unknown>
   return clearLocalSession();
 }
 
-const NON_REPLAYABLE_AUTH_PATHS = new Set(['/admin/auth/login', '/admin/auth/refresh', '/admin/auth/logout']);
+const NON_REPLAYABLE_AUTH_PATHS = new Set(['/auth/login', '/auth/refresh', '/auth/logout']);
 
 function normalizedPath(path: string) {
   try {

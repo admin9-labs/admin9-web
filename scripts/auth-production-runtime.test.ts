@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import axios from 'axios';
 import type { AxiosAdapter, AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { Pinia } from 'pinia';
 import { createApp } from 'vue';
@@ -128,7 +127,9 @@ test(
       resolve: { alias: { '@': path.join(workspaceRoot, 'src') } },
       server: { middlewareMode: true },
     });
-    const originalAdapter = axios.defaults.adapter;
+    const { adminApi, publicApi } = (await vite.ssrLoadModule('/src/api/client.ts')) as typeof import('../src/api/client');
+    const originalAdapter = adminApi.defaults.adapter;
+    const originalPublicAdapter = publicApi.defaults.adapter;
     const originalMessageError = Message.error;
     Message.error = () => ({ close: () => undefined });
 
@@ -160,6 +161,20 @@ test(
       appStore.serverMenuRequestId = 5;
       appStore.serverMenuStatus = 'ready';
 
+      const assertPublicFailurePreservesSession = async (status: number) => {
+        publicApi.defaults.adapter = createAdapter((config) => {
+          assert.equal(authHeader(config), undefined);
+          return failure(status, 'Public settings unavailable');
+        });
+        await assert.rejects(publicApi.get('/system-settings/public'));
+        assert.deepEqual(auth.getSessionSnapshot(), authenticated);
+        assert.equal(userStore.identityLoaded, false);
+        assert.equal(appStore.serverMenuStatus, 'ready');
+      };
+      await assertPublicFailurePreservesSession(401);
+      await assertPublicFailurePreservesSession(403);
+      await assertPublicFailurePreservesSession(500);
+
       let refreshRequests = 0;
       let menuRequests = 0;
       let replays = 0;
@@ -174,8 +189,8 @@ test(
       appStore.$onAction(({ name, after }) => {
         if (name === 'fetchServerMenuConfig') after(menuLoaded);
       });
-      axios.defaults.adapter = createAdapter(async (config) => {
-        if (config.url === '/admin/auth/refresh') {
+      adminApi.defaults.adapter = createAdapter(async (config) => {
+        if (config.url === '/auth/refresh') {
           refreshRequests += 1;
           return success({
             access_token: 'production-token-a-refreshed',
@@ -195,7 +210,7 @@ test(
             permission_names: ['system.user.view'],
           });
         }
-        if (config.url === '/admin/menus/tree') {
+        if (config.url === '/menus/tree') {
           menuRequests += 1;
           if (authHeader(config) === 'Bearer production-token-a') return failure(401, 'Unauthenticated');
           assert.equal(authHeader(config), 'Bearer production-token-a-refreshed');
@@ -209,7 +224,7 @@ test(
         return failure(401, 'Unauthenticated');
       });
 
-      const response = (await axios.get('/admin/data')) as unknown as { data: { value: string } };
+      const response = (await adminApi.get('/data')) as unknown as { data: { value: string } };
       assert.equal(response.data.value, 'production-replay');
       assert.equal(refreshRequests, 1);
       assert.equal(replays, 1);
@@ -271,8 +286,8 @@ test(
 
       // A temporary menu failure keeps the current menu and the next navigation retries it.
       let recoveryRequests = 0;
-      axios.defaults.adapter = createAdapter((config) => {
-        if (config.url === '/admin/menus/tree') {
+      adminApi.defaults.adapter = createAdapter((config) => {
+        if (config.url === '/menus/tree') {
           recoveryRequests += 1;
           return recoveryRequests === 1 ? failure(503, 'Unavailable') : success([systemMenu]);
         }
@@ -308,8 +323,8 @@ test(
         outdatedMenuStarted = resolve;
       });
       let mutationMenuRequests = 0;
-      axios.defaults.adapter = createAdapter(async (config) => {
-        if (config.url !== '/admin/menus/tree') return failure(500, 'Unexpected request');
+      adminApi.defaults.adapter = createAdapter(async (config) => {
+        if (config.url !== '/menus/tree') return failure(500, 'Unexpected request');
         mutationMenuRequests += 1;
         if (mutationMenuRequests === 1) {
           outdatedMenuStarted();
@@ -337,7 +352,7 @@ test(
       const staleMenuRequest = new Promise<void>((resolve) => {
         staleMenuStarted = resolve;
       });
-      axios.defaults.adapter = createAdapter(async (config) => {
+      adminApi.defaults.adapter = createAdapter(async (config) => {
         assert.equal(authHeader(config), 'Bearer production-token-a-refreshed');
         staleMenuStarted();
         await staleMenuResponse;
@@ -355,7 +370,8 @@ test(
       assert.equal(appStore.serverMenuStatus, 'ready');
       assert.equal(userStore.logoutCallBack(), true);
     } finally {
-      axios.defaults.adapter = originalAdapter;
+      adminApi.defaults.adapter = originalAdapter;
+      publicApi.defaults.adapter = originalPublicAdapter;
       Message.error = originalMessageError;
       await vite.close();
     }

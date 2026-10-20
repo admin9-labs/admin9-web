@@ -173,7 +173,7 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
       },
       async info() {
         const requestSession = sessionState.snapshot();
-        const response = (await client.get('/admin/auth/me')) as unknown as {
+        const response = (await client.get('/auth/me')) as unknown as {
           data: ReturnType<typeof refreshIdentity>;
         };
         if (!this.setIdentity(response.data, requestSession)) {
@@ -254,7 +254,7 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
     });
 
     try {
-      await assert.rejects(harness.client.post('/admin/files', {}, { signal: controller.signal }), axios.isCancel);
+      await assert.rejects(harness.client.post('/files', {}, { signal: controller.signal }), axios.isCancel);
       assert.deepEqual(harness.notifications, []);
       assert.deepEqual(harness.sessionState.snapshot(), harness.authenticated);
       assert.equal(harness.userStore.logoutCount, 0);
@@ -274,29 +274,32 @@ test('concurrent 401 responses share one refresh and replay with the refreshed t
   let initialRequests = 0;
   let refreshRequests = 0;
   const replayTokens: unknown[] = [];
+  const requestUrls: string[] = [];
+  harness.client.defaults.baseURL = 'https://admin.example.test/manage/v2';
 
   harness.setHandler(async (config) => {
-    if (config.url === '/admin/auth/refresh') {
+    requestUrls.push(harness.client.getUri(config));
+    if (config.url === '/auth/refresh') {
       refreshRequests += 1;
       refreshStarted.resolve();
       await releaseRefresh.promise;
       return success(refreshIdentity('token-a-refreshed'));
     }
-    if (config.url === '/admin/data' && authHeader(config) === 'Bearer token-a') {
+    if (config.url === '/data' && authHeader(config) === 'Bearer token-a') {
       initialRequests += 1;
       if (initialRequests === 2) bothInitialRequests.resolve();
       await releaseInitialRequests.promise;
       return failure(401, 'Unauthenticated');
     }
-    if (config.url === '/admin/data') {
+    if (config.url === '/data') {
       replayTokens.push(authHeader(config));
       return success({ value: 'replayed' });
     }
     return failure(500, 'Unexpected request');
   });
 
-  const first = harness.client.get('/admin/data');
-  const second = harness.client.get('/admin/data');
+  const first = harness.client.get('/data');
+  const second = harness.client.get('/data');
   await bothInitialRequests.promise;
   releaseInitialRequests.resolve();
   await refreshStarted.promise;
@@ -313,6 +316,13 @@ test('concurrent 401 responses share one refresh and replay with the refreshed t
   );
   assert.equal(refreshRequests, 1);
   assert.deepEqual(replayTokens, ['Bearer token-a-refreshed', 'Bearer token-a-refreshed']);
+  assert.deepEqual(requestUrls, [
+    'https://admin.example.test/manage/v2/data',
+    'https://admin.example.test/manage/v2/data',
+    'https://admin.example.test/manage/v2/auth/refresh',
+    'https://admin.example.test/manage/v2/data',
+    'https://admin.example.test/manage/v2/data',
+  ]);
   assert.equal(harness.sessionState.snapshot().token, 'token-a-refreshed');
   assert.equal(harness.userStore.identityName, 'Account A refreshed');
   assert.equal(harness.userStore.identitySetCount, 1);
@@ -333,13 +343,13 @@ test('concurrent 401 responses share one refresh and replay with the refreshed t
       await menuResponse.promise;
     };
     harness.setHandler((config) => {
-      if (config.url === '/admin/auth/refresh') return success(refreshIdentity('token-a-refreshed'));
+      if (config.url === '/auth/refresh') return success(refreshIdentity('token-a-refreshed'));
       if (authHeader(config) === 'Bearer token-a-refreshed') return success({ value: 'replayed' });
       return failure(401, 'Unauthenticated');
     });
 
     try {
-      const response = (await harness.client.get('/admin/data')) as unknown as { data: { value: string } };
+      const response = (await harness.client.get('/data')) as unknown as { data: { value: string } };
       assert.equal(response.data.value, 'replayed');
       assert.equal(menuLoads, menuMode === 'local' ? 0 : 1);
       assert.equal(harness.userStore.logoutCount, 0);
@@ -355,14 +365,14 @@ test('terminal refresh failure clears Pinia state and redirects to login', async
   const harness = await createHarness();
   let refreshRequests = 0;
   harness.setHandler((config) => {
-    if (config.url === '/admin/auth/refresh') {
+    if (config.url === '/auth/refresh') {
       refreshRequests += 1;
       return failure(401, 'Unauthenticated');
     }
     return failure(401, 'Unauthenticated');
   });
 
-  await assert.rejects(harness.client.get('/admin/data'), (error: unknown) => {
+  await assert.rejects(harness.client.get('/data'), (error: unknown) => {
     assert.ok(error instanceof ApiError);
     assert.equal(error.status, 401);
     return true;
@@ -380,10 +390,10 @@ test('terminal refresh failure clears Pinia state and redirects to login', async
 test('transient refresh failure preserves the current session and route', async () => {
   const harness = await createHarness();
   harness.setHandler((config) =>
-    config.url === '/admin/auth/refresh' ? failure(503, 'Service Unavailable') : failure(401, 'Unauthenticated')
+    config.url === '/auth/refresh' ? failure(503, 'Service Unavailable') : failure(401, 'Unauthenticated')
   );
 
-  await assert.rejects(harness.client.get('/admin/data'), (error: unknown) => {
+  await assert.rejects(harness.client.get('/data'), (error: unknown) => {
     assert.ok(error instanceof ApiError);
     assert.equal(error.status, 503);
     return true;
@@ -406,7 +416,7 @@ test('account_inactive clears a same-generation refreshed session', { timeout: 5
     return failure(403, 'Account disabled', 'account_inactive');
   });
 
-  const request = harness.client.get('/admin/data');
+  const request = harness.client.get('/data');
   await requestStarted.promise;
   assert.equal(harness.sessionState.replaceToken(harness.authenticated, 'token-a-refreshed'), true);
   releaseResponse.resolve();
@@ -433,7 +443,7 @@ test('a late account_inactive response cannot clear a newer account generation',
     return failure(403, 'Account disabled', 'account_inactive');
   });
 
-  const accountARequest = harness.client.get('/admin/data');
+  const accountARequest = harness.client.get('/data');
   await requestStarted.promise;
   const accountB = harness.sessionState.beginSession('token-b', harness.authenticated.generation);
   assert.ok(accountB);
@@ -461,7 +471,7 @@ test('a late 401 from account A cannot refresh, replay, or clear account B', { t
   let refreshRequests = 0;
   let replayedWithAccountB = 0;
   harness.setHandler(async (config) => {
-    if (config.url === '/admin/auth/refresh') {
+    if (config.url === '/auth/refresh') {
       refreshRequests += 1;
       return failure(500, 'Unexpected refresh');
     }
@@ -474,7 +484,7 @@ test('a late 401 from account A cannot refresh, replay, or clear account B', { t
     return failure(401, 'Unauthenticated');
   });
 
-  const accountARequest = harness.client.get('/admin/data');
+  const accountARequest = harness.client.get('/data');
   await requestStarted.promise;
   const accountB = harness.sessionState.beginSession('token-b', harness.authenticated.generation);
   assert.ok(accountB);
@@ -501,7 +511,7 @@ test('ordinary 403 preserves the session, Pinia identity, and protected route', 
   const harness = await createHarness();
   harness.setHandler(() => failure(403, 'Forbidden', 'permission_denied'));
 
-  await assert.rejects(harness.client.get('/admin/data'), (error: unknown) => {
+  await assert.rejects(harness.client.get('/data'), (error: unknown) => {
     assert.ok(error instanceof ApiError);
     assert.equal(error.status, 403);
     assert.equal(error.errorCode, 'permission_denied');
@@ -561,7 +571,7 @@ test('a late account A refresh never replays with account B credentials', { time
     await releaseIdentitySync.promise;
   });
   harness.setHandler((config) => {
-    if (config.url === '/admin/auth/refresh') return success(refreshIdentity('token-a-refreshed'));
+    if (config.url === '/auth/refresh') return success(refreshIdentity('token-a-refreshed'));
     if (authHeader(config) === 'Bearer token-b') {
       replayedWithAccountB += 1;
       return success({ value: 'wrong-account-replay' });
@@ -569,7 +579,7 @@ test('a late account A refresh never replays with account B credentials', { time
     return failure(401, 'Unauthenticated');
   });
 
-  const accountARequest = harness.client.get('/admin/data');
+  const accountARequest = harness.client.get('/data');
   await identitySyncStarted.promise;
   const refreshedAccountA = harness.sessionState.snapshot();
   assert.equal(refreshedAccountA.token, 'token-a-refreshed');

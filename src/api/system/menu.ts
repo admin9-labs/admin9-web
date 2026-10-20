@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { adminApi } from '@/api/client';
 import type { components } from '@/api/generated/admin-api';
 import type { ApiOperationResponse } from '@/api/openapi';
 
@@ -27,26 +27,26 @@ type MenuDeleteResponse = ApiOperationResponse<'admin.menus.destroy', 200>;
 
 /** Complete menu catalog for the management UI. */
 export function queryMenuList() {
-  return axios.get<unknown, MenuListResponse>('/admin/menus');
+  return adminApi.get<unknown, MenuListResponse>('/menus');
 }
 
 /** Permission-filtered navigation tree for shell consumers. */
 export function queryMenuTree() {
-  return axios.get<unknown, MenuTreeResponse>('/admin/menus/tree');
+  return adminApi.get<unknown, MenuTreeResponse>('/menus/tree');
 }
 
 export function queryMenuDetail(menuId: number) {
-  return axios.get<unknown, MenuDetailResponse>(`/admin/menus/${menuId}`);
+  return adminApi.get<unknown, MenuDetailResponse>(`/menus/${menuId}`);
 }
 
 export function createMenu(data: MenuCreateData) {
-  return axios.post<unknown, MenuCreateResponse>('/admin/menus', data);
+  return adminApi.post<unknown, MenuCreateResponse>('/menus', data);
 }
 
 export function updateMenu(menuId: number, data: MenuUpdateData) {
-  return axios.put<unknown, MenuUpdateResponse>(`/admin/menus/${menuId}`, data);
+  return adminApi.put<unknown, MenuUpdateResponse>(`/menus/${menuId}`, data);
 }
 
 export function deleteMenu(menuId: number) {
-  return axios.delete<unknown, MenuDeleteResponse>(`/admin/menus/${menuId}`);
+  return adminApi.delete<unknown, MenuDeleteResponse>(`/menus/${menuId}`);
 }

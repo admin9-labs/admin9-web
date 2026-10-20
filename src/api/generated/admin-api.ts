@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/admin/activity-logs": {
+    "/api/admin/activity-logs": {
         parameters: {
             query?: never;
             header?: never;
@@ -20,7 +20,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/auth/login": {
+    "/api/admin/auth/login": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/auth/logout": {
+    "/api/admin/auth/logout": {
         parameters: {
             query?: never;
             header?: never;
@@ -52,7 +52,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/auth/me": {
+    "/api/admin/auth/me": {
         parameters: {
             query?: never;
             header?: never;
@@ -68,7 +68,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/auth/password": {
+    "/api/admin/auth/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -84,7 +84,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/auth/refresh": {
+    "/api/admin/auth/refresh": {
         parameters: {
             query?: never;
             header?: never;
@@ -100,7 +100,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/dictionary-items": {
+    "/api/admin/dictionary-items": {
         parameters: {
             query?: never;
             header?: never;
@@ -118,7 +118,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/dictionary-items/{dictionaryItem}": {
+    "/api/admin/dictionary-items/{dictionaryItem}": {
         parameters: {
             query?: never;
             header?: never;
@@ -182,7 +182,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/dictionary-types": {
+    "/api/admin/dictionary-types": {
         parameters: {
             query?: never;
             header?: never;
@@ -200,7 +200,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/dictionary-types/{dictionaryType}": {
+    "/api/admin/dictionary-types/{dictionaryType}": {
         parameters: {
             query?: never;
             header?: never;
@@ -264,7 +264,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/file-directories": {
+    "/api/admin/file-directories": {
         parameters: {
             query?: never;
             header?: never;
@@ -280,7 +280,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/file-directories/{fileDirectory}": {
+    "/api/admin/file-directories/{fileDirectory}": {
         parameters: {
             query?: never;
             header?: never;
@@ -296,7 +296,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/files": {
+    "/api/admin/files": {
         parameters: {
             query?: never;
             header?: never;
@@ -312,7 +312,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/files/{file}": {
+    "/api/admin/files/{file}": {
         parameters: {
             query?: never;
             header?: never;
@@ -370,7 +370,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/files/by-url": {
+    "/api/admin/files/by-url": {
         parameters: {
             query?: never;
             header?: never;
@@ -386,7 +386,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/login-logs": {
+    "/api/admin/login-logs": {
         parameters: {
             query?: never;
             header?: never;
@@ -402,7 +402,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/members": {
+    "/api/admin/members": {
         parameters: {
             query?: never;
             header?: never;
@@ -418,7 +418,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/members/{member}": {
+    "/api/admin/members/{member}": {
         parameters: {
             query?: never;
             header?: never;
@@ -434,7 +434,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/members/{member}/invalidate-sessions": {
+    "/api/admin/members/{member}/invalidate-sessions": {
         parameters: {
             query?: never;
             header?: never;
@@ -450,7 +450,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/members/{member}/password": {
+    "/api/admin/members/{member}/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -466,7 +466,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/members/{member}/status": {
+    "/api/admin/members/{member}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -482,7 +482,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/menus": {
+    "/api/admin/menus": {
         parameters: {
             query?: never;
             header?: never;
@@ -500,7 +500,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/menus/{menu}": {
+    "/api/admin/menus/{menu}": {
         parameters: {
             query?: never;
             header?: never;
@@ -564,7 +564,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/menus/tree": {
+    "/api/admin/menus/tree": {
         parameters: {
             query?: never;
             header?: never;
@@ -581,7 +581,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/permissions": {
+    "/api/admin/permissions": {
         parameters: {
             query?: never;
             header?: never;
@@ -599,7 +599,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/permissions/{permission}": {
+    "/api/admin/permissions/{permission}": {
         parameters: {
             query?: never;
             header?: never;
@@ -663,7 +663,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/roles": {
+    "/api/admin/roles": {
         parameters: {
             query?: never;
             header?: never;
@@ -681,7 +681,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/roles/{role}": {
+    "/api/admin/roles/{role}": {
         parameters: {
             query?: never;
             header?: never;
@@ -745,7 +745,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/roles/{role}/permissions": {
+    "/api/admin/roles/{role}/permissions": {
         parameters: {
             query?: never;
             header?: never;
@@ -761,7 +761,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/system-configs": {
+    "/api/admin/system-configs": {
         parameters: {
             query?: never;
             header?: never;
@@ -779,7 +779,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/system-configs/{systemConfig}": {
+    "/api/admin/system-configs/{systemConfig}": {
         parameters: {
             query?: never;
             header?: never;
@@ -844,7 +844,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/system-settings": {
+    "/api/admin/system-settings": {
         parameters: {
             query?: never;
             header?: never;
@@ -860,7 +860,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/system-settings/basic": {
+    "/api/admin/system-settings/basic": {
         parameters: {
             query?: never;
             header?: never;
@@ -876,7 +876,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/system-settings/branding": {
+    "/api/admin/system-settings/branding": {
         parameters: {
             query?: never;
             header?: never;
@@ -892,7 +892,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/users": {
+    "/api/admin/users": {
         parameters: {
             query?: never;
             header?: never;
@@ -910,7 +910,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/users/{user}": {
+    "/api/admin/users/{user}": {
         parameters: {
             query?: never;
             header?: never;
@@ -974,7 +974,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/admin/users/{user}/password": {
+    "/api/admin/users/{user}/password": {
         parameters: {
             query?: never;
             header?: never;
@@ -990,7 +990,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/admin/users/{user}/roles": {
+    "/api/admin/users/{user}/roles": {
         parameters: {
             query?: never;
             header?: never;
@@ -1001,108 +1001,6 @@ export interface paths {
         put: operations["admin.users.roles.update"];
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["member.auth.login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["member.auth.logout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["member.auth.me"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["member.auth.password.update"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Refresh a member token or recover its committed replacement within 30 seconds
-         * @description Retries return the same replacement with its remaining expires_in and do not
-         *     extend the replacement or session lifetime. Recovery ends on revocation or
-         *     when the replacement is rotated.
-         */
-        post: operations["member.auth.refresh"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/auth/sessions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["member.auth.sessions.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1145,34 +1043,6 @@ export interface components {
             /** Format: int64 */
             subject_id: number | null;
             subject_type: string | null;
-        };
-        /** App.Http.Requests.Admin.Auth.ChangePasswordRequest */
-        "App.Http.Requests.Admin.Auth.ChangePasswordRequest": {
-            current_password: string;
-            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
-            password: string;
-            /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
-            password_confirmation: string;
-        };
-        /** App.Http.Requests.Admin.Auth.LoginRequest */
-        "App.Http.Requests.Admin.Auth.LoginRequest": {
-            /** Format: email */
-            email: string;
-            password: string;
-        };
-        /** App.Http.Resources.Admin.MemberResource */
-        "App.Http.Resources.Admin.MemberResource": {
-            created_at: string;
-            /** Format: email */
-            email: string | null;
-            /** Format: int64 */
-            id: number;
-            is_active: boolean;
-            last_login_at: string | null;
-            last_login_ip: string | null;
-            mobile: string | null;
-            name: string;
-            updated_at: string;
         };
         /** ChangePasswordRequest */
         ChangePasswordRequest: {
@@ -1263,17 +1133,23 @@ export interface components {
         };
         /** LoginRequest */
         LoginRequest: {
-            account: string;
+            /** Format: email */
+            email: string;
             password: string;
         };
         /** MemberResource */
         MemberResource: {
+            created_at: string;
+            /** Format: email */
             email: string | null;
+            /** Format: int64 */
             id: number;
             is_active: boolean;
             last_login_at: string | null;
+            last_login_ip: string | null;
             mobile: string | null;
-            name: string | null;
+            name: string;
+            updated_at: string;
         };
         /** MenuResource */
         MenuResource: {
@@ -1931,7 +1807,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["App.Http.Requests.Admin.Auth.LoginRequest"];
+                "application/json": components["schemas"]["LoginRequest"];
             };
         };
         responses: {
@@ -2047,7 +1923,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["App.Http.Requests.Admin.Auth.ChangePasswordRequest"];
+                "application/json": components["schemas"]["ChangePasswordRequest"];
             };
         };
         responses: {
@@ -3019,7 +2895,7 @@ export interface operations {
                     "application/json": {
                         /** @description Business status code, 0 = success */
                         code: number;
-                        data: components["schemas"]["App.Http.Resources.Admin.MemberResource"][];
+                        data: components["schemas"]["MemberResource"][];
                         message: string;
                         meta: {
                             /** @description Whether more pages exist */
@@ -3070,7 +2946,7 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                            member: components["schemas"]["MemberResource"];
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3110,7 +2986,7 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                            member: components["schemas"]["MemberResource"];
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3153,7 +3029,7 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                            member: components["schemas"]["MemberResource"];
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3194,7 +3070,7 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                            member: components["schemas"]["MemberResource"];
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3239,7 +3115,7 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                            member: components["schemas"]["MemberResource"];
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3284,7 +3160,7 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            member: components["schemas"]["App.Http.Resources.Admin.MemberResource"];
+                            member: components["schemas"]["MemberResource"];
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -4611,238 +4487,6 @@ export interface operations {
             404: components["responses"]["ApiNotFoundResponse"];
             413: components["responses"]["ApiContentTooLargeResponse"];
             422: components["responses"]["ApiValidationErrorResponse"];
-            500: components["responses"]["ApiServerErrorResponse"];
-        };
-    };
-    "member.auth.login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    /** @description Request correlation identifier. Matches the response body request_id. */
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Business status code, 0 = success */
-                        code: number;
-                        data: {
-                            access_token: string;
-                            expires_in: number;
-                            member: components["schemas"]["MemberResource"];
-                            /** @constant */
-                            token_type: "bearer";
-                        };
-                        message: string;
-                        /** @description UUID7 for request tracing */
-                        request_id: string;
-                        /** @description Whether the request was successful */
-                        success: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["ApiUnauthorizedResponse"];
-            413: components["responses"]["ApiContentTooLargeResponse"];
-            422: components["responses"]["ApiValidationErrorResponse"];
-            429: components["responses"]["ApiRateLimitResponse"];
-            500: components["responses"]["ApiServerErrorResponse"];
-        };
-    };
-    "member.auth.logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    /** @description Request correlation identifier. Matches the response body request_id. */
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Business status code, 0 = success */
-                        code: number;
-                        data: Record<string, never>;
-                        message: string;
-                        /** @description UUID7 for request tracing */
-                        request_id: string;
-                        /** @description Whether the request was successful */
-                        success: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["ApiUnauthorizedResponse"];
-            403: components["responses"]["ApiForbiddenResponse"];
-            413: components["responses"]["ApiContentTooLargeResponse"];
-            429: components["responses"]["ApiRateLimitResponse"];
-            500: components["responses"]["ApiServerErrorResponse"];
-        };
-    };
-    "member.auth.me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    /** @description Request correlation identifier. Matches the response body request_id. */
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Business status code, 0 = success */
-                        code: number;
-                        data: {
-                            member: components["schemas"]["MemberResource"];
-                        };
-                        message: string;
-                        /** @description UUID7 for request tracing */
-                        request_id: string;
-                        /** @description Whether the request was successful */
-                        success: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["ApiUnauthorizedResponse"];
-            403: components["responses"]["ApiForbiddenResponse"];
-            429: components["responses"]["ApiRateLimitResponse"];
-            500: components["responses"]["ApiServerErrorResponse"];
-        };
-    };
-    "member.auth.password.update": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangePasswordRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    /** @description Request correlation identifier. Matches the response body request_id. */
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Business status code, 0 = success */
-                        code: number;
-                        data: Record<string, never>;
-                        message: string;
-                        /** @description UUID7 for request tracing */
-                        request_id: string;
-                        /** @description Whether the request was successful */
-                        success: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["ApiUnauthorizedResponse"];
-            403: components["responses"]["ApiForbiddenResponse"];
-            413: components["responses"]["ApiContentTooLargeResponse"];
-            422: components["responses"]["ApiValidationErrorResponse"];
-            429: components["responses"]["ApiRateLimitResponse"];
-            500: components["responses"]["ApiServerErrorResponse"];
-        };
-    };
-    "member.auth.refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    /** @description Request correlation identifier. Matches the response body request_id. */
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Business status code, 0 = success */
-                        code: number;
-                        data: {
-                            access_token: string;
-                            expires_in: number;
-                            member: components["schemas"]["MemberResource"];
-                            /** @constant */
-                            token_type: "bearer";
-                        };
-                        message: string;
-                        /** @description UUID7 for request tracing */
-                        request_id: string;
-                        /** @description Whether the request was successful */
-                        success: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["ApiUnauthorizedResponse"];
-            403: components["responses"]["ApiForbiddenResponse"];
-            413: components["responses"]["ApiContentTooLargeResponse"];
-            429: components["responses"]["ApiRateLimitResponse"];
-            500: components["responses"]["ApiServerErrorResponse"];
-            503: components["responses"]["ApiServiceUnavailableResponse"];
-        };
-    };
-    "member.auth.sessions.destroy": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    /** @description Request correlation identifier. Matches the response body request_id. */
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @description Business status code, 0 = success */
-                        code: number;
-                        data: Record<string, never>;
-                        message: string;
-                        /** @description UUID7 for request tracing */
-                        request_id: string;
-                        /** @description Whether the request was successful */
-                        success: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["ApiUnauthorizedResponse"];
-            403: components["responses"]["ApiForbiddenResponse"];
-            429: components["responses"]["ApiRateLimitResponse"];
             500: components["responses"]["ApiServerErrorResponse"];
         };
     };

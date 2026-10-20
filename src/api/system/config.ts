@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { adminApi } from '@/api/client';
 import type { components, operations } from '@/api/generated/admin-api';
 import type { ApiOperationResponse } from '@/api/openapi';
 
@@ -85,21 +85,21 @@ export function serializeSystemConfigPayload(data: SystemConfigWriteData): Syste
 }
 
 export function querySystemConfigList(params?: SystemConfigListParams) {
-  return axios.get<unknown, SystemConfigListResponse>('/admin/system-configs', { params });
+  return adminApi.get<unknown, SystemConfigListResponse>('/system-configs', { params });
 }
 
 export function querySystemConfigDetail(id: number) {
-  return axios.get<unknown, SystemConfigResponse>(`/admin/system-configs/${id}`);
+  return adminApi.get<unknown, SystemConfigResponse>(`/system-configs/${id}`);
 }
 
 export function createSystemConfig(data: SystemConfigWriteData) {
-  return axios.post<unknown, SystemConfigCreateResponse>('/admin/system-configs', serializeSystemConfigPayload(data));
+  return adminApi.post<unknown, SystemConfigCreateResponse>('/system-configs', serializeSystemConfigPayload(data));
 }
 
 export function updateSystemConfig(id: number, data: SystemConfigWriteData) {
-  return axios.put<unknown, SystemConfigUpdateResponse>(`/admin/system-configs/${id}`, serializeSystemConfigPayload(data));
+  return adminApi.put<unknown, SystemConfigUpdateResponse>(`/system-configs/${id}`, serializeSystemConfigPayload(data));
 }
 
 export function deleteSystemConfig(id: number) {
-  return axios.delete<unknown, SystemConfigDeleteResponse>(`/admin/system-configs/${id}`);
+  return adminApi.delete<unknown, SystemConfigDeleteResponse>(`/system-configs/${id}`);
 }

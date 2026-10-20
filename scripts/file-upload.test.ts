@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test, { mock } from 'node:test';
-import axios from 'axios';
+import { adminApi } from '../src/api/client';
 import {
   BACKEND_FILE_TYPES,
   fileAccept,
@@ -126,7 +126,7 @@ test('mixed upload permissions validate the real file type and its own size limi
 });
 
 test('file listing maps a single allowed type and preserves backend pagination', async () => {
-  const request = mock.method(axios, 'get', async () => ({
+  const request = mock.method(adminApi, 'get', async () => ({
     data: [],
     meta: { page: 2, page_size: 15, total: 31, has_more: true },
   }));
@@ -139,7 +139,7 @@ test('file listing maps a single allowed type and preserves backend pagination',
       groupId: null,
     });
     assert.deepEqual(request.mock.calls[0].arguments, [
-      '/admin/files',
+      '/files',
       {
         params: {
           page: 2,
@@ -161,7 +161,7 @@ test('file listing maps a single allowed type and preserves backend pagination',
 });
 
 test('empty and unsupported type queries do not request unrelated files', async () => {
-  const request = mock.method(axios, 'get');
+  const request = mock.method(adminApi, 'get');
   try {
     await Promise.all(
       [{ fileTypes: [] }, { fileTypes: ['archive'] as const }].map(async (filter) => {
@@ -178,7 +178,7 @@ test('empty and unsupported type queries do not request unrelated files', async 
 });
 
 test('upload rejects disallowed types and invalid groups before sending a request', async () => {
-  const request = mock.method(axios, 'post');
+  const request = mock.method(adminApi, 'post');
   const file = { name: 'document.txt', size: 8 } as File;
   const { upload } = fileService;
   assert.ok(upload);
