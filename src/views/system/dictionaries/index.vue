@@ -2,24 +2,24 @@
   <div class="page-container dict-page">
     <a-row :gutter="[16, 16]" class="dict-layout">
       <a-col :xs="24" :lg="8" class="dict-pane">
-        <div class="filter-card">
-          <a-input-search
-            v-model="typeKeyword"
-            :placeholder="$t('system.dict.search.placeholder')"
-            allow-clear
-            class="dict-search"
-            @clear="handleSearchType"
-            @search="handleSearchType"
-            @press-enter="handleSearchType"
-          />
-        </div>
         <Grid :title="$t('system.dict.type.title')">
-          <GridToolbar @refresh="fetchTypes">
+          <GridToolbar class="dict-toolbar" @refresh="fetchTypes">
             <template #append>
               <a-button v-permission="['system.dictionary.create']" type="primary" @click="handleCreateType">
                 <template #icon><icon-plus /></template>
                 {{ $t('common.action.create') }}
               </a-button>
+            </template>
+            <template #extra>
+              <a-input-search
+                v-model="typeKeyword"
+                :placeholder="$t('system.dict.search.placeholder')"
+                allow-clear
+                class="dict-search"
+                @clear="handleSearchType"
+                @search="handleSearchType"
+                @press-enter="handleSearchType"
+              />
             </template>
           </GridToolbar>
           <GridTable
@@ -76,25 +76,25 @@
       </a-col>
 
       <a-col :xs="24" :lg="16" class="dict-pane">
-        <div v-if="selectedTypeId !== undefined" class="filter-card">
-          <a-input-search
-            v-model="itemKeyword"
-            :placeholder="$t('system.dict.search.itemPlaceholder')"
-            allow-clear
-            class="dict-search"
-            @clear="handleSearchItem"
-            @search="handleSearchItem"
-            @press-enter="handleSearchItem"
-          />
-        </div>
         <Grid :title="itemPaneTitle">
           <template v-if="selectedTypeId !== undefined">
-            <GridToolbar @refresh="fetchItems">
+            <GridToolbar class="dict-toolbar" @refresh="fetchItems">
               <template #append>
                 <a-button v-permission="['system.dictionary.create']" type="primary" @click="handleCreateItem">
                   <template #icon><icon-plus /></template>
                   {{ $t('common.action.create') }}
                 </a-button>
+              </template>
+              <template #extra>
+                <a-input-search
+                  v-model="itemKeyword"
+                  :placeholder="$t('system.dict.search.itemPlaceholder')"
+                  allow-clear
+                  class="dict-search"
+                  @clear="handleSearchItem"
+                  @search="handleSearchItem"
+                  @press-enter="handleSearchItem"
+                />
               </template>
             </GridToolbar>
             <GridTable
@@ -355,8 +355,25 @@
     min-height: 0;
   }
 
+  .dict-toolbar :deep(> .arco-row) {
+    gap: 12px;
+
+    > .arco-space:last-child {
+      flex: 1 1 168px;
+      min-width: 0;
+      max-width: min(268px, 100%);
+      margin-left: auto;
+
+      > .arco-space-item:first-child {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  }
+
   .dict-search {
-    width: min(220px, 36vw);
+    width: 220px;
+    max-width: 100%;
   }
 
   .dict-name-cell {
@@ -390,10 +407,6 @@
 
     .dict-pane {
       min-height: 420px;
-    }
-
-    .dict-search {
-      width: min(220px, 48vw);
     }
   }
 </style>

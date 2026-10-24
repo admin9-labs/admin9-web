@@ -1,31 +1,32 @@
 <template>
   <div v-permission="['system.member.view']" class="page-container">
-    <div class="filter-card">
-      <a-space wrap>
-        <a-input-search
-          v-model="search"
-          :placeholder="$t('system.member.search.placeholder')"
-          allow-clear
-          @clear="handleSearch"
-          @search="handleSearch"
-          @press-enter="handleSearch"
-        />
-        <a-select
-          v-model="isActive"
-          :options="statusOptions"
-          :placeholder="$t('system.member.filter.all')"
-          allow-clear
-          class="status-filter"
-          @change="handleSearch"
-        />
-      </a-space>
-    </div>
     <Grid>
-      <GridToolbar @refresh="fetchData">
+      <GridToolbar class="member-toolbar" @refresh="fetchData">
         <template #append>
           <a-button v-permission="['system.member.create']" type="primary" @click="formModalRef?.onCreate()"
             ><template #icon><icon-plus /></template>{{ $t('common.action.create') }}</a-button
           >
+        </template>
+        <template #extra>
+          <div class="member-filters">
+            <a-input-search
+              v-model="search"
+              class="member-search"
+              :placeholder="$t('system.member.search.placeholder')"
+              allow-clear
+              @clear="handleSearch"
+              @search="handleSearch"
+              @press-enter="handleSearch"
+            />
+            <a-select
+              v-model="isActive"
+              :options="statusOptions"
+              :placeholder="$t('system.member.filter.all')"
+              allow-clear
+              class="status-filter"
+              @change="handleSearch"
+            />
+          </div>
         </template>
       </GridToolbar>
       <GridTable
@@ -210,7 +211,37 @@
 </script>
 
 <style scoped lang="less">
-  .status-filter {
+  .member-toolbar :deep(> .arco-row) {
+    gap: 12px;
+
+    > .arco-space:last-child {
+      min-width: 0;
+      max-width: 100%;
+      margin-left: auto;
+
+      > .arco-space-item:first-child {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  }
+
+  .member-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .member-search {
+    width: 260px;
+    max-width: 100%;
+  }
+
+  .member-filters :deep(.status-filter) {
     width: 128px;
+    max-width: 100%;
   }
 </style>

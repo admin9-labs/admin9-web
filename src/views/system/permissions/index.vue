@@ -1,20 +1,20 @@
 <template>
   <div class="page-container">
-    <div class="filter-card">
-      <a-input-search
-        v-model="keyword"
-        class="permission-search"
-        :placeholder="$t('system.permission.search.placeholder')"
-        allow-clear
-      />
-    </div>
     <Grid>
-      <GridToolbar @refresh="fetchData">
+      <GridToolbar class="permission-toolbar" @refresh="fetchData">
         <template #append>
           <a-button v-permission="['system.permission.create']" type="primary" @click="handleCreate">
             <template #icon><icon-plus /></template>
             {{ $t('common.action.create') }}
           </a-button>
+        </template>
+        <template #extra>
+          <a-input-search
+            v-model="keyword"
+            class="permission-search"
+            :placeholder="$t('system.permission.search.placeholder')"
+            allow-clear
+          />
         </template>
       </GridToolbar>
       <GridTable :loading="loading" :data="filteredData" :columns="columns" :pagination="false">
@@ -163,8 +163,24 @@
 </script>
 
 <style scoped lang="less">
+  .permission-toolbar :deep(> .arco-row) {
+    gap: 12px;
+
+    > .arco-space:last-child {
+      min-width: 0;
+      max-width: 100%;
+      margin-left: auto;
+
+      > .arco-space-item:first-child {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  }
+
   .permission-search {
     width: 260px;
+    max-width: 100%;
   }
 
   .permission-name {
@@ -177,11 +193,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  @media (width <= 576px) {
-    .permission-search {
-      width: clamp(120px, calc(100vw - 196px), 260px);
-    }
   }
 </style>
