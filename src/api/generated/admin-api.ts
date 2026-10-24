@@ -1035,11 +1035,11 @@ export interface components {
             description: string;
             event: string | null;
             /** Format: int64 */
-            id: number;
+            readonly id: number;
             log_name: string | null;
             properties: {
                 [key: string]: unknown;
-            };
+            } | unknown[];
             /** Format: int64 */
             subject_id: number | null;
             subject_type: string | null;
@@ -1058,11 +1058,11 @@ export interface components {
             created_at: string | null;
             description: string | null;
             dictionary_type_id: number;
-            id: number;
+            readonly id: number;
             is_active: boolean;
             meta: {
                 [key: string]: unknown;
-            } | null;
+            } | unknown[] | null;
             name: string;
             sort: number;
             type?: components["schemas"]["DictionaryTypeResource"];
@@ -1074,10 +1074,10 @@ export interface components {
             code: string;
             created_at: string | null;
             description: string | null;
-            id: number;
+            readonly id: number;
             is_active: boolean;
             items?: components["schemas"]["DictionaryItemResource"][];
-            items_count?: number;
+            readonly items_count?: number;
             name: string;
             sort: number;
             updated_at: string | null;
@@ -1085,44 +1085,44 @@ export interface components {
         /** FileDirectoryResource */
         FileDirectoryResource: {
             created_at: string | null;
-            id: number;
+            readonly id: number;
             name: string;
             parent_id: number | null;
             updated_at: string | null;
         };
         /** FileResource */
         FileResource: {
-            created_at: string;
+            created_at: string | null;
             /** Format: int64 */
             directory_id: number | null;
             extension: string;
-            height: number | null;
+            readonly height: number | null;
             /** Format: int64 */
-            id: number;
+            readonly id: number;
             mime_type: string;
             name: string;
             /** Format: int64 */
-            size: number;
+            readonly size: number;
             /** @enum {string} */
             status: "pending" | "ready" | "failed";
             /** @enum {string} */
             type: "image" | "document" | "video" | "audio" | "other";
             /** Format: uri */
             url: string | null;
-            width: number | null;
+            readonly width: number | null;
         };
         /** LoginLogResource */
         LoginLogResource: {
             account: string | null;
             context: {
                 [key: string]: unknown;
-            };
+            } | unknown[];
             created_at: string | null;
             event: string;
             failure_reason: string | null;
             guard: string;
             /** Format: int64 */
-            id: number;
+            readonly id: number;
             ip_address: string | null;
             request_id: string | null;
             /** Format: int64 */
@@ -1139,17 +1139,17 @@ export interface components {
         };
         /** MemberResource */
         MemberResource: {
-            created_at: string;
+            created_at: string | null;
             /** Format: email */
             email: string | null;
             /** Format: int64 */
-            id: number;
+            readonly id: number;
             is_active: boolean;
             last_login_at: string | null;
             last_login_ip: string | null;
             mobile: string | null;
             name: string;
-            updated_at: string;
+            updated_at: string | null;
         };
         /** MenuResource */
         MenuResource: {
@@ -1159,7 +1159,7 @@ export interface components {
             created_at: string | null;
             icon: string | null;
             /** Format: int64 */
-            id: number;
+            readonly id: number;
             is_active: boolean;
             is_visible: boolean;
             name: string;
@@ -1180,7 +1180,7 @@ export interface components {
             display_name: string | null;
             group: string | null;
             guard_name: string;
-            id: number;
+            readonly id: number;
             is_active: boolean;
             is_system: boolean;
             name: string;
@@ -1206,7 +1206,7 @@ export interface components {
             created_at: string | null;
             guard_name: string;
             /** Format: int64 */
-            id: number;
+            readonly id: number;
             name: string;
             permissions?: components["schemas"]["PermissionResource"][];
             updated_at: string | null;
@@ -1219,7 +1219,7 @@ export interface components {
             is_active?: boolean;
             meta?: {
                 [key: string]: unknown;
-            } | null;
+            } | unknown[] | null;
             name: string;
             sort?: number;
             value?: string | null;
@@ -1252,6 +1252,7 @@ export interface components {
             /** Format: email */
             email?: string | null;
             is_active?: boolean;
+            /** @description Must not be an email address. */
             mobile?: string | null;
             name: string;
             /** @description 8–255 characters. With bcrypt, the password must not exceed 72 bytes (or a stricter configured byte limit) and must not contain NUL bytes. Other hash drivers retain the character-length limit. */
@@ -1274,6 +1275,7 @@ export interface components {
             name: string;
             parent_id?: number | null;
             path?: string | null;
+            /** @description Distinct permission IDs. Duplicate IDs are rejected. */
             permission_ids?: number[];
             sort?: number;
             /** @enum {string} */
@@ -1328,7 +1330,7 @@ export interface components {
             config_group: string;
             created_at: string | null;
             description: string | null;
-            id: number;
+            readonly id: number;
             is_active: boolean;
             is_public: boolean;
             key: string;
@@ -1383,7 +1385,7 @@ export interface components {
             is_active?: boolean;
             meta?: {
                 [key: string]: unknown;
-            } | null;
+            } | unknown[] | null;
             name?: string;
             sort?: number;
             value?: string | null;
@@ -1409,6 +1411,7 @@ export interface components {
         UpdateMemberRequest: {
             /** Format: email */
             email?: string | null;
+            /** @description Must not be an email address. */
             mobile?: string | null;
             name?: string;
         };
@@ -1426,6 +1429,7 @@ export interface components {
             name?: string;
             parent_id?: number | null;
             path?: string | null;
+            /** @description Distinct permission IDs. Duplicate IDs are rejected. */
             permission_ids?: number[];
             sort?: number;
             /** @enum {string} */
@@ -1469,7 +1473,7 @@ export interface components {
         UserResource: {
             created_at: string | null;
             email: string;
-            id: number;
+            readonly id: number;
             is_active: boolean;
             last_login_at: string | null;
             last_login_ip: string | null;
@@ -1741,18 +1745,18 @@ export interface operations {
     "admin.activity-logs.index": {
         parameters: {
             query?: {
-                causer_id?: number;
-                created_at?: string[];
-                event?: string;
-                log_name?: string;
+                causer_id?: number | null;
+                created_at?: string[] | null;
+                event?: string | null;
+                log_name?: string | null;
                 /** @description Page number. */
                 page?: number;
                 /** @description Items per page. */
                 page_size?: number;
                 /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
-                sorts?: string;
-                subject_id?: number;
-                subject_type?: string;
+                sorts?: string | null;
+                subject_id?: number | null;
+                subject_type?: string | null;
             };
             header?: never;
             path?: never;
@@ -1998,19 +2002,19 @@ export interface operations {
     "admin.dictionary-items.index": {
         parameters: {
             query?: {
-                code?: string;
-                dictionary_type_id?: string;
-                is_active?: string;
-                keyword?: string;
-                name?: string;
+                code?: string | null;
+                dictionary_type_id?: number | null;
+                is_active?: boolean | null;
+                keyword?: string | null;
+                name?: string | null;
                 /** @description Page number. */
                 page?: number;
                 /** @description Items per page. */
                 page_size?: number;
                 /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, value, sort, created_at, updated_at. */
-                sorts?: string;
-                type_code?: string;
-                value?: string;
+                sorts?: string | null;
+                type_code?: string | null;
+                value?: string | null;
             };
             header?: never;
             path?: never;
@@ -2221,16 +2225,16 @@ export interface operations {
     "admin.dictionary-types.index": {
         parameters: {
             query?: {
-                code?: string;
-                is_active?: string;
-                keyword?: string;
-                name?: string;
+                code?: string | null;
+                is_active?: boolean | null;
+                keyword?: string | null;
+                name?: string | null;
                 /** @description Page number. */
                 page?: number;
                 /** @description Items per page. */
                 page_size?: number;
                 /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, code, sort, created_at, updated_at. */
-                sorts?: string;
+                sorts?: string | null;
             };
             header?: never;
             path?: never;
@@ -2555,12 +2559,16 @@ export interface operations {
     "admin.files.index": {
         parameters: {
             query?: {
+                /** @description Existing directory ID. Cannot be combined with ungrouped. */
                 directory_id?: number;
                 page?: number;
                 per_page?: number;
                 search?: string | null;
+                /** @description File type. Cannot be combined with types. */
                 type?: "image" | "document" | "video" | "audio" | "other" | null;
+                /** @description File types. Cannot be combined with type. */
                 "types[]"?: ("image" | "document" | "video" | "audio" | "other")[];
+                /** @description Filter ungrouped files. Cannot be combined with directory_id, including when false. */
                 ungrouped?: boolean;
             };
             header?: never;
@@ -2812,19 +2820,19 @@ export interface operations {
     "admin.login-logs.index": {
         parameters: {
             query?: {
-                account?: string;
-                created_at?: string[];
-                event?: string;
-                guard?: string;
-                ip_address?: string;
+                account?: string | null;
+                created_at?: string[] | null;
+                event?: string | null;
+                guard?: string | null;
+                ip_address?: string | null;
                 /** @description Page number. */
                 page?: number;
                 /** @description Items per page. */
                 page_size?: number;
                 /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, created_at. */
-                sorts?: string;
-                subject_id?: number;
-                successful?: string;
+                sorts?: string | null;
+                subject_id?: number | null;
+                successful?: boolean | null;
             };
             header?: never;
             path?: never;
@@ -3851,19 +3859,19 @@ export interface operations {
     "admin.system-configs.index": {
         parameters: {
             query?: {
-                config_group?: string;
-                is_active?: string;
-                is_public?: string;
-                key?: string;
-                keyword?: string;
-                name?: string;
+                config_group?: string | null;
+                is_active?: boolean | null;
+                is_public?: boolean | null;
+                key?: string | null;
+                keyword?: string | null;
+                name?: string | null;
                 /** @description Page number. */
                 page?: number;
                 /** @description Items per page. */
                 page_size?: number;
                 /** @description Comma-separated sort fields. Prefix a field with - for descending order. Allowed fields: id, name, key, type, config_group, sort, created_at, updated_at. */
-                sorts?: string;
-                type?: string;
+                sorts?: string | null;
+                type?: string | null;
             };
             header?: never;
             path?: never;

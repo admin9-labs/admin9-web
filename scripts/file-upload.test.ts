@@ -65,7 +65,28 @@ test('file adapter maps the public URL without exposing a storage path', () => {
 
   assert.equal(item.id, '9');
   assert.equal(item.url, 'https://files.test/storage/files/2026/08/image.png');
+  assert.equal(item.createdAt, '2026-08-30 12:00:00');
   assert.equal('path' in item, false);
+});
+
+test('file adapter maps a null timestamp to an absent UI date without inventing a value', () => {
+  const item = toFileItem({
+    id: 12,
+    directory_id: null,
+    name: 'undated.pdf',
+    type: 'document',
+    mime_type: 'application/pdf',
+    extension: 'pdf',
+    size: 128,
+    url: null,
+    width: null,
+    height: null,
+    status: 'failed',
+    created_at: null,
+  });
+
+  assert.equal(item.createdAt, undefined);
+  assert.equal(item.status, 'failed');
 });
 
 test('file adapter safely preserves null URLs for pending and failed files', () => {

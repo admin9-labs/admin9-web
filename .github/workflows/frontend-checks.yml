@@ -33,7 +33,7 @@ jobs:
         with:
           repository: admin9-labs/admin9-api-laravel
           # Independent admin contract; advance with frontend contract updates.
-          ref: 113eba7d1be733db920ab62c3519e59669f1ced7
+          ref: e0dc5462b77bcd5fdf0a8acd6f8ff7c35f6210c1
           path: admin9-api-laravel
           sparse-checkout: docs/admin-api.json
           sparse-checkout-cone-mode: false
