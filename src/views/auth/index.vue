@@ -10,8 +10,8 @@
       <div class="logo-text">{{ systemSettingsStore.systemName }}</div>
     </div>
     <div class="content">
-      <div class="content-inner flex flex-col">
-        <div class="auth-title font-brand">欢迎使用 {{ systemSettingsStore.systemName }}</div>
+      <div class="content-inner">
+        <h1 class="auth-title font-brand">欢迎使用 {{ systemSettingsStore.systemName }}</h1>
         <Login />
       </div>
     </div>
@@ -62,50 +62,55 @@
 <style lang="less" scoped>
   .auth-container {
     display: flex;
-    height: 100vh;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 24px;
     background-image: v-bind('loginBackground');
     background-repeat: no-repeat;
     background-position: 50%;
     background-size: cover;
 
     .auth-title {
-      @apply font-bold;
-      @apply text-left;
-
+      margin: 0 0 28px;
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1.5;
       color: var(--color-text-1);
+      overflow-wrap: anywhere;
     }
 
     .content {
-      @apply relative flex flex-1 items-center justify-center m-6 md:m-0;
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 0;
 
       &-inner {
-        @apply w-full p-6 lg:p-10;
-
-        max-width: 500px;
-        height: 620px;
-        overflow: hidden;
-        background: var(--color-bg-white);
+        width: 100%;
+        max-width: 440px;
+        padding: 40px;
+        background: var(--color-bg-2);
         border-radius: 12px;
       }
     }
 
     .footer {
-      position: absolute;
-      right: 0;
-      bottom: 0;
+      flex-shrink: 0;
       width: 100%;
     }
   }
 
   .logo {
-    position: fixed;
-    top: 24px;
-    left: 22px;
-    z-index: 1;
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
+    align-self: flex-start;
+    max-width: 100%;
 
     &-image {
+      flex-shrink: 0;
       width: 36px;
       height: 36px;
       object-fit: contain;
@@ -114,16 +119,26 @@
     &-text {
       margin-right: 4px;
       margin-left: 4px;
-      // color: var(--color-fill-1);
-      color: var(--color-text-1);
-      font-size: 20px;
       font-family: '钉钉进步体 Regular', sans-serif;
+      font-size: 20px;
+      color: var(--color-text-1);
+      overflow-wrap: anywhere;
     }
   }
 
   body[arco-theme='dark'] {
     .login-container {
       background: var(--color-fill-2);
+    }
+  }
+
+  @media (width < 576px) {
+    .auth-container {
+      padding: 20px 16px;
+
+      .content-inner {
+        padding: 28px 24px;
+      }
     }
   }
 </style>

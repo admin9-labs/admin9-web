@@ -85,4 +85,20 @@
   };
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .login-container {
+    :deep(.arco-form-item) {
+      margin-bottom: 24px;
+    }
+
+    :deep(.arco-form-item:last-child) {
+      margin-bottom: 0;
+    }
+
+    :deep(.arco-input-wrapper),
+    :deep(.arco-btn) {
+      min-height: 44px;
+      border-radius: 6px;
+    }
+  }
+</style>
