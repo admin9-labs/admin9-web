@@ -79,6 +79,7 @@
       >
         <template #type="{ record }">{{ $t(`system.files.type.${record.type}`) }}</template>
         <template #size="{ record }">{{ formatSize(record.size) }}</template>
+        <template #createdAt="{ record }">{{ record.createdAt ?? '-' }}</template>
         <template #url="{ record }">
           <a
             v-if="record.url"
@@ -178,7 +179,7 @@
     { title: t('system.files.field.extension'), dataIndex: 'extension', width: 100 },
     { title: t('system.files.field.size'), slotName: 'size', width: 100 },
     { title: t('system.files.field.status'), dataIndex: 'status', width: 100 },
-    { title: t('system.files.field.createdAt'), dataIndex: 'createdAt', width: 180 },
+    { title: t('system.files.field.createdAt'), slotName: 'createdAt', width: 180 },
     { title: t('system.files.field.url'), slotName: 'url', width: 300 },
   ]);
 

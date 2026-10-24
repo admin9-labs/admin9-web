@@ -53,7 +53,7 @@ export function toFileItem(file: FileRecord): FileItem {
     size: file.size,
     mime: file.mime_type,
     extension: file.extension,
-    createdAt: file.created_at,
+    createdAt: file.created_at ?? undefined,
     status: file.status,
   };
 }

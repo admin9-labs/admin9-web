@@ -53,6 +53,7 @@
         </template>
         <template #lastLoginAt="{ record }">{{ record.last_login_at || '-' }}</template>
         <template #lastLoginIp="{ record }">{{ record.last_login_ip || '-' }}</template>
+        <template #createdAt="{ record }">{{ record.created_at ?? '-' }}</template>
         <template #action="{ record }">
           <a-space size="mini">
             <a-tooltip :content="$t('system.member.action.view')"
@@ -138,7 +139,7 @@
     { title: t('system.member.columns.status'), slotName: 'status', width: 140 },
     { title: t('system.member.columns.lastLoginAt'), slotName: 'lastLoginAt', width: 180 },
     { title: t('system.member.columns.lastLoginIp'), slotName: 'lastLoginIp', width: 150 },
-    { title: t('system.member.columns.createdAt'), dataIndex: 'created_at', width: 180 },
+    { title: t('system.member.columns.createdAt'), slotName: 'createdAt', width: 180 },
     { title: t('system.member.columns.operations'), slotName: 'action', width: 170, fixed: 'right' },
   ]);
   const fetchData = async () => {

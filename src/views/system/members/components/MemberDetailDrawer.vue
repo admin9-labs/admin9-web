@@ -21,8 +21,8 @@
         <a-descriptions-item :label="$t('system.member.detail.lastLoginIp')">{{
           member.last_login_ip || '-'
         }}</a-descriptions-item>
-        <a-descriptions-item :label="$t('system.member.columns.createdAt')">{{ member.created_at }}</a-descriptions-item>
-        <a-descriptions-item :label="$t('system.member.detail.updatedAt')">{{ member.updated_at }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('system.member.columns.createdAt')">{{ member.created_at ?? '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('system.member.detail.updatedAt')">{{ member.updated_at ?? '-' }}</a-descriptions-item>
       </a-descriptions>
     </a-spin>
   </a-drawer>
