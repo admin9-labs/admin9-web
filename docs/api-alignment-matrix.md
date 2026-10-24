@@ -1,6 +1,6 @@
 # Admin9 Web API 接入矩阵
 
-契约源：`../admin9-api-laravel/docs/admin-api.json`；基线为后端独立契约提交 `113eba7d1be733db920ab62c3519e59669f1ced7`，与 CI 固定版本一致。字段、权限和错误码以该契约及后端实现为准。
+契约源：`../admin9-api-laravel/docs/admin-api.json`；基线为后端独立契约提交 `e0dc5462b77bcd5fdf0a8acd6f8ff7c35f6210c1`，与 CI 固定版本一致。字段、权限和错误码以该契约及后端实现为准。
 
 后台 client 默认基础地址为 `/api/admin`，业务调用使用 `/auth/*`、`/users` 等相对路径；公共设置 client 默认基础地址为 `/api`。独立后台文档共 39 个 path、74 个 operation、66 个 operationId；8 个 PATCH 与 PUT 等价。六个会员认证操作属于普通端文档，不属于管理前端，不纳入此矩阵。
 
