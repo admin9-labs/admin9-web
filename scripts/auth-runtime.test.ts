@@ -265,6 +265,34 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
   });
 });
 
+test('admin business codes do not become HTTP statuses for 2xx errors', async () => {
+  const harness = await createHarness();
+  harness.setHandler(() => ({
+    status: 200,
+    data: {
+      success: false,
+      code: 401,
+      message: 'Business rule rejected the request',
+      data: {},
+      request_id: '019fffff-0000-7000-8000-000000000003',
+    },
+  }));
+
+  try {
+    await assert.rejects(harness.client.get('/data'), (error: unknown) => {
+      assert.ok(error instanceof ApiError);
+      assert.equal(error.status, 200);
+      assert.equal(error.businessCode, 401);
+      return true;
+    });
+    assert.deepEqual(harness.sessionState.snapshot(), harness.authenticated);
+    assert.equal(harness.userStore.logoutCount, 0);
+    assert.equal(harness.router.currentRoute.value.name, 'protected');
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test('concurrent 401 responses share one refresh and replay with the refreshed token', { timeout: 5000 }, async () => {
   const harness = await createHarness();
   const releaseInitialRequests = createDeferred();

@@ -108,6 +108,27 @@ test('public business errors are rejected even with HTTP 200', async () => {
   publicApi.defaults.adapter = responseAdapter(200, 403);
   await assert.rejects(
     publicApi.get('/system-settings/public'),
-    (error: unknown) => error instanceof ApiError && error.status === 403
+    (error: unknown) => error instanceof ApiError && error.status === 200 && error.businessCode === 403
   );
+});
+
+test('public HTTP errors preserve HTTP status separately from business code', async () => {
+  const { publicApi } = createApiClients();
+  publicApi.defaults.adapter = async (config) => {
+    const response = {
+      config,
+      data: { success: false, code: -1, message: 'Forbidden', data: {}, request_id: 'public-forbidden' },
+      headers: {},
+      status: 403,
+      statusText: 'Forbidden',
+    };
+    throw Object.assign(new Error('Request failed'), { config, response });
+  };
+
+  await assert.rejects(publicApi.get('/system-settings/public'), (error: unknown) => {
+    assert.ok(error instanceof ApiError);
+    assert.equal(error.status, 403);
+    assert.equal(error.businessCode, -1);
+    return true;
+  });
 });

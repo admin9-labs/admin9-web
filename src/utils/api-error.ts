@@ -1,6 +1,7 @@
 export type ApiFieldErrors = Record<string, string[]>;
 
 export interface ApiErrorPayload {
+  code?: unknown;
   message?: unknown;
   errors?: unknown;
   error_code?: unknown;
@@ -43,6 +44,8 @@ export function formatApiErrorMessage(error: DisplayableApiError) {
 export class ApiError extends Error {
   readonly apiMessage: string;
 
+  readonly businessCode?: number;
+
   readonly status?: number;
 
   readonly errors?: ApiFieldErrors;
@@ -56,6 +59,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     details: {
+      businessCode?: number;
       status?: number;
       errors?: ApiFieldErrors;
       errorCode?: string;
@@ -66,6 +70,7 @@ export class ApiError extends Error {
     super(message);
     this.name = 'ApiError';
     this.apiMessage = message;
+    this.businessCode = details.businessCode;
     this.status = details.status;
     this.errors = details.errors;
     this.errorCode = details.errorCode;
@@ -108,6 +113,7 @@ export function createApiError(payload: unknown, context: ApiErrorContext = {}) 
   const message = typeof body?.message === 'string' && body.message ? body.message : context.fallbackMessage || 'Request Error';
 
   return new ApiError(message, {
+    businessCode: typeof body?.code === 'number' && Number.isInteger(body.code) ? body.code : undefined,
     status: context.status,
     errors: normalizeFieldErrors(body?.errors),
     errorCode: typeof body?.error_code === 'string' ? body.error_code : undefined,

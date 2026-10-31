@@ -162,7 +162,9 @@ export interface paths {
                             /** @description Business status code, 0 = success */
                             code: number;
                             data: {
-                                dictionary_item: components["schemas"]["DictionaryItemResource"];
+                                dictionary_item: components["schemas"]["DictionaryItemResource"] & {
+                                    type: components["schemas"]["DictionaryTypeResource"];
+                                };
                             };
                             message: string;
                             /** @description UUID7 for request tracing */
@@ -244,7 +246,9 @@ export interface paths {
                             /** @description Business status code, 0 = success */
                             code: number;
                             data: {
-                                dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                                dictionary_type: components["schemas"]["DictionaryTypeResource"] & {
+                                    items: components["schemas"]["DictionaryItemResource"][];
+                                };
                             };
                             message: string;
                             /** @description UUID7 for request tracing */
@@ -544,7 +548,9 @@ export interface paths {
                             /** @description Business status code, 0 = success */
                             code: number;
                             data: {
-                                menu: components["schemas"]["MenuResource"];
+                                menu: components["schemas"]["MenuResource"] & {
+                                    children: components["schemas"]["MenuResource"][];
+                                };
                             };
                             message: string;
                             /** @description UUID7 for request tracing */
@@ -954,7 +960,9 @@ export interface paths {
                             /** @description Business status code, 0 = success */
                             code: number;
                             data: {
-                                user: components["schemas"]["UserResource"];
+                                user: components["schemas"]["UserResource"] & {
+                                    roles: components["schemas"]["RoleResource"][];
+                                };
                             };
                             message: string;
                             /** @description UUID7 for request tracing */
@@ -1778,15 +1786,10 @@ export interface operations {
                         data: components["schemas"]["ActivityLogResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -1831,7 +1834,9 @@ export interface operations {
                             permission_names: string[];
                             /** @constant */
                             token_type: "bearer";
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -1903,7 +1908,9 @@ export interface operations {
                         code: number;
                         data: {
                             permission_names: string[];
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -1982,7 +1989,9 @@ export interface operations {
                             permission_names: string[];
                             /** @constant */
                             token_type: "bearer";
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2036,15 +2045,10 @@ export interface operations {
                         data: components["schemas"]["DictionaryItemResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -2084,7 +2088,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            dictionary_item: components["schemas"]["DictionaryItemResource"];
+                            dictionary_item: components["schemas"]["DictionaryItemResource"] & {
+                                type: components["schemas"]["DictionaryTypeResource"];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2124,7 +2130,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            dictionary_item: components["schemas"]["DictionaryItemResource"];
+                            dictionary_item: components["schemas"]["DictionaryItemResource"] & {
+                                type: components["schemas"]["DictionaryTypeResource"];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2167,7 +2175,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            dictionary_item: components["schemas"]["DictionaryItemResource"];
+                            dictionary_item: components["schemas"]["DictionaryItemResource"] & {
+                                type: components["schemas"]["DictionaryTypeResource"];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2256,15 +2266,10 @@ export interface operations {
                         data: components["schemas"]["DictionaryTypeResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -2304,7 +2309,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                            dictionary_type: components["schemas"]["DictionaryTypeResource"] & {
+                                items: components["schemas"]["DictionaryItemResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2344,7 +2351,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                            dictionary_type: components["schemas"]["DictionaryTypeResource"] & {
+                                items: components["schemas"]["DictionaryItemResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2387,7 +2396,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            dictionary_type: components["schemas"]["DictionaryTypeResource"];
+                            dictionary_type: components["schemas"]["DictionaryTypeResource"] & {
+                                items: components["schemas"]["DictionaryItemResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -2452,7 +2463,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Array of `FileDirectoryResource` */
+            /** @description `FileDirectoryResourceCollection` */
             200: {
                 headers: {
                     /** @description Request correlation identifier. Matches the response body request_id. */
@@ -2591,15 +2602,10 @@ export interface operations {
                         data: components["schemas"]["FileResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -2854,15 +2860,10 @@ export interface operations {
                         data: components["schemas"]["LoginLogResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -2906,15 +2907,10 @@ export interface operations {
                         data: components["schemas"]["MemberResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -3195,7 +3191,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Array of `MenuResource` */
+            /** @description `MenuResourceCollection` */
             200: {
                 headers: {
                     /** @description Request correlation identifier. Matches the response body request_id. */
@@ -3244,7 +3240,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            menu: components["schemas"]["MenuResource"];
+                            menu: components["schemas"]["MenuResource"] & {
+                                children: components["schemas"]["MenuResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3284,7 +3282,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            menu: components["schemas"]["MenuResource"];
+                            menu: components["schemas"]["MenuResource"] & {
+                                children: components["schemas"]["MenuResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3327,7 +3327,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            menu: components["schemas"]["MenuResource"];
+                            menu: components["schemas"]["MenuResource"] & {
+                                children: components["schemas"]["MenuResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3392,7 +3394,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Array of `MenuResource` */
+            /** @description `MenuResourceCollection` */
             200: {
                 headers: {
                     /** @description Request correlation identifier. Matches the response body request_id. */
@@ -3426,7 +3428,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Array of `PermissionResource` */
+            /** @description `PermissionResourceCollection` */
             200: {
                 headers: {
                     /** @description Request correlation identifier. Matches the response body request_id. */
@@ -3623,7 +3625,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Array of `RoleResource` */
+            /** @description `RoleResourceCollection` */
             200: {
                 headers: {
                     /** @description Request correlation identifier. Matches the response body request_id. */
@@ -3634,7 +3636,9 @@ export interface operations {
                     "application/json": {
                         /** @description Business status code, 0 = success */
                         code: number;
-                        data: components["schemas"]["RoleResource"][];
+                        data: (components["schemas"]["RoleResource"] & {
+                            permissions: components["schemas"]["PermissionResource"][];
+                        })[];
                         message: string;
                         /** @description UUID7 for request tracing */
                         request_id: string;
@@ -3712,7 +3716,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            role: components["schemas"]["RoleResource"];
+                            role: components["schemas"]["RoleResource"] & {
+                                permissions: components["schemas"]["PermissionResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -3893,15 +3899,10 @@ export interface operations {
                         data: components["schemas"]["SystemConfigResource"][];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -4221,18 +4222,15 @@ export interface operations {
                     "application/json": {
                         /** @description Business status code, 0 = success */
                         code: number;
-                        data: components["schemas"]["UserResource"][];
+                        data: (components["schemas"]["UserResource"] & {
+                            roles: components["schemas"]["RoleResource"][];
+                        })[];
                         message: string;
                         meta: {
-                            /** @description Whether more pages exist */
                             has_more: boolean;
-                            /** @description Current page number */
                             page: number;
-                            /** @description Items per page */
                             page_size: number;
-                            /** @description Pagination strategy */
                             pagination: string;
-                            /** @description Total number of items */
                             total: number;
                         };
                         /** @description UUID7 for request tracing */
@@ -4271,7 +4269,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -4311,7 +4311,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -4354,7 +4356,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */
@@ -4480,7 +4484,9 @@ export interface operations {
                         /** @description Business status code, 0 = success */
                         code: number;
                         data: {
-                            user: components["schemas"]["UserResource"];
+                            user: components["schemas"]["UserResource"] & {
+                                roles: components["schemas"]["RoleResource"][];
+                            };
                         };
                         message: string;
                         /** @description UUID7 for request tracing */

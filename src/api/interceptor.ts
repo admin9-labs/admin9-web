@@ -178,7 +178,7 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
       const body = response.data;
       if (body.success === false || body.code !== 0) {
         const config = response.config as RetriableRequestConfig;
-        const error = createApiError(body, { status: body.code || response.status, headers: response.headers });
+        const error = createApiError(body, { status: response.status, headers: response.headers });
         if (invalidatesAuthSession(error)) await teardownRequestSession(config, error);
         notifyError(error, config);
         return Promise.reject(error);

@@ -1,6 +1,6 @@
 # Admin9 Web API 接入矩阵
 
-契约源：`../admin9-api-laravel/docs/admin-api.json`；基线为后端独立契约提交 `e0dc5462b77bcd5fdf0a8acd6f8ff7c35f6210c1`，与 CI 固定版本一致。字段、权限和错误码以该契约及后端实现为准。
+契约源：`../admin9-api-laravel/docs/admin-api.json`；当前基线为后端契约提交 `31c03a8d`。字段、权限、业务码和 HTTP 状态以该契约及后端实现为准。
 
 后台 client 默认基础地址为 `/api/admin`，业务调用使用 `/auth/*`、`/users` 等相对路径；公共设置 client 默认基础地址为 `/api`。独立后台文档共 39 个 path、74 个 operation、66 个 operationId；8 个 PATCH 与 PUT 等价。六个会员认证操作属于普通端文档，不属于管理前端，不纳入此矩阵。
 
@@ -16,7 +16,8 @@
 ## 响应约定
 
 - 成功：HTTP 200，envelope 为 `success/code/message/data/request_id`；分页另有 `meta.pagination/page/page_size/has_more/total`。
-- 失败：`success=false`、HTTP `code`、`message`、`data={}`、`errors`、`request_id`。
+- 失败：`success=false`、业务 `code`、`message`、`data={}`、`errors`、`request_id`；业务 `code` 与 HTTP status 独立，不能互相推导。
+- 原生 HTTP `403` 响应的业务 `code` 为 `403`；仅显式配置的 deny 响应可使用业务码 `-1`，两者均以实际响应为准。
 - 特殊 `error_code`：403 `account_inactive`（可选）、409 `managed_system_setting_immutable`、503 `file_delete_failed`。
 
 ## 接入状态

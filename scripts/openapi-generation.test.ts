@@ -36,6 +36,8 @@ test('generation honors the explicit contract source and check detects stale out
     const generated = run('generate');
     assert.equal(generated.status, 0, generated.stderr);
     const first = readFileSync(output, 'utf8');
+    assert.doesNotMatch(first, /components\["schemas"\]\["UserResource"\] & Record<string, never>/);
+    assert.match(first, /user: components\["schemas"\]\["UserResource"\] & \{[\s\S]*roles:/);
     assert.equal(run('generate').status, 0);
     assert.equal(readFileSync(output, 'utf8'), first);
     assert.equal(run('check').status, 0);

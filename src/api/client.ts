@@ -21,7 +21,7 @@ export function createApiClients(environment: ApiEnvironment = {}) {
     (response) => {
       const body = response.data as HttpResponse;
       if (body.success === false || body.code !== 0) {
-        return Promise.reject(createApiError(body, { status: body.code || response.status, headers: response.headers }));
+        return Promise.reject(createApiError(body, { status: response.status, headers: response.headers }));
       }
       return body;
     },

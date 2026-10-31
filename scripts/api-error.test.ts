@@ -5,6 +5,7 @@ import { ApiError, createApiError, formatApiErrorMessage, invalidatesAuthSession
 test('validation errors preserve fields, machine code, and request correlation', () => {
   const error = createApiError(
     {
+      code: 422,
       message: 'The given data was invalid.',
       errors: { email: ['The email has already been taken.'] },
       error_code: 'validation_failed',
@@ -23,7 +24,15 @@ test('validation errors preserve fields, machine code, and request correlation',
   assert.deepEqual(error.errors, { email: ['The email has already been taken.'] });
   assert.equal(error.errorCode, 'validation_failed');
   assert.equal(error.requestId, '019fffff-0000-7000-8000-000000000001');
+  assert.equal(error.businessCode, 422);
   assert.equal(error.status, 422);
+});
+
+test('business codes remain separate from HTTP status', () => {
+  const error = createApiError({ code: 1001, message: 'Permission check failed' }, { status: 403 });
+
+  assert.equal(error.businessCode, 1001);
+  assert.equal(error.status, 403);
 });
 
 test('rate-limit errors preserve Retry-After case-insensitively', () => {
