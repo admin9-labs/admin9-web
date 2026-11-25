@@ -24,11 +24,16 @@ export default function useModal() {
       onBeforeOk: async (done) => {
         try {
           await options.onOk();
-          if (options.successMsg) Message.success(options.successMsg);
-          await options.onSuccess?.();
-          done(true);
         } catch {
           done(false);
+          return;
+        }
+        done(true);
+        if (options.successMsg) Message.success(options.successMsg);
+        try {
+          await options.onSuccess?.();
+        } catch {
+          // The API reports refresh errors; the confirmed mutation already succeeded.
         }
       },
     });
