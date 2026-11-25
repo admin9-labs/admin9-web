@@ -21,8 +21,5 @@ export function listenerRouteChange(handler: (route: RouteLocationNormalized) =>
   if (immediate && latestRoute) {
     handler(latestRoute);
   }
-}
-
-export function removeRouteListener() {
-  emitter.off(key);
+  return () => emitter.off(key, handler as Handler);
 }

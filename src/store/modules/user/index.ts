@@ -8,7 +8,6 @@ import {
   shouldRetryIdentityLoad,
   type AuthSessionSnapshot,
 } from '@/utils/auth-session';
-import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
 
@@ -90,7 +89,6 @@ const useUserStore = defineStore('user', {
     logoutCallBack(expectedSession = getSessionSnapshot()) {
       if (!clearToken(expectedSession)) return false;
       this.resetInfo();
-      removeRouteListener();
       useAppStore().clearServerMenu();
       return true;
     },

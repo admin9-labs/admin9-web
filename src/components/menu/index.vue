@@ -1,5 +1,5 @@
 <script lang="tsx">
-  import { defineComponent, ref, h, computed } from 'vue';
+  import { defineComponent, ref, h, computed, onUnmounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useRoute, useRouter, RouteRecordRaw } from 'vue-router';
   import type { RouteMeta } from 'vue-router';
@@ -71,7 +71,7 @@
         });
         return result;
       };
-      listenerRouteChange((newRoute) => {
+      const stopListening = listenerRouteChange((newRoute) => {
         const { requiresAuth, activeMenu, hideInMenu } = newRoute.meta;
         if (requiresAuth && (!hideInMenu || activeMenu)) {
           const menuOpenKeys = findMenuOpenKeys((activeMenu || newRoute.name) as string);
@@ -82,6 +82,7 @@
           selectedKey.value = [activeMenu || menuOpenKeys[menuOpenKeys.length - 1]];
         }
       }, true);
+      onUnmounted(stopListening);
       const setCollapse = (val: boolean) => {
         if (appStore.device === 'desktop') appStore.updateSettings({ menuCollapse: val });
       };
