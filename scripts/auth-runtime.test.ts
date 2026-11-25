@@ -7,7 +7,7 @@ import { NavigationFailureType, createMemoryHistory, createRouter, isNavigationF
 import { ApiError, invalidatesAuthSession } from '../src/utils/api-error';
 import type { ApiInterceptorUserStore } from '../src/api/interceptor';
 import { createAuthSessionState, sessionMatches, type AuthSessionSnapshot, type StorageLike } from '../src/utils/auth-session';
-import setupUserLoginInfoGuardCore from '../src/router/guard/userLoginInfoCore';
+import setupUserLoginInfoGuardCore, { initialIdentityUnavailable } from '../src/router/guard/userLoginInfoCore';
 
 function createStorage(): StorageLike {
   const values = new Map<string, string>();
@@ -212,6 +212,7 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
   const { installApiInterceptors } = await interceptorModule;
   const cleanup = installApiInterceptors(client, {
     getSessionSnapshot: () => sessionState.snapshot(),
+    getPageSessionGeneration: sessionState.pageGeneration,
     replaceToken: (expected, token) => sessionState.replaceToken(expected, token),
     async loadStores() {
       if (loadStoresHook) await loadStoresHook();
@@ -555,6 +556,35 @@ test('ordinary 403 preserves the session, Pinia identity, and protected route', 
   harness.cleanup();
 });
 
+test('a failed initial identity load offers retry and preserves the destination and session', async () => {
+  const harness = await createHarness();
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: '/protected', component: {}, meta: { requiresAuth: true } }],
+  });
+  harness.userStore.identityLoaded = false;
+  setupUserLoginInfoGuardCore(router, {
+    getUserStore: () => harness.userStore,
+    getSessionSnapshot: harness.sessionState.snapshot,
+    isLogin: () => true,
+    invalidatesAuthSession,
+    startProgress: () => undefined,
+    doneProgress: () => undefined,
+  });
+  try {
+    harness.setHandler(() => failure(503, 'Temporarily unavailable'));
+    await router.push('/protected?tab=2');
+    assert.equal(initialIdentityUnavailable.value, true);
+    assert.deepEqual(harness.sessionState.snapshot(), harness.authenticated);
+    harness.setHandler(() => success(refreshIdentity('token-a')));
+    await router.push('/protected?tab=2');
+    assert.equal(initialIdentityUnavailable.value, false);
+    assert.equal(router.currentRoute.value.fullPath, '/protected?tab=2');
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test('a transient me 503 aborts navigation without logout and a later navigation retries', async () => {
   const harness = await createHarness('login');
   harness.userStore.identityLoaded = false;
@@ -630,4 +660,64 @@ test('a late account A refresh never replays with account B credentials', { time
   assert.equal(harness.appStore.fetchCount, 0);
   assert.equal(harness.router.currentRoute.value.name, 'protected');
   harness.cleanup();
+});
+
+test('a delayed successful business response cannot return account A data after switching to B', async () => {
+  const harness = await createHarness();
+  const started = createDeferred();
+  const release = createDeferred();
+  try {
+    harness.setHandler(async () => {
+      started.resolve();
+      await release.promise;
+      return success({ owner: 'A' });
+    });
+    const pending = harness.client.get('/users');
+    await started.promise;
+    assert.ok(harness.sessionState.beginSession('token-b', harness.authenticated.generation));
+    release.resolve();
+    await assert.rejects(pending, axios.isCancel);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test('a late initial identity failure does not hide a newer successful navigation', async () => {
+  const harness = await createHarness();
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: '/protected', component: {} }],
+  });
+  harness.userStore.identityLoaded = false;
+  const started = createDeferred();
+  const release = createDeferred();
+  let count = 0;
+  harness.setHandler(async () => {
+    count += 1;
+    if (count === 1) {
+      started.resolve();
+      await release.promise;
+      return failure(503, 'Unavailable');
+    }
+    return success(refreshIdentity('token-a'));
+  });
+  setupUserLoginInfoGuardCore(router, {
+    getUserStore: () => harness.userStore,
+    getSessionSnapshot: harness.sessionState.snapshot,
+    isLogin: () => true,
+    invalidatesAuthSession,
+    startProgress: () => undefined,
+    doneProgress: () => undefined,
+  });
+  try {
+    const previous = router.push('/protected?tab=1');
+    await started.promise;
+    await router.push('/protected?tab=2');
+    release.resolve();
+    await previous;
+    assert.equal(router.currentRoute.value.fullPath, '/protected?tab=2');
+    assert.equal(initialIdentityUnavailable.value, false);
+  } finally {
+    harness.cleanup();
+  }
 });

@@ -368,6 +368,26 @@ test(
       await staleMenuLoad;
       assert.equal(appStore.serverMenu[0]?.name, 'account-b-menu');
       assert.equal(appStore.serverMenuStatus, 'ready');
+      const originalSession = auth.getSessionSnapshot();
+      localStorage.setItem('admin9.auth.session', JSON.stringify({ generation: 'other-tab-login', token: 'other-tab-token' }));
+      let writeRequests = 0;
+      adminApi.defaults.adapter = createAdapter(() => {
+        writeRequests += 1;
+        return success({});
+      });
+      await assert.rejects(adminApi.put('/users/1', { name: 'stale form' }), /Account changed/);
+      assert.equal(writeRequests, 0);
+      assert.equal(userStore.logoutCallBack(), false);
+      assert.equal(auth.getSessionSnapshot().token, 'other-tab-token');
+      localStorage.setItem('admin9.auth.session', JSON.stringify(originalSession));
+      adminApi.defaults.adapter = createAdapter(() => {
+        localStorage.setItem('admin9.auth.session', JSON.stringify({ generation: 'other-tab-logout', token: null }));
+        return success([systemMenu]);
+      });
+      await appStore.fetchServerMenuConfig();
+      assert.equal(appStore.serverMenuStatus, 'idle');
+      assert.deepEqual(appStore.serverMenu, []);
+      localStorage.setItem('admin9.auth.session', JSON.stringify(originalSession));
       assert.equal(userStore.logoutCallBack(), true);
     } finally {
       adminApi.defaults.adapter = originalAdapter;

@@ -57,29 +57,26 @@ const useAppStore = defineStore('app', {
         activeRequestId: number,
         activeRequestSession: ReturnType<typeof getSessionSnapshot>
       ): Promise<void> => {
-        let response: Awaited<ReturnType<typeof getMenuList>>;
         try {
-          response = await getMenuList();
+          const response = await getMenuList();
+          if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, getSessionSnapshot())) {
+            this.serverMenu = filterLocalAdminMenus(appRoutes, response.data);
+            this.serverMenuStatus = 'ready';
+            return;
+          }
         } catch (error) {
-          const currentSession = getSessionSnapshot();
-          if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, currentSession)) {
+          if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, getSessionSnapshot())) {
             this.serverMenuStatus = 'error';
             throw error;
           }
-          if (this.serverMenuRequestId !== activeRequestId || !currentSession.token) return;
-          const nextRequestId = activeRequestId + 1;
-          this.serverMenuRequestId = nextRequestId;
-          await fetchForSession(nextRequestId, currentSession);
-          return;
         }
 
         const currentSession = getSessionSnapshot();
-        if (isCurrentMenuRequest(this.serverMenuRequestId, activeRequestId, activeRequestSession, currentSession)) {
-          this.serverMenu = filterLocalAdminMenus(appRoutes, response.data);
-          this.serverMenuStatus = 'ready';
+        if (this.serverMenuRequestId !== activeRequestId) return;
+        if (!currentSession.token) {
+          this.clearServerMenu();
           return;
         }
-        if (this.serverMenuRequestId !== activeRequestId || !currentSession.token) return;
         const nextRequestId = activeRequestId + 1;
         this.serverMenuRequestId = nextRequestId;
         await fetchForSession(nextRequestId, currentSession);

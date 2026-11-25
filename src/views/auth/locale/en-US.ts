@@ -1,4 +1,5 @@
 export default {
+  'login.identityUnavailable': 'Unable to load your account. Please try again.',
   'login.form.title': 'Login to Arco Design Pro',
   'login.form.userName.errMsg': 'Username cannot be empty',
   'login.form.password.errMsg': 'Password cannot be empty',

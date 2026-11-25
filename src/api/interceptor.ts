@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Message } from '@arco-design/web-vue';
 import type { ApiOperationResponse } from '@/api/openapi';
-import { getSessionSnapshot, replaceToken } from '@/utils/auth';
+import { getPageSessionGeneration, getSessionSnapshot, replaceToken } from '@/utils/auth';
 import { createApiError, formatApiErrorMessage, invalidatesAuthSession, type ApiError } from '@/utils/api-error';
 import { sessionBelongsToGeneration, sessionRetryDecision, type AuthSessionSnapshot } from '@/utils/auth-session';
 import { adminApi } from './client';
@@ -58,6 +58,7 @@ export interface ApiInterceptorRouter {
 
 export interface ApiInterceptorRuntime {
   getSessionSnapshot(): AuthSessionSnapshot;
+  getPageSessionGeneration(): string;
   replaceToken(expected: AuthSessionSnapshot, token: string): boolean;
   loadStores(): Promise<{ userStore: ApiInterceptorUserStore; appStore: ApiInterceptorAppStore }>;
   loadRouter(): Promise<ApiInterceptorRouter>;
@@ -143,7 +144,7 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
       .then(async (response) => {
         const nextToken = response.data.access_token;
         if (runtime.replaceToken(expected, nextToken)) {
-          const refreshedSession = runtime.getSessionSnapshot();
+          const refreshedSession = { generation: expected.generation, token: nextToken };
           await synchronizeRefreshedIdentity(response.data, refreshedSession);
         }
         const current = runtime.getSessionSnapshot();
@@ -161,6 +162,12 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
   const requestInterceptor = client.interceptors.request.use((requestConfig: AxiosRequestConfig) => {
     const config = requestConfig as RetriableRequestConfig;
     const session = runtime.getSessionSnapshot();
+    if (
+      session.generation !== runtime.getPageSessionGeneration() ||
+      (config.admin9SessionGeneration && config.admin9SessionGeneration !== session.generation)
+    ) {
+      throw new axios.Cancel('Account changed before request dispatch');
+    }
     if (!config.admin9SessionGeneration) applyToken(config, session);
     if (config.params?.current) {
       config.params.page = config.params.current;
@@ -182,6 +189,10 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
         if (invalidatesAuthSession(error)) await teardownRequestSession(config, error);
         notifyError(error, config);
         return Promise.reject(error);
+      }
+      const session = requestSession(response.config as RetriableRequestConfig);
+      if (session && session.generation !== runtime.getSessionSnapshot().generation) {
+        throw new axios.Cancel('Account changed while request was pending');
       }
       return body;
     },
@@ -231,6 +242,7 @@ export function installApiInterceptors(client: AxiosInstance, runtime: ApiInterc
 
 const defaultRuntime: ApiInterceptorRuntime = {
   getSessionSnapshot,
+  getPageSessionGeneration,
   replaceToken,
   async loadStores() {
     const { useAppStore, useUserStore } = await import('@/store');

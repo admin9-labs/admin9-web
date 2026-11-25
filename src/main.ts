@@ -5,6 +5,7 @@ import Admin9UI from '@admin9-labs/admin9-ui';
 import '@admin9-labs/admin9-ui/styles';
 import { fileService } from '@/services/fileService';
 import globalComponents from '@/components';
+import { reloadOnAccountChange } from '@/utils/auth';
 import router from './router';
 import store from './store';
 import i18n from './locale';
@@ -15,6 +16,8 @@ import App from './App.vue';
 // https://arco.design/docs/designlab/use-theme-package
 import '@/assets/style/global.less';
 import '@/api/interceptor';
+
+reloadOnAccountChange();
 
 const app = createApp(App);
 

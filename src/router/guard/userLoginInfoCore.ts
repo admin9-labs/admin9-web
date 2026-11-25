@@ -1,5 +1,8 @@
-import type { LocationQueryRaw, Router } from 'vue-router';
+import { shallowRef } from 'vue';
+import { START_LOCATION, type LocationQueryRaw, type Router } from 'vue-router';
 import { identityLoadFailureDecision, type AuthSessionSnapshot } from '@/utils/auth-session';
+
+export const initialIdentityUnavailable = shallowRef(false);
 
 type IdentityLoadResult = 'loaded' | 'unauthenticated' | 'unavailable';
 
@@ -51,13 +54,22 @@ async function ensureIdentityLoaded(runtime: UserLoginInfoRuntime) {
 }
 
 export default function setupUserLoginInfoGuardCore(router: Router, runtime: UserLoginInfoRuntime) {
+  let latestNavigation = 0;
   router.beforeEach(async (to, from, next) => {
+    latestNavigation += 1;
+    const navigation = latestNavigation;
+    initialIdentityUnavailable.value = false;
     runtime.startProgress();
     if (runtime.isLogin()) {
       const identityResult = await ensureIdentityLoaded(runtime);
+      if (navigation !== latestNavigation) {
+        next();
+        return;
+      }
       if (identityResult === 'loaded') {
         next();
       } else if (identityResult === 'unavailable') {
+        initialIdentityUnavailable.value = from === START_LOCATION;
         runtime.doneProgress();
         next(false);
       } else {

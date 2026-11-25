@@ -1,4 +1,5 @@
 export default {
+  'login.identityUnavailable': '暂时无法加载当前账号信息，请重试',
   'login.form.title': '登录',
   'login.form.userName.errMsg': '用户名不能为空',
   'login.form.password.errMsg': '密码不能为空',
