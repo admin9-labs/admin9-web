@@ -23,16 +23,16 @@
     "openapi:generate": "tsx scripts/openapi-contract.ts generate",
     "openapi:check": "tsx scripts/openapi-contract.ts check",
     "lint-staged": "lint-staged",
-    "lint:fix": "eslint --fix \"./src/**/*.{js,ts,vue}\"",
+    "lint:fix": "eslint --fix . && prettier --write \"**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx,vue}\"",
     "prepare": "husky install",
     "new": "plop",
     "format": "prettier --write ./src && pnpm lint:fix",
-    "lint": "eslint \"./src/**/*.{js,ts,vue}\"",
+    "lint": "eslint . && prettier --check \"**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx,vue}\"",
     "lint:styles": "stylelint \"src/**/*.{vue,less,css}\"",
     "audit:dependencies": "tsx scripts/dependency-audit.ts"
   },
   "lint-staged": {
-    "*.{js,ts,jsx,tsx}": [
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": [
       "prettier --write",
       "eslint --fix"
     ],
@@ -67,6 +67,7 @@
     "@arco-plugins/vite-vue": "^1.4.5",
     "@commitlint/cli": "^17.8.1",
     "@commitlint/config-conventional": "^17.8.1",
+    "@eslint/js": "^10.0.0",
     "@types/lodash": "^4.17.20",
     "@types/nprogress": "^0.2.3",
     "@types/sortablejs": "^1.15.8",
@@ -77,13 +78,12 @@
     "@vue/babel-plugin-jsx": "^1.4.0",
     "autoprefixer": "^10.4.21",
     "cross-env": "^7.0.3",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.10.2",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^3.10.1",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-prettier": "^4.2.5",
-    "eslint-plugin-vue": "^9.33.0",
+    "eslint-plugin-import-x": "^4.18.1",
+    "eslint-plugin-vue": "^10.12.1",
+    "globals": "^17.14.0",
     "husky": "^8.0.3",
     "less": "^4.4.0",
     "lint-staged": "^15.5.2",
@@ -111,6 +111,7 @@
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-image-optimizer": "^2.0.3",
     "vite-svg-loader": "^3.6.0",
+    "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "~3.3.12"
   },
   "engines": {
@@ -157,7 +158,9 @@
       "postcss-selector-parser@>=6 <7.1.6": "^7.1.6",
       "source-map-js@<1.2.2": "^1.2.2",
       "colord@<2.9.4": "^2.9.4",
-      "braces@3.0.3": "npm:@dieub/braces-depth-guard@3.0.3-pn.3"
+      "braces@3.0.3": "npm:@dieub/braces-depth-guard@3.0.3-pn.3",
+      "eslint-import-resolver-typescript>eslint-plugin-import": "-",
+      "eslint-plugin-import-x@4>minimatch": "^11.0.1"
     }
   }
 }

@@ -37,10 +37,7 @@ export default {
         },
       ],
       validate(value) {
-        if (
-          value.indexOf('script') === -1 &&
-          value.indexOf('template') === -1
-        ) {
+        if (value.indexOf('script') === -1 && value.indexOf('template') === -1) {
           return 'View require at least a <script> or <template> tag.';
         }
         return true;
