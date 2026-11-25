@@ -1731,6 +1731,7 @@ export interface components {
                     /** @constant */
                     code: 422;
                     data: Record<string, never>;
+                    /** @description Form requests stop validating after the first failing field. Business validation may add further field errors. */
                     errors: {
                         [key: string]: string[];
                     };
@@ -2572,8 +2573,10 @@ export interface operations {
             query?: {
                 /** @description Existing directory ID. Cannot be combined with ungrouped. */
                 directory_id?: number;
+                /** @description Page number. */
                 page?: number;
                 per_page?: number;
+                /** @description Substring search. Percent signs (%), underscores (_), and backslashes are matched literally. */
                 search?: string | null;
                 /** @description File type. Cannot be combined with types. */
                 type?: "image" | "document" | "video" | "audio" | "other" | null;
@@ -2883,8 +2886,10 @@ export interface operations {
         parameters: {
             query?: {
                 is_active?: boolean;
+                /** @description Page number. */
                 page?: number;
                 per_page?: number;
+                /** @description Substring search. Percent signs (%), underscores (_), and backslashes are matched literally. */
                 search?: string | null;
             };
             header?: never;
