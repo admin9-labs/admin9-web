@@ -6,3 +6,5 @@
 
 **/*.svg
 **/*.sh
+
+/components.d.ts
