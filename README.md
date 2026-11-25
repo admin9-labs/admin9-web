@@ -15,6 +15,8 @@ pnpm dev
 
 环境配置使用 `.env.[mode]`，仅 `.env.example` 纳入版本管理。`VITE_ADMIN_API_BASE_URL` 是包含完整后台前缀的基础地址，默认 `/api/admin`；`VITE_CLIENT_API_BASE_URL` 独立控制普通端公开接口，默认 `/api`。两者支持完整 HTTP(S) 地址或同源绝对路径，留空分别使用默认值；外围空白和尾部斜线会归一化，根路径 `/` 保留。旧 `VITE_API_BASE_URL` 已移除，不做回退。生产配置可由 CI 注入。
 
+登录页在同时配置 `VITE_TERMS_URL`（服务协议）和 `VITE_PRIVACY_URL`（隐私政策）后显示协议提示。请使用正式文档地址，修改后重新构建。
+
 ## 命令
 
 | 命令 | 用途 |
