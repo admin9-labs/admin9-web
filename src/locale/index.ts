@@ -13,7 +13,6 @@ const i18n = createI18n({
   locale: defaultLocale,
   fallbackLocale: 'en-US',
   legacy: false,
-  allowComposition: true,
   messages: {
     'en-US': { ...en, ...admin9UiMessages['en-US'] },
     'zh-CN': { ...cn, ...admin9UiMessages['zh-CN'] },
