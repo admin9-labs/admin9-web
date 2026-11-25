@@ -50,7 +50,7 @@
     "@admin9-labs/admin9-ui": "^0.31.1",
     "@arco-design/web-vue": "^2.58.0",
     "@vueuse/core": "^9.13.0",
-    "axios": "^0.34.0",
+    "axios": "^0.35.0",
     "dayjs": "^1.11.13",
     "lodash": "^4.18.1",
     "mitt": "^3.0.1",
