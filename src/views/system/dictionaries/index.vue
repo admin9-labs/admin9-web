@@ -217,7 +217,10 @@
     setItemLoading(false);
   };
 
+  let typeRequestId = 0;
   const fetchTypes = async () => {
+    typeRequestId += 1;
+    const requestId = typeRequestId;
     setTypeLoading(true);
     try {
       const res = await queryDictTypeList({
@@ -225,6 +228,7 @@
         current: typePagination.current,
         pageSize: typePagination.pageSize,
       });
+      if (requestId !== typeRequestId) return;
       typeData.value = res.data;
       typePagination.total = res.meta?.total ?? 0;
 
@@ -237,7 +241,7 @@
         }
       }
     } finally {
-      setTypeLoading(false);
+      if (requestId === typeRequestId) setTypeLoading(false);
     }
   };
 
@@ -257,6 +261,11 @@
       if (requestSequence !== itemRequestSequence) return;
       itemData.value = res.data;
       itemPagination.total = res.meta?.total ?? 0;
+    } catch {
+      if (requestSequence === itemRequestSequence) {
+        itemData.value = [];
+        itemPagination.total = 0;
+      }
     } finally {
       if (requestSequence === itemRequestSequence) setItemLoading(false);
     }
@@ -266,6 +275,8 @@
 
   const handleSelectType = (record: DictTypeRecord) => {
     if (selectedTypeId.value === record.id) return;
+    itemData.value = [];
+    itemPagination.total = 0;
     selectedTypeId.value = record.id;
     selectedType.value = record;
     itemPagination.current = 1;
