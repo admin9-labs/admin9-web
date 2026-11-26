@@ -85,7 +85,7 @@
     "eslint-plugin-vue": "^10.12.1",
     "globals": "^17.14.0",
     "husky": "^8.0.3",
-    "less": "^4.4.0",
+    "less": "^4.9.1",
     "lint-staged": "^15.5.2",
     "openapi-typescript": "7.13.0",
     "plop": "^4.0.5",
