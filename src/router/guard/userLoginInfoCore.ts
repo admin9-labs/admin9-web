@@ -63,6 +63,7 @@ export default function setupUserLoginInfoGuardCore(router: Router, runtime: Use
     if (runtime.isLogin()) {
       const identityResult = await ensureIdentityLoaded(runtime);
       if (navigation !== latestNavigation) {
+        // Let Vue Router cancel superseded navigation without undoing a history traversal.
         next();
         return;
       }

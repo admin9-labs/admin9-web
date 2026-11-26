@@ -120,7 +120,7 @@ function createDeferred() {
 
 let harnessSequence = 0;
 
-async function createHarness(initialRoute: 'login' | 'protected' = 'protected') {
+async function createHarness(initialRoute: 'login' | 'protected' | 'unstarted' = 'protected') {
   harnessSequence += 1;
   let generation = 0;
   const sessionState = createAuthSessionState(createStorage(), `session-${harnessSequence}`, `token-${harnessSequence}`, () => {
@@ -202,8 +202,10 @@ async function createHarness(initialRoute: 'login' | 'protected' = 'protected') 
       { path: '/protected', name: 'protected', component: {} as never, meta: { requiresAuth: true } },
     ],
   });
-  await router.push(initialRoute === 'login' ? '/login' : '/protected');
-  await router.isReady();
+  if (initialRoute !== 'unstarted') {
+    await router.push({ name: initialRoute });
+    await router.isReady();
+  }
 
   let handler: AdapterHandler = () => failure(500, 'No adapter handler configured');
   client = axios.create({ adapter: createAdapter((config) => handler(config)) });
@@ -555,6 +557,109 @@ test('ordinary 403 preserves the session, Pinia identity, and protected route', 
   assert.equal(harness.notifications.length, 1);
   harness.cleanup();
 });
+
+test('an expired session on the initial navigation stops before the protected menu guard', async () => {
+  const harness = await createHarness('unstarted');
+  const { router, sessionState, userStore } = harness;
+  router.addRoute({ path: '/', redirect: { name: 'protected' } });
+  router.addRoute({ path: '/not-found', name: 'notFound', component: {} });
+  userStore.identityLoaded = false;
+  const requests: string[] = [];
+  harness.setHandler((config) => {
+    assert.ok(config.url);
+    requests.push(config.url);
+    if (config.url === '/menus/tree' && authHeader(config) === 'Bearer new-token') return success([]);
+    return failure(401, 'Unauthenticated');
+  });
+  setupUserLoginInfoGuardCore(router, {
+    getUserStore: () => userStore,
+    getSessionSnapshot: sessionState.snapshot,
+    isLogin: () => !!sessionState.snapshot().token,
+    invalidatesAuthSession,
+    startProgress: () => undefined,
+    doneProgress: () => undefined,
+  });
+  router.beforeResolve(async (to) => {
+    if (to.meta.requiresAuth) {
+      try {
+        await harness.client.get('/menus/tree');
+      } catch {
+        return { name: 'notFound' };
+      }
+    }
+    return true;
+  });
+
+  try {
+    await router.push('/');
+    assert.equal(router.currentRoute.value.name, 'login');
+    assert.equal(sessionState.snapshot().token, null);
+    assert.deepEqual(requests, ['/auth/me', '/auth/refresh']);
+
+    const newSession = sessionState.beginSession('new-token', sessionState.snapshot().generation);
+    assert.ok(newSession);
+    userStore.setIdentity(refreshIdentity('new-token'), newSession);
+    await router.push({ name: 'protected' });
+    assert.equal(router.currentRoute.value.name, 'protected');
+    assert.deepEqual(requests, ['/auth/me', '/auth/refresh', '/menus/tree']);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test(
+  'two back navigations keep the newer route and history position after a delayed identity response',
+  { timeout: 5000 },
+  async () => {
+    const harness = await createHarness('unstarted');
+    const { router, sessionState, userStore } = harness;
+    const firstRequest = createDeferred();
+    const releaseFirst = createDeferred();
+    let meRequests = 0;
+    harness.setHandler(async (config) => {
+      assert.equal(config.url, '/auth/me');
+      meRequests += 1;
+      if (meRequests === 1) {
+        firstRequest.resolve();
+        await releaseFirst.promise;
+      }
+      return success(refreshIdentity('token-a'));
+    });
+    setupUserLoginInfoGuardCore(router, {
+      getUserStore: () => userStore,
+      getSessionSnapshot: sessionState.snapshot,
+      isLogin: () => !!sessionState.snapshot().token,
+      invalidatesAuthSession,
+      startProgress: () => undefined,
+      doneProgress: () => undefined,
+    });
+    try {
+      await router.push('/protected?page=1');
+      await router.push('/protected?page=2');
+      await router.push('/protected?page=3');
+      userStore.identityLoaded = false;
+      const newerFinished = createDeferred();
+      const olderFinished = createDeferred();
+      router.afterEach((to) => {
+        if (to.query.page === '1') newerFinished.resolve();
+        if (to.query.page === '2') olderFinished.resolve();
+      });
+      router.back();
+      await firstRequest.promise;
+      router.back();
+      await newerFinished.promise;
+      releaseFirst.resolve();
+      await olderFinished.promise;
+
+      assert.equal(meRequests, 2);
+      assert.equal(router.currentRoute.value.fullPath, '/protected?page=1');
+      assert.equal(router.options.history.location, router.currentRoute.value.fullPath);
+    } finally {
+      releaseFirst.resolve();
+      harness.cleanup();
+    }
+  }
+);
 
 test('a failed initial identity load offers retry and preserves the destination and session', async () => {
   const harness = await createHarness();
