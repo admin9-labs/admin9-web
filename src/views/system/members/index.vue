@@ -117,7 +117,7 @@
   const { hasPermission } = usePermission();
   const { loading, setLoading } = useLoading(false);
   const search = ref('');
-  const isActive = ref<boolean>();
+  const isActive = ref<boolean | ''>();
   const tableData = ref<MemberRecord[]>([]);
   const statusUpdatingIds = ref(new Set<number>());
   const formModalRef = ref<InstanceType<typeof MemberFormModal>>();
@@ -152,7 +152,7 @@
         page: pagination.current,
         per_page: pagination.pageSize,
         search: search.value.trim() || undefined,
-        is_active: isActive.value,
+        is_active: typeof isActive.value === 'boolean' ? isActive.value : undefined,
       });
       if (requestId !== listRequestId) return;
       tableData.value = res.data;

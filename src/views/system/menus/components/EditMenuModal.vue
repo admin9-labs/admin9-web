@@ -146,7 +146,7 @@
   const parentIdModel = computed({
     get: () => formData.parent_id ?? undefined,
     set: (value) => {
-      formData.parent_id = (value as number | undefined) ?? null;
+      formData.parent_id = typeof value === 'number' ? value : null;
     },
   });
   const iconPickerModel = computed<string | undefined>({

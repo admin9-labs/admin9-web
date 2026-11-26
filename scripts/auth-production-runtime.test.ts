@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import test from 'node:test';
+import test, { mock } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { AxiosAdapter, AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { Pinia } from 'pinia';
@@ -251,24 +251,22 @@ test(
       });
       const originalDone = NProgress.done;
       NProgress.done = () => NProgress;
-      let navigationCompleted = false;
+      const directoryNext = mock.fn();
       try {
         const directoryNavigation = guard(
           { name: 'system', meta: systemRoute.meta, matched: [systemRoute] },
           {},
-          (destination) => {
-            navigationCompleted = true;
-            assert.equal(destination, undefined);
-          }
+          directoryNext
         );
         await Promise.resolve();
-        assert.equal(navigationCompleted, false);
+        assert.equal(directoryNext.mock.callCount(), 0);
         releaseMenu();
         await directoryNavigation;
       } finally {
         NProgress.done = originalDone;
       }
-      assert.equal(navigationCompleted, true);
+      assert.equal(directoryNext.mock.callCount(), 1);
+      assert.deepEqual(directoryNext.mock.calls[0].arguments, []);
       await menuLoad;
       assert.equal(appStore.serverMenuStatus, 'ready');
       assert.equal(appStore.serverMenu[0]?.name, 'system');
@@ -302,11 +300,19 @@ test(
       assert.ok(userRoute);
       NProgress.done = () => NProgress;
       try {
-        await guard(
-          { name: 'SystemUser', meta: userRoute.meta, matched: [{ ...userRoute, children: [] }] },
-          {},
-          () => undefined
-        );
+        const assertNavigation = async (to: typeof userRoute, from: object, expectedArgs: unknown[]) => {
+          const next = mock.fn();
+          await guard(to, from, next);
+          assert.equal(next.mock.callCount(), 1);
+          assert.deepEqual(next.mock.calls[0].arguments, expectedArgs);
+        };
+
+        await assertNavigation(userRoute, { name: 'login', query: { redirect: userRoute.name } }, []);
+        const restrictedRoute = { name: 'SystemRole', meta: { requiresAuth: true, permissions: ['system.role.view'] } };
+        await assertNavigation(restrictedRoute, { name: 'login', query: { redirect: restrictedRoute.name } }, [
+          { name: 'Workplace' },
+        ]);
+        await assertNavigation(restrictedRoute, { name: 'Workplace' }, [{ name: 'notFound' }]);
       } finally {
         NProgress.done = originalDone;
       }

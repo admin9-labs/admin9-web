@@ -83,7 +83,7 @@
                 </a-button>
               </a-tooltip>
             </span>
-            <span v-permission="['system.menu.delete']" class="menu-action">
+            <span v-if="canDeleteMenu" class="menu-action">
               <a-tooltip :content="deleteTooltip(record)" mini>
                 <a-button
                   type="text"
@@ -127,6 +127,7 @@
   const editModalRef = ref<InstanceType<typeof EditMenuModal>>();
   const canCreateMenu = computed(() => hasPermission('system.menu.create'));
   const canUpdateMenu = computed(() => hasPermission('system.menu.update'));
+  const canDeleteMenu = computed(() => hasPermission('system.menu.delete'));
   const canViewPermissionCatalog = computed(() => hasPermission('system.permission.view'));
 
   const deleteTooltip = (record: MenuRecord) => {

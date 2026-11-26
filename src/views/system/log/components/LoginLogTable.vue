@@ -29,8 +29,8 @@
           allow-clear
           class="log-filter-input"
         >
-          <a-option value="1">{{ $t('system.log.status.success') }}</a-option>
-          <a-option value="0">{{ $t('system.log.status.failure') }}</a-option>
+          <a-option :value="true">{{ $t('system.log.status.success') }}</a-option>
+          <a-option :value="false">{{ $t('system.log.status.failure') }}</a-option>
         </a-select>
         <a-input-number
           v-model="filters.subject_id"
@@ -157,7 +157,7 @@
     account: string;
     guard: string;
     event: string;
-    successful: '1' | '0' | undefined;
+    successful: boolean | '' | undefined;
     subject_id: number | undefined;
     ip_address: string;
     created_at?: string[];
@@ -258,7 +258,7 @@
         account: filters.account || undefined,
         guard: filters.guard || undefined,
         event: filters.event || undefined,
-        successful: filters.successful === undefined ? undefined : filters.successful === '1',
+        successful: typeof filters.successful === 'boolean' ? filters.successful : undefined,
         subject_id: filters.subject_id,
         ip_address: filters.ip_address || undefined,
         created_at: toDateRange(filters.created_at),

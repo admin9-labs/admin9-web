@@ -48,13 +48,13 @@
             </template>
             <template #action="{ record }">
               <a-space :size="4">
-                <a-tooltip v-permission="['system.dictionary.update']" :content="$t('common.action.edit')" mini>
+                <a-tooltip v-if="canUpdateDictionary" :content="$t('common.action.edit')" mini>
                   <a-button type="text" size="small" @click="handleEditType(record)">
                     <template #icon><icon-edit /></template>
                   </a-button>
                 </a-tooltip>
                 <a-tooltip
-                  v-permission="['system.dictionary.delete']"
+                  v-if="canDeleteDictionary"
                   :content="record.items_count ? $t('system.dict.delete.nonEmpty') : $t('common.action.delete')"
                   mini
                 >
@@ -118,12 +118,12 @@
               </template>
               <template #action="{ record }">
                 <a-space :size="4">
-                  <a-tooltip v-permission="['system.dictionary.update']" :content="$t('common.action.edit')" mini>
+                  <a-tooltip v-if="canUpdateDictionary" :content="$t('common.action.edit')" mini>
                     <a-button type="text" size="small" @click="handleEditItem(record)">
                       <template #icon><icon-edit /></template>
                     </a-button>
                   </a-tooltip>
-                  <a-tooltip v-permission="['system.dictionary.delete']" :content="$t('common.action.delete')" mini>
+                  <a-tooltip v-if="canDeleteDictionary" :content="$t('common.action.delete')" mini>
                     <a-button type="text" size="small" status="danger" @click="handleDeleteItem(record)">
                       <template #icon><icon-delete /></template>
                     </a-button>
@@ -144,6 +144,7 @@
   import { computed, onMounted, reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { useLoading, useModal } from '@/hooks';
+  import usePermission from '@/hooks/permission';
   import {
     deleteDictItem,
     deleteDictType,
@@ -158,6 +159,9 @@
   defineOptions({ name: 'SystemDict' });
 
   const { t } = useI18n();
+  const { hasPermission } = usePermission();
+  const canUpdateDictionary = computed(() => hasPermission('system.dictionary.update'));
+  const canDeleteDictionary = computed(() => hasPermission('system.dictionary.delete'));
   const { confirmDelete } = useModal();
   const { loading: typeLoading, setLoading: setTypeLoading } = useLoading(false);
   const { loading: itemLoading, setLoading: setItemLoading } = useLoading(false);
