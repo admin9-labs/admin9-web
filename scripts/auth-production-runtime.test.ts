@@ -245,7 +245,7 @@ test(
       assert.ok(systemRoute);
       let guard!: (to: unknown, from: unknown, next: (destination: unknown) => void) => Promise<void>;
       setupPermissionGuard({
-        beforeEach: (callback: typeof guard) => {
+        beforeResolve: (callback: typeof guard) => {
           guard = callback;
         },
       });

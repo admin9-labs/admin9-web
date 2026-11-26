@@ -5,7 +5,8 @@ import { useAppStore } from '@/store';
 import { NOT_FOUND, WHITE_LIST } from '../constants';
 
 export default function setupPermissionGuard(router: Router) {
-  router.beforeEach(async (to, from, next) => {
+  // Start permission and menu checks only after the router has discarded stale identity checks.
+  router.beforeResolve(async (to, from, next) => {
     const appStore = useAppStore();
     const isWhiteListed = WHITE_LIST.some((route) => route.name === to.name);
     if (appStore.menuFromServer && !isWhiteListed && appStore.serverMenuStatus !== 'ready') {

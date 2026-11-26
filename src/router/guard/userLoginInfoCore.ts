@@ -63,8 +63,8 @@ export default function setupUserLoginInfoGuardCore(router: Router, runtime: Use
     if (runtime.isLogin()) {
       const identityResult = await ensureIdentityLoaded(runtime);
       if (navigation !== latestNavigation) {
-        // A newer navigation owns the route. Stop before the permission guard loads its menu.
-        next(false);
+        // Let Vue Router cancel superseded navigation without undoing a history traversal.
+        next();
         return;
       }
       if (identityResult === 'loaded') {
