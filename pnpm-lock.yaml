@@ -46,10 +46,10 @@ importers:
     dependencies:
       '@admin9-labs/admin9-ui':
         specifier: ^0.31.1
-        version: 0.31.1(@arco-design/web-vue@2.58.0(vue@3.5.46(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@11.4.23(vue@3.5.46(typescript@5.9.3)))(vue@3.5.46(typescript@5.9.3))
+        version: 0.31.1(@arco-design/web-vue@2.59.0(vue@3.5.46(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@11.4.23(vue@3.5.46(typescript@5.9.3)))(vue@3.5.46(typescript@5.9.3))
       '@arco-design/web-vue':
-        specifier: ^2.58.0
-        version: 2.58.0(vue@3.5.46(typescript@5.9.3))
+        specifier: ^2.59.0
+        version: 2.59.0(vue@3.5.46(typescript@5.9.3))
       '@vueuse/core':
         specifier: ^9.13.0
         version: 9.13.0(vue@3.5.46(typescript@5.9.3))
@@ -254,8 +254,8 @@ packages:
   '@arco-design/color@0.4.0':
     resolution: {integrity: sha512-s7p9MSwJgHeL8DwcATaXvWT3m2SigKpxx4JA1BGPHL4gfvaQsmQfrLBDpjOJFJuJ2jG2dMt3R3P8Pm9E65q18g==}
 
-  '@arco-design/web-vue@2.58.0':
-    resolution: {integrity: sha512-b1vdPYOmjG5VAkVa7jlVwCb+WynBK+rnKN8zH3yKohpZObZbostRd3HgYNtjjZjGVU3OqR0Yy2FX7ftgF0bcOw==}
+  '@arco-design/web-vue@2.59.0':
+    resolution: {integrity: sha512-i2e5oJpAwnfHdsps7X7+AIGUzE3Y1Lz7Q4lvsE+3itfOXj7IYKQzs2+P1bnW7X+XX6m51SFBQu+s2XQKg4k3Jw==}
     peerDependencies:
       vue: '>=3.1.0'
 
@@ -4488,9 +4488,9 @@ packages:
 
 snapshots:
 
-  '@admin9-labs/admin9-ui@0.31.1(@arco-design/web-vue@2.58.0(vue@3.5.46(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@11.4.23(vue@3.5.46(typescript@5.9.3)))(vue@3.5.46(typescript@5.9.3))':
+  '@admin9-labs/admin9-ui@0.31.1(@arco-design/web-vue@2.59.0(vue@3.5.46(typescript@5.9.3)))(@floating-ui/dom@1.8.0)(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(vue-i18n@11.4.23(vue@3.5.46(typescript@5.9.3)))(vue@3.5.46(typescript@5.9.3))':
     dependencies:
-      '@arco-design/web-vue': 2.58.0(vue@3.5.46(typescript@5.9.3))
+      '@arco-design/web-vue': 2.59.0(vue@3.5.46(typescript@5.9.3))
       '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
       '@tiptap/extension-bubble-menu': 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)
       '@tiptap/extension-character-count': 3.31.4(@tiptap/extensions@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))
@@ -4515,7 +4515,7 @@ snapshots:
     dependencies:
       color: 3.2.1
 
-  '@arco-design/web-vue@2.58.0(vue@3.5.46(typescript@5.9.3))':
+  '@arco-design/web-vue@2.59.0(vue@3.5.46(typescript@5.9.3))':
     dependencies:
       '@arco-design/color': 0.4.0
       b-tween: 0.3.3
