@@ -116,9 +116,9 @@
   },
   "engines": {
     "node": "^22.13.0 || >=24.0.0",
-    "pnpm": "10.34.6"
+    "pnpm": "10.34.9"
   },
-  "packageManager": "pnpm@10.34.6",
+  "packageManager": "pnpm@10.34.9",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
