@@ -63,7 +63,8 @@ export default function setupUserLoginInfoGuardCore(router: Router, runtime: Use
     if (runtime.isLogin()) {
       const identityResult = await ensureIdentityLoaded(runtime);
       if (navigation !== latestNavigation) {
-        next();
+        // A newer navigation owns the route. Stop before the permission guard loads its menu.
+        next(false);
         return;
       }
       if (identityResult === 'loaded') {
