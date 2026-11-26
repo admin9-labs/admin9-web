@@ -90,7 +90,7 @@
     "openapi-typescript": "7.13.0",
     "plop": "^4.0.5",
     "pluralize": "^8.0.0",
-    "postcss": "^8.5.28",
+    "postcss": "^8.5.33",
     "postcss-html": "^1.8.0",
     "postcss-less": "^6.0.0",
     "prettier": "^2.8.8",
