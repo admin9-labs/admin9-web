@@ -150,7 +150,7 @@
 <script lang="ts" setup>
   import { computed, onMounted, reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { queryLoginLogList, type LoginLogRecord, type LogDateRange, type LogProperties } from '@/api/system/log';
+  import { queryLoginLogList, type LoginLogRecord, toDateRange, type LogProperties } from '@/api/system/log';
   import { useLoading } from '@/hooks';
 
   interface LoginLogFilters {
@@ -160,7 +160,7 @@
     successful: '1' | '0' | undefined;
     subject_id: number | undefined;
     ip_address: string;
-    created_at: string[];
+    created_at?: string[];
   }
 
   const createFilters = (): LoginLogFilters => ({
@@ -233,10 +233,6 @@
     },
   ]);
 
-  const toDateRange = (value: string[]): LogDateRange | undefined => {
-    return value.length === 2 ? [value[0], value[1]] : undefined;
-  };
-
   const formatJson = (value?: LogProperties) => {
     if (!value || Object.keys(value).length === 0) return '-';
     return JSON.stringify(value, null, 2);
@@ -252,7 +248,10 @@
     currentRecord.value = null;
   };
 
+  let listRequestId = 0;
   const fetchData = async () => {
+    listRequestId += 1;
+    const requestId = listRequestId;
     setLoading(true);
     try {
       const response = await queryLoginLogList({
@@ -267,10 +266,11 @@
         pageSize: pagination.pageSize,
       });
 
+      if (requestId !== listRequestId) return;
       tableData.value = response.data;
       pagination.total = response.meta?.total ?? 0;
     } finally {
-      setLoading(false);
+      if (requestId === listRequestId) setLoading(false);
     }
   };
 

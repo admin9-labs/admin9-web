@@ -15,6 +15,10 @@ export interface LoginLogRecord extends Omit<GeneratedLoginLogRecord, 'context'>
 }
 export type LogDateRange = [string, string];
 
+export function toDateRange(value?: string[]): LogDateRange | undefined {
+  return value?.length === 2 ? [value[0], value[1]] : undefined;
+}
+
 export interface ActivityLogListParams {
   log_name?: string;
   event?: string;

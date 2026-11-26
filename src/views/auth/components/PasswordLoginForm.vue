@@ -12,8 +12,8 @@
       <a-form-item field="password" :validate-trigger="['change', 'blur']" required hide-label>
         <a-input-password v-model="userInfo.password" type="password" :placeholder="$t('login.form.password.placeholder')" />
       </a-form-item>
-      <a-form-item hide-label>
-        <AgreementNotice />
+      <a-form-item v-if="termsUrl && privacyUrl" hide-label>
+        <AgreementNotice :terms-url="termsUrl" :privacy-url="privacyUrl" />
       </a-form-item>
       <a-form-item hide-label>
         <a-button type="primary" html-type="submit" long :loading="loading"> 登录 </a-button>
@@ -55,6 +55,8 @@
     ],
   };
 
+  const termsUrl = import.meta.env.VITE_TERMS_URL?.trim();
+  const privacyUrl = import.meta.env.VITE_PRIVACY_URL?.trim();
   const loginForm = ref();
   const handleSubmit = async (values: Record<string, any>) => {
     try {

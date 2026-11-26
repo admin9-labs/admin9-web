@@ -11,6 +11,7 @@ export interface StorageLike {
 
 export interface AuthSessionState {
   snapshot(): AuthSessionSnapshot;
+  pageGeneration(): string;
   beginSession(token: string, expectedGeneration: string): AuthSessionSnapshot | null;
   replaceToken(expected: AuthSessionSnapshot, token: string): boolean;
   clearSession(expected: AuthSessionSnapshot): boolean;
@@ -114,17 +115,20 @@ export function createAuthSessionState(
     write(migrated);
     return migrated;
   };
+  let pageGeneration = snapshot().generation;
   const matches = (expected: AuthSessionSnapshot) => {
     const current = snapshot();
-    return sessionMatches(current, expected);
+    return pageGeneration === expected.generation && sessionMatches(current, expected);
   };
 
   return {
     snapshot,
+    pageGeneration: () => pageGeneration,
     beginSession(token, expectedGeneration) {
-      if (!token || snapshot().generation !== expectedGeneration) return null;
+      if (!token || pageGeneration !== expectedGeneration || snapshot().generation !== expectedGeneration) return null;
       const next = { generation: createGeneration(), token };
       write(next);
+      pageGeneration = next.generation;
       return next;
     },
     replaceToken(expected, token) {
@@ -134,7 +138,9 @@ export function createAuthSessionState(
     },
     clearSession(expected) {
       if (!matches(expected)) return false;
-      write({ generation: createGeneration(), token: null });
+      const generation = createGeneration();
+      write({ generation, token: null });
+      pageGeneration = generation;
       return true;
     },
   };

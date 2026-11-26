@@ -198,8 +198,8 @@
       content: t('system.member.sessions.confirm', { name: record.name }),
       onOk: async () => {
         await invalidateMemberSessions(record.id);
-        await fetchData();
       },
+      onSuccess: fetchData,
       successMsg: t('system.member.sessions.success'),
     });
   };

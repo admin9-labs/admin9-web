@@ -234,7 +234,7 @@
     if (!canUploadFiles.value || (await groupFormRef.value?.validate())) return false;
     try {
       await fileService.createGroup?.({ name: groupForm.name.trim(), parentId: groupForm.parentId || null });
-      await fetchGroups();
+      fetchGroups().catch(() => undefined);
       return true;
     } catch {
       return false;

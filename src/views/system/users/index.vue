@@ -171,16 +171,20 @@
     { title: t('system.user.columns.operations'), slotName: 'action', width: 180, fixed: 'right' },
   ]);
 
+  let listRequestId = 0;
   const fetchData = async () => {
+    listRequestId += 1;
+    const requestId = listRequestId;
     setLoading(true);
     try {
       const res = await queryUserList({ current: pagination.current });
+      if (requestId !== listRequestId) return;
       tableData.value = res.data;
       pagination.current = res.meta.page;
       pagination.pageSize = res.meta.page_size;
       pagination.total = res.meta.total;
     } finally {
-      setLoading(false);
+      if (requestId === listRequestId) setLoading(false);
     }
   };
 

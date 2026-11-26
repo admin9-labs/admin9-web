@@ -128,7 +128,7 @@
 <script lang="ts" setup>
   import { computed, onMounted, reactive, ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { queryActivityLogList, type ActivityLogRecord, type LogDateRange, type LogProperties } from '@/api/system/log';
+  import { queryActivityLogList, type ActivityLogRecord, toDateRange, type LogProperties } from '@/api/system/log';
   import { useLoading } from '@/hooks';
 
   interface ActivityLogFilters {
@@ -137,7 +137,7 @@
     subject_type: string;
     subject_id: number | undefined;
     causer_id: number | undefined;
-    created_at: string[];
+    created_at?: string[];
   }
 
   const createFilters = (): ActivityLogFilters => ({
@@ -196,10 +196,6 @@
     },
   ]);
 
-  const toDateRange = (value: string[]): LogDateRange | undefined => {
-    return value.length === 2 ? [value[0], value[1]] : undefined;
-  };
-
   const formatJson = (value?: LogProperties) => {
     if (!value || Object.keys(value).length === 0) return '-';
     return JSON.stringify(value, null, 2);
@@ -215,7 +211,10 @@
     currentRecord.value = null;
   };
 
+  let listRequestId = 0;
   const fetchData = async () => {
+    listRequestId += 1;
+    const requestId = listRequestId;
     setLoading(true);
     try {
       const response = await queryActivityLogList({
@@ -229,10 +228,11 @@
         pageSize: pagination.pageSize,
       });
 
+      if (requestId !== listRequestId) return;
       tableData.value = response.data;
       pagination.total = response.meta?.total ?? 0;
     } finally {
-      setLoading(false);
+      if (requestId === listRequestId) setLoading(false);
     }
   };
 

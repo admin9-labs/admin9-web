@@ -10,6 +10,15 @@ function createGeneration() {
 
 const sessionState = createAuthSessionState(localStorage, SESSION_KEY, TOKEN_KEY, createGeneration);
 
+export const getPageSessionGeneration = sessionState.pageGeneration;
+
+export function reloadOnAccountChange() {
+  window.addEventListener('storage', (event) => {
+    if (event.storageArea !== localStorage || (event.key !== SESSION_KEY && event.key !== null)) return;
+    if (sessionState.snapshot().generation !== getPageSessionGeneration()) window.location.reload();
+  });
+}
+
 const getSessionSnapshot = () => sessionState.snapshot();
 const getToken = () => getSessionSnapshot().token;
 const isLogin = () => !!getToken();
