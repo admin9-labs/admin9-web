@@ -103,8 +103,8 @@ importers:
         specifier: ^10.0.0
         version: 10.0.1(eslint@10.15.0(jiti@1.21.7))
       '@types/lodash':
-        specifier: ^4.17.20
-        version: 4.17.20
+        specifier: ^4.17.27
+        version: 4.17.27
       '@types/nprogress':
         specifier: ^0.2.3
         version: 0.2.3
@@ -1535,8 +1535,8 @@ packages:
   '@types/liftoff@4.0.3':
     resolution: {integrity: sha512-UgbL2kR5pLrWICvr8+fuSg0u43LY250q7ZMkC+XKC3E+rs/YBDEnQIzsnhU5dYsLlwMi3R75UvCL87pObP1sxw==}
 
-  '@types/lodash@4.17.20':
-    resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
+  '@types/lodash@4.17.27':
+    resolution: {integrity: sha512-VenMRv/eKNrspX9v3H4dbmjsrnCOYdYBG3kxXKk3dG6X+urBGcj2Prww3xw1U5K4FV/mE4h5GbWd0szEKf+9ew==}
 
   '@types/minimist@1.2.5':
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
@@ -5658,7 +5658,7 @@ snapshots:
       '@types/fined': 1.1.5
       '@types/node': 26.2.0
 
-  '@types/lodash@4.17.20': {}
+  '@types/lodash@4.17.27': {}
 
   '@types/minimist@1.2.5': {}
 

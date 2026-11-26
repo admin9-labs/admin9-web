@@ -68,7 +68,7 @@
     "@commitlint/cli": "^17.8.1",
     "@commitlint/config-conventional": "^17.8.1",
     "@eslint/js": "^10.0.0",
-    "@types/lodash": "^4.17.20",
+    "@types/lodash": "^4.17.27",
     "@types/nprogress": "^0.2.3",
     "@types/sortablejs": "^1.15.8",
     "@typescript-eslint/eslint-plugin": "^8.74.0",
