@@ -4,10 +4,9 @@ Admin9 管理后台前端，基于 [arco-design-pro-vite-simple](https://github.
 
 ## 开发
 
-工具链：Node.js 见 `.node-version`，pnpm 见 `package.json#packageManager`。需运行 Laravel 后端。
+Node.js 推荐版本见 `.node-version`。本地开发和下游源码构建可直接使用已安装的兼容 pnpm 10.x。开发时需运行 Laravel 后端。
 
 ```bash
-corepack enable
 pnpm install --frozen-lockfile
 cp .env.example .env.development
 pnpm dev
@@ -27,6 +26,17 @@ pnpm dev
 | `pnpm preview` | 构建并预览 |
 | `pnpm openapi:generate` | 生成接口类型 |
 | `pnpm openapi:check` | 检查接口类型漂移 |
+
+## 发布构建
+
+CI、官方发布构建和锁文件更新统一使用 pnpm `10.34.9`。手动构建发布产物时，通过 Corepack 显式选用该版本。
+
+```bash
+corepack pnpm@10.34.9 install --frozen-lockfile
+corepack pnpm@10.34.9 build
+```
+
+部署已有的 `dist/` 构建产物时无需安装 pnpm。
 
 ## 文档
 
